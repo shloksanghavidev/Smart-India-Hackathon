@@ -56,25 +56,7 @@
 <!-- ==========================================
      DEMO HELPER TOOLBAR (SIH Judges)
      ========================================== -->
-<div class="demo-bar">
-  <div class="demo-bar-title"><i class="fa-solid fa-flask"></i> SIH DEMO</div>
-  <div class="demo-pills">
-    <button class="demo-pill-btn" onclick="App.showScreen(1)">1.Welcome</button>
-    <button class="demo-pill-btn" onclick="App.showScreen(2)">2.Language</button>
-    <button class="demo-pill-btn" onclick="App.showScreen(3)">3.Aadhaar</button>
-    <button class="demo-pill-btn" onclick="App.selectPatientType('existing')">4.Profile</button>
-    <button class="demo-pill-btn" onclick="App.showScreen(6)">6.AI Input</button>
-    <button class="demo-pill-btn" onclick="App.selectSymptom('stomach_pain')">→Stomach</button>
-    <button class="demo-pill-btn" onclick="App.selectSymptom('cough_cold')">→Cough</button>
-    <button class="demo-pill-btn" onclick="App.selectSymptom('fever')">→Fever</button>
-    <button class="demo-pill-btn" onclick="App.selectSymptom('headache')">→Headache</button>
-    <button class="demo-pill-btn" onclick="App.showScreen(12)">12.Summary</button>
-    <button class="demo-pill-btn" onclick="App.showScreen(13)">13.AYUSH</button>
-    <button class="demo-pill-btn" onclick="App.showScreen(14)">14.Reports</button>
-    <button class="demo-pill-btn" onclick="App.showScreen(15)">15.Done</button>
-    <button class="demo-pill-btn" onclick="App.switchMode('doctor')">🩺 Doctor Portal</button>
-  </div>
-</div>
+
 
 <!-- ==========================================
      PATIENT KIOSK WRAPPER
@@ -90,11 +72,7 @@
         <div class="brand-tagline" data-i18n="tagline">Aapka Swasthya, Hamara Saath</div>
       </div>
     </div>
-    <div class="header-trust-badges">
-      <div class="trust-badge"><i class="fa-solid fa-check-circle"></i> <span data-i18n="simple">Simple</span></div>
-      <div class="trust-badge"><i class="fa-solid fa-shield-halved"></i> <span data-i18n="secure">Secure</span></div>
-      <div class="trust-badge"><i class="fa-solid fa-hand-holding-medical"></i> <span data-i18n="safe">Safe</span></div>
-    </div>
+
     <div class="language-bar">
       <button class="lang-btn active" onclick="App.setLanguage('en')">English</button>
       <button class="lang-btn" onclick="App.setLanguage('hi')">हिंदी</button>
@@ -313,12 +291,12 @@
         <div id="symptoms-container-block">
           <p style="font-weight:700;text-align:left;margin-bottom:12px;color:var(--text-muted);font-size:1rem;">Common Symptoms:</p>
           <div class="symptoms-cards-grid">
-            <button class="symptom-card-touch" onclick="App.selectSymptom('stomach_pain')"><span style="font-size:1.6rem;">🫃</span><span data-i18n="stomach_pain">Stomach Pain</span></button>
-            <button class="symptom-card-touch" onclick="App.selectSymptom('cough_cold')"><span style="font-size:1.6rem;">🤧</span><span data-i18n="cough_cold">Cough / Cold</span></button>
-            <button class="symptom-card-touch" onclick="App.selectSymptom('fever')"><span style="font-size:1.6rem;">🤒</span><span data-i18n="fever">Fever</span></button>
-            <button class="symptom-card-touch" onclick="App.selectSymptom('headache')"><span style="font-size:1.6rem;">🤕</span><span data-i18n="headache">Headache</span></button>
-            <button class="symptom-card-touch" onclick="App.selectSymptom('body_pain')"><span style="font-size:1.6rem;">💪</span><span data-i18n="body_pain">Body Pain</span></button>
-            <button class="symptom-card-touch" onclick="App.selectSymptom('something_else')"><span style="font-size:1.6rem;">❓</span><span data-i18n="something_else">Something Else</span></button>
+            <button class="symptom-card-touch" onclick="App.selectSymptom('stomach_pain')"><i class="fa-solid fa-stomach" style="font-size:1.6rem;color:var(--primary);"></i><span data-i18n="stomach_pain">Stomach Pain</span></button>
+            <button class="symptom-card-touch" onclick="App.selectSymptom('cough_cold')"><i class="fa-solid fa-head-side-cough" style="font-size:1.6rem;color:var(--primary);"></i><span data-i18n="cough_cold">Cough / Cold</span></button>
+            <button class="symptom-card-touch" onclick="App.selectSymptom('fever')"><i class="fa-solid fa-temperature-high" style="font-size:1.6rem;color:var(--primary);"></i><span data-i18n="fever">Fever</span></button>
+            <button class="symptom-card-touch" onclick="App.selectSymptom('headache')"><i class="fa-solid fa-head-side-virus" style="font-size:1.6rem;color:var(--primary);"></i><span data-i18n="headache">Headache</span></button>
+            <button class="symptom-card-touch" onclick="App.selectSymptom('body_pain')"><i class="fa-solid fa-child-reaching" style="font-size:1.6rem;color:var(--primary);"></i><span data-i18n="body_pain">Body Pain</span></button>
+            <button class="symptom-card-touch" onclick="App.selectSymptom('something_else')"><i class="fa-solid fa-circle-question" style="font-size:1.6rem;color:var(--primary);"></i><span data-i18n="something_else">Something Else</span></button>
           </div>
         </div>
 
@@ -374,7 +352,7 @@
     <!-- ── STEP 13: AYUSH DECISION ──────────────────────────────────────── -->
     <section id="step-ayurveda" class="step-view hidden">
       <div class="kiosk-card" style="text-align:center;">
-        <div style="font-size:3.5rem;margin-bottom:16px;">🌿</div>
+        <div style="font-size:3.5rem;margin-bottom:16px;color:#15803d;"><i class="fa-solid fa-leaf"></i></div>
         <h2 class="kiosk-title" data-i18n="ayush_title">AYUSH Wellness Consultation</h2>
         <p class="kiosk-subtitle" data-i18n="ayush_desc">It helps capture your lifestyle, diet, sleep, and routine information to provide better holistic healthcare.</p>
 
@@ -419,7 +397,7 @@
     <!-- ── STEP 16: AYUSH SUMMARY ──────────────────────────────────────── -->
     <section id="step-16" class="step-view hidden">
       <div class="kiosk-card">
-        <div style="font-size:2.5rem;margin-bottom:8px;text-align:center;">🌿</div>
+        <div style="font-size:2.5rem;margin-bottom:8px;text-align:center;color:#15803d;"><i class="fa-solid fa-leaf"></i></div>
         <h2 class="kiosk-title" style="text-align:center;">AYUSH Wellness Summary</h2>
         <p class="kiosk-subtitle" style="text-align:center;">Here is the lifestyle context we recorded for your doctor</p>
         <div id="ayush-summary-container">
@@ -492,15 +470,13 @@
         </div>
 
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:var(--radius-md);padding:16px;max-width:440px;margin:0 auto 30px;font-weight:700;color:var(--primary-hover);">
-          <i class="fa-solid fa-user-clock"></i> <span data-i18n="will_be_called">You will be called by the doctor shortly.</span>
+          <i class="fa-solid fa-user-clock"></i> <span data-i18n="will_be_called">You will be called by the doctor shortly.</span><br>
+          <span style="display:block;margin-top:8px;font-size:1.2rem;color:#0284c7;">Token No: <span id="display-token-number">A-14</span></span>
         </div>
 
         <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
-          <button class="btn-kiosk-primary" style="max-width:260px;" onclick="App.showScreen(1)">
-            <i class="fa-solid fa-house"></i> Go to Home
-          </button>
-          <button class="btn-kiosk-secondary" style="max-width:260px;" onclick="App.switchMode('doctor')">
-            <i class="fa-solid fa-user-doctor"></i> Switch to Doctor Portal
+          <button class="btn-kiosk-primary" style="max-width:260px;" onclick="App.resetKiosk()">
+            <i class="fa-solid fa-check-double"></i> <span data-i18n="complete_session">Complete Session</span>
           </button>
         </div>
       </div>
@@ -727,7 +703,7 @@
 <div id="ayush-modal" class="modal-overlay">
   <div class="modal-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <h3 style="font-size:1.2rem;font-weight:800;">🌿 AYUSH Wellness Context</h3>
+      <h3 style="font-size:1.2rem;font-weight:800;"><i class="fa-solid fa-leaf" style="color:#15803d;"></i> AYUSH Wellness Context</h3>
       <button onclick="App.closeAyushModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div id="ayush-modal-body" style="max-height:400px;overflow-y:auto;"></div>

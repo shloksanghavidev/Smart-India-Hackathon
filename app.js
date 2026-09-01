@@ -10,6 +10,15 @@ const App = {
   mode: 'patient',
   patientType: 'new',
 
+  t(enStr) {
+    if (!window.TRANSLATIONS) return enStr;
+    const dictEn = TRANSLATIONS['en'] || {};
+    const dictCur = TRANSLATIONS[this.currentLang] || dictEn;
+    if (dictCur[enStr]) return dictCur[enStr];
+    const key = Object.keys(dictEn).find(k => dictEn[k] === enStr);
+    return key && dictCur[key] ? dictCur[key] : enStr;
+  },
+
   // ── Adaptive Question Engine State ──────────────────────────────────────────
   aqFlow: [],          // Array of question objects for current symptom
   aqIndex: 0,          // Current question index within the flow
@@ -61,7 +70,7 @@ const App = {
         id: 'sp_severity', text: 'How severe is the pain?',
         subtitle: 'Choose the level of discomfort you feel right now.',
         type: 'severity',
-        options: ['Mild 🙂','Moderate 😐','Severe 😣']
+        options: ['Mild','Moderate','Severe']
       },
       {
         id: 'sp_onset', text: 'Did the pain come on suddenly or gradually?',
@@ -118,7 +127,7 @@ const App = {
         id: 'cc_severity', text: 'How much is the cough disturbing you?',
         subtitle: 'Rate the impact on your daily routine.',
         type: 'severity',
-        options: ['Mild 🙂','Moderate 😐','Severe 😣']
+        options: ['Mild','Moderate','Severe']
       },
       {
         id: 'cc_fever', text: 'Do you have fever along with the cough?',
@@ -226,7 +235,7 @@ const App = {
         id: 'hd_severity', text: 'How severe is the headache?',
         subtitle: '',
         type: 'severity',
-        options: ['Mild 🙂','Moderate 😐','Severe 😣']
+        options: ['Mild','Moderate','Severe']
       },
       {
         id: 'hd_onset', text: 'How did the headache start?',
@@ -283,7 +292,7 @@ const App = {
         id: 'bp_severity', text: 'How severe is the pain?',
         subtitle: '',
         type: 'severity',
-        options: ['Mild 🙂','Moderate 😐','Severe 😣']
+        options: ['Mild','Moderate','Severe']
       },
       {
         id: 'bp_fever', text: 'Is the body pain accompanied by fever?',
@@ -321,7 +330,7 @@ const App = {
         id: 'se_severity', text: 'How much is it bothering you?',
         subtitle: '',
         type: 'severity',
-        options: ['Mild 🙂','Moderate 😐','Severe 😣']
+        options: ['Mild','Moderate','Severe']
       },
       {
         id: 'se_other_symptoms', text: 'Do you have any other symptoms along with this?',
@@ -341,60 +350,46 @@ const App = {
   // ── AYUSH MULTI-QUESTION FLOW ────────────────────────────────────────────────
   ayushQuestions: [
     {
-      id: 'ay_sleep', text: '🌙 Sleep Routine',
+      id: 'ay_sleep', text: 'Sleep Routine',
       subtitle: 'How many hours of sleep do you get on a typical night?',
       type: 'options',
-      icon: '🌙',
-      options: ['7 – 8 hours (sound sleep)','5 – 6 hours (adequate)','Less than 5 hours','Irregular / disturbed sleep','Daytime sleep more than night']
+      icon: '<i class="fa-solid fa-moon" style="color:var(--primary);"></i>',
+      options: ['7-8 hours (regular)','5-6 hours','Irregular / disturbed','Less than 5 hours']
     },
     {
-      id: 'ay_diet', text: '🥗 Diet Preference',
-      subtitle: 'What type of food do you usually eat?',
+      id: 'ay_schedule', text: 'Daily Schedule & Meals',
+      subtitle: 'Are your meals and daily routine regular?',
       type: 'options',
-      icon: '🥗',
-      options: ['Vegetarian','Non-vegetarian','Vegan','Mixed (mostly vegetarian)','Junk food / processed food often']
+      icon: '<i class="fa-solid fa-clock" style="color:var(--primary);"></i>',
+      options: ['Very regular','Mostly regular','Irregular (skip meals)','Highly unpredictable']
     },
     {
-      id: 'ay_water', text: '💧 Water Intake',
-      subtitle: 'How much water do you drink daily?',
+      id: 'ay_food', text: 'Fresh Home-cooked Meals',
+      subtitle: 'How often do you eat freshly prepared home food?',
       type: 'options',
-      icon: '💧',
-      options: ['8+ glasses (adequate)','4 – 7 glasses (moderate)','Less than 4 glasses (low)','I do not track water intake']
+      icon: '<i class="fa-solid fa-bowl-food" style="color:var(--primary);"></i>',
+      options: ['All meals','Most meals','Sometimes','Rarely (mostly outside food)']
     },
     {
-      id: 'ay_exercise', text: '🏃 Physical Activity',
-      subtitle: 'How physically active are you in your daily routine?',
+      id: 'ay_digestion', text: 'Digestion & Appetite',
+      subtitle: 'How is your digestion and feeling of hunger?',
       type: 'options',
-      icon: '🏃',
-      options: ['Regular exercise (walks, gym, yoga, etc.)','Light activity (walks occasionally)','Mostly sedentary (sitting most of the day)','Physically active work (labour, farming)']
+      icon: '<i class="fa-solid fa-fire-burner" style="color:var(--primary);"></i>',
+      options: ['Good appetite, clear digestion','Variable appetite','Frequent bloating/acidity','Poor appetite/constipation']
     },
     {
-      id: 'ay_stress', text: '🧠 Stress Levels',
-      subtitle: 'How would you describe your current stress or mental wellness?',
+      id: 'ay_activity', text: 'Physical Activity',
+      subtitle: 'What is your daily walking or physical activity habit?',
       type: 'options',
-      icon: '🧠',
-      options: ['Low stress – generally calm','Moderate – manageable stress','High stress – work or family pressure','Anxiety or worry most of the time','Feeling low or sad frequently']
+      icon: '<i class="fa-solid fa-person-walking" style="color:var(--primary);"></i>',
+      options: ['Active (30+ mins walking/exercise)','Moderate (household chores/light walking)','Sedentary (mostly sitting)']
     },
     {
-      id: 'ay_tobacco', text: '🚬 Tobacco & Smoking',
-      subtitle: 'Do you use tobacco in any form?',
+      id: 'ay_yoga', text: 'Wellness Practices',
+      subtitle: 'Do you engage in Yoga, Pranayama, or meditation?',
       type: 'options',
-      icon: '🚬',
-      options: ['No – never','Smoked in the past (quit now)','Cigarettes / Beedis currently','Tobacco chewing (gutka/paan)','Occasional use']
-    },
-    {
-      id: 'ay_alcohol', text: '🍶 Alcohol Consumption',
-      subtitle: 'Do you consume alcohol?',
-      type: 'options',
-      icon: '🍶',
-      options: ['No – do not drink','Occasionally (once or twice a month)','Regularly (weekly)','Daily consumption','Stopped recently']
-    },
-    {
-      id: 'ay_ayush_interest', text: '🌿 AYUSH Wellness Interest',
-      subtitle: 'Are you interested in any AYUSH wellness practices alongside modern medicine?',
-      type: 'options',
-      icon: '🌿',
-      options: ['Yes – Ayurveda','Yes – Yoga & Naturopathy','Yes – Homeopathy','Yes – Unani / Siddha','Open to any recommendation','Not interested – only modern medicine']
+      icon: '<i class="fa-solid fa-om" style="color:var(--primary);"></i>',
+      options: ['Daily','Occasionally','Rarely','No, but interested','No']
     }
   ],
 
@@ -619,13 +614,13 @@ const App = {
     let optionsHtml = '';
     if (q.type === 'body_map') {
       optionsHtml = this.renderBodyMapHTML(q);
-    } else if (q.type === 'severity') {
-      optionsHtml = `<div class="severity-ratings-grid" style="margin-bottom:24px;">
-        <div class="severity-card" onclick="App.answerAQ('Mild')"><span class="emoji">🙂</span><h3>Mild</h3><p style="font-size:0.8rem;color:var(--text-muted)">Manageable</p></div>
-        <div class="severity-card" onclick="App.answerAQ('Moderate')"><span class="emoji">😐</span><h3>Moderate</h3><p style="font-size:0.8rem;color:var(--text-muted)">Quite uncomfortable</p></div>
-        <div class="severity-card" onclick="App.answerAQ('Severe')"><span class="emoji">😣</span><h3>Severe</h3><p style="font-size:0.8rem;color:var(--text-muted)">Very distressing</p></div>
-      </div>`;
-    } else if (q.type === 'text') {
+      } else if (q.type === 'severity') {
+        optionsHtml = `<div class="severity-ratings-grid" style="margin-bottom:24px;">
+          <div class="severity-card" onclick="App.answerAQ('Mild')"><h3>${App.t('Mild')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${App.t('Little or no interference with daily activities')}</p></div>
+          <div class="severity-card" onclick="App.answerAQ('Moderate')"><h3>${App.t('Moderate')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${App.t('Some interference with daily activities')}</p></div>
+          <div class="severity-card" onclick="App.answerAQ('Severe')"><h3>${App.t('Severe')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${App.t('Significant interference with daily activities')}</p></div>
+        </div>`;
+      } else if (q.type === 'text') {
       optionsHtml = `<div style="margin-bottom:24px;">
         <textarea id="aq-free-text" class="kiosk-input" style="height:110px;font-size:1.05rem;text-align:left;resize:none;" placeholder="Type what you are feeling here..."></textarea>
         <div style="display:flex;gap:10px;margin-top:12px;">
@@ -642,7 +637,7 @@ const App = {
       optionsHtml = `<div class="options-vertical-list">` +
         q.options.map(opt =>
           `<button class="option-touch-btn" onclick="App.answerAQ('${opt.replace(/'/g,"\\'")}')">
-            <span>${opt}</span> <i class="fa-solid fa-chevron-right"></i>
+            <span>${App.t(opt)}</span> <i class="fa-solid fa-chevron-right"></i>
           </button>`
         ).join('') +
         `</div>`;
@@ -663,8 +658,8 @@ const App = {
           <div style="background:var(--primary);width:${(current/total)*100}%;height:6px;border-radius:999px;transition:width 0.4s ease;"></div>
         </div>
 
-        <h2 class="kiosk-title" id="aq-q-text" style="margin-bottom:10px;">${q.text}</h2>
-        <p class="kiosk-subtitle" style="margin-bottom:24px;">${q.subtitle || ''}</p>
+        <h2 class="kiosk-title" id="aq-q-text" style="margin-bottom:10px;">${App.t(q.text)}</h2>
+        <p class="kiosk-subtitle" style="margin-bottom:24px;">${App.t(q.subtitle || '')}</p>
 
         ${optionsHtml}
 
@@ -852,13 +847,13 @@ const App = {
           <div style="background:#10b981;width:${(current/total)*100}%;height:6px;border-radius:999px;transition:width 0.4s ease;"></div>
         </div>
 
-        <h2 class="kiosk-title" id="ayush-q-text" style="margin-bottom:8px;">${q.text}</h2>
-        <p class="kiosk-subtitle" style="margin-bottom:20px;">${q.subtitle}</p>
+        <h2 class="kiosk-title" id="ayush-q-text" style="margin-bottom:8px;">${App.t(q.text)}</h2>
+        <p class="kiosk-subtitle" style="margin-bottom:20px;">${App.t(q.subtitle)}</p>
 
         <div class="options-vertical-list">
           ${q.options.map(opt =>
             `<button class="option-touch-btn" onclick="App.answerAyush('${opt.replace(/'/g,"\\'")}')">
-              <span>${opt}</span> <i class="fa-solid fa-chevron-right"></i>
+              <span>${App.t(opt)}</span> <i class="fa-solid fa-chevron-right"></i>
             </button>`
           ).join('')}
         </div>
@@ -897,8 +892,8 @@ const App = {
     let rows = q.map(item => {
       const ans = this.ayushAnswers[item.id] || 'Not provided';
       return `<div class="summary-row">
-        <div class="summary-label">${item.icon} ${item.text.replace(/^[^\s]+\s/,'')}</div>
-        <div class="summary-val">${ans}</div>
+        <div class="summary-label">${item.icon} ${App.t(item.text)}</div>
+        <div class="summary-val">${App.t(ans)}</div>
       </div>`;
     }).join('');
     container.innerHTML = `
@@ -1022,13 +1017,11 @@ const App = {
       ayush: {
         completed: this.state.ayushRequested,
         sleep: this.ayushAnswers.ay_sleep || 'Not provided',
-        diet: this.ayushAnswers.ay_diet || 'Not provided',
-        water: this.ayushAnswers.ay_water || 'Not provided',
-        exercise: this.ayushAnswers.ay_exercise || 'Not provided',
-        stress: this.ayushAnswers.ay_stress || 'Not provided',
-        tobacco: this.ayushAnswers.ay_tobacco || 'Not provided',
-        alcohol: this.ayushAnswers.ay_alcohol || 'Not provided',
-        interest: this.ayushAnswers.ay_ayush_interest || 'Not provided'
+        schedule: this.ayushAnswers.ay_schedule || 'Not provided',
+        food: this.ayushAnswers.ay_food || 'Not provided',
+        digestion: this.ayushAnswers.ay_digestion || 'Not provided',
+        activity: this.ayushAnswers.ay_activity || 'Not provided',
+        yoga: this.ayushAnswers.ay_yoga || 'Not provided'
       },
       reports: [...this.state.reportsUploaded],
       conversationLog: [...this.state.conversationLog],
@@ -1113,7 +1106,7 @@ const App = {
     setV('doc-sum-meds', s.medications);
     setV('doc-sum-allergies', s.allergies);
     if (p.ayush.completed) {
-      setV('doc-sum-ayush', `Sleep: ${p.ayush.sleep} | Diet: ${p.ayush.diet} | Stress: ${p.ayush.stress || 'N/A'} | Tobacco: ${p.ayush.tobacco || 'N/A'}`);
+      setV('doc-sum-ayush', `Sleep: ${p.ayush.sleep} | Diet: ${p.ayush.food} | Digestion: ${p.ayush.digestion} | Yoga: ${p.ayush.yoga}`);
     } else {
       setV('doc-sum-ayush', 'AYUSH survey not completed');
     }
@@ -1225,9 +1218,8 @@ const App = {
     if (!body) return;
     if (p && p.ayush && p.ayush.completed) {
       const fields = [
-        ['Sleep', p.ayush.sleep], ['Diet', p.ayush.diet], ['Water Intake', p.ayush.water],
-        ['Exercise', p.ayush.exercise], ['Stress Level', p.ayush.stress], ['Tobacco Use', p.ayush.tobacco],
-        ['Alcohol Use', p.ayush.alcohol], ['AYUSH Interest', p.ayush.interest]
+        ['Sleep Routine', p.ayush.sleep], ['Daily Schedule', p.ayush.schedule], ['Home-cooked Meals', p.ayush.food],
+        ['Digestion', p.ayush.digestion], ['Physical Activity', p.ayush.activity], ['Wellness Practices', p.ayush.yoga]
       ];
       body.innerHTML = `<div class="summary-table-card" style="text-align:left;">` +
         fields.map(([label, val]) => `
