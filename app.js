@@ -1035,9 +1035,12 @@ const App = {
 
   // ── DOCTOR PORTAL ─────────────────────────────────────────────────────────
   loginDoctor() {
-    document.getElementById('doctor-login-card').style.display = 'none';
-    document.getElementById('doctor-dashboard-main').style.display = 'block';
-
+    const loginCard = document.getElementById('doctor-login-card');
+    const dashboard = document.getElementById('doctor-dashboard-main');
+    loginCard.classList.add('hidden');
+    loginCard.style.display = 'none';
+    dashboard.classList.remove('hidden');
+    dashboard.style.display = 'block';
     // Render stat cards
     const q = DEMO_DATA.patientQueue;
     document.getElementById('stat-total').innerText = q.length;
