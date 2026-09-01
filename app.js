@@ -475,14 +475,14 @@ const App = {
     const kiosk = document.getElementById('patient-kiosk-wrapper');
     const doctor = document.getElementById('step-doctor-portal');
     if (targetMode === 'doctor') {
-      kiosk.style.display = 'none';
-      doctor.style.display = 'block';
+      kiosk.classList.add('hidden');
+      doctor.classList.remove('hidden');
       // Show login, hide dashboard until actually logged in
-      document.getElementById('doctor-login-card').style.display = 'block';
-      document.getElementById('doctor-dashboard-main').style.display = 'none';
+      document.getElementById('doctor-login-card').classList.remove('hidden');
+      document.getElementById('doctor-dashboard-main').classList.add('hidden');
     } else {
-      kiosk.style.display = 'flex';
-      doctor.style.display = 'none';
+      kiosk.classList.remove('hidden');
+      doctor.classList.add('hidden');
       this.showScreen(1);
     }
   },
@@ -1274,3 +1274,15 @@ document.addEventListener('DOMContentLoaded', () => App.init());
 
 App.nextStep = function() {}; // Basic stub
 App.prevStep = function() {}; // Basic stub
+
+// --- KIOSK RESET LOGIC ---
+document.addEventListener('DOMContentLoaded', () => {
+  const completeBtn = document.getElementById('complete-session-btn');
+  if (completeBtn) {
+    completeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Hard reset the browser to clear all patient data for the next user
+      window.location.reload(); 
+    });
+  }
+});
