@@ -441,8 +441,25 @@ const App = {
   },
 
   // ── SCREEN ROUTING ────────────────────────────────────────────────────────
-  goToStep(stepId) {
-    this.currentStep = stepId;
+  showScreen(screenNum) {
+    this.currentScreen = screenNum;
+    const map = {
+      1: 'step-welcome',
+      2: 'step-language',
+      3: 'step-id',
+      4: 'step-4',
+      5: 'step-5',
+      6: 'step-complaint',
+      12: 'step-summary',
+      13: 'step-ayurveda',
+      14: 'step-documents',
+      15: 'step-15',
+      16: 'step-16',
+      17: 'step-17',
+      20: 'step-adaptive'
+    };
+    const stepId = map[screenNum] || `step-${screenNum}`;
+
     document.querySelectorAll('.step-view').forEach(sec => sec.classList.add('hidden'));
     const target = document.getElementById(stepId);
     if (target) {
@@ -453,15 +470,15 @@ const App = {
       btn.classList.toggle('active', btn.getAttribute('onclick')?.includes(`showScreen(${screenNum})`));
     });
     if (screenNum === 6) {
-      const text = TRANSLATIONS[this.currentLang]?.what_brings_you || "What brings you here today?";
-      setTimeout(() => VoiceController.speak(text, this.currentLang), 400);
+      const text = (window.TRANSLATIONS && TRANSLATIONS[this.currentLang]?.what_brings_you) || "What brings you here today?";
+      setTimeout(() => { if (window.VoiceController) VoiceController.speak(text, this.currentLang); }, 400);
     }
   },
 
   switchMode(targetMode) {
     this.mode = targetMode;
     const kiosk = document.getElementById('patient-kiosk-wrapper');
-    const doctor = document.getElementById('doctor-portal-wrapper');
+    const doctor = document.getElementById('step-doctor-portal');
     if (targetMode === 'doctor') {
       kiosk.style.display = 'none';
       doctor.style.display = 'block';
@@ -474,6 +491,7 @@ const App = {
       this.showScreen(1);
     }
   },
+
 
   toggleHelpModal() {
     document.getElementById('help-modal').classList.toggle('active');
@@ -1262,14 +1280,5 @@ const App = {
 
 document.addEventListener('DOMContentLoaded', () => App.init());
 
-App.goToStep = function(stepId) {
-    document.querySelectorAll('.step-view').forEach(sec => sec.classList.add('hidden'));
-    const target = document.getElementById(stepId);
-    if (target) {
-        target.classList.remove('hidden');
-        this.currentStep = stepId;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-};
 App.nextStep = function() {}; // Basic stub
 App.prevStep = function() {}; // Basic stub
