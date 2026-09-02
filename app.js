@@ -1424,7 +1424,7 @@ function speakText(text) {
   const matchingVoice = voices.find(voice =>
       voice.lang.toLowerCase() === utterance.lang.toLowerCase()
   ) || voices.find(voice =>
-      voice.lang.toLowerCase().startsWith(lang)
+      voice.lang.toLowerCase().startsWith(lang) || (lang === 'mr' && voice.lang.toLowerCase().startsWith('mar'))
   );
   
   if (matchingVoice) {
