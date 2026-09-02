@@ -1411,19 +1411,21 @@ const App = {
       return;
     }
     listTable.innerHTML = `
-      <table class="prescription-input-table" style="margin-bottom:12px;">
-        <thead><tr style="background:#f8fafc;">
-          <th>Medicine</th><th>Dose</th><th>Frequency</th><th>Duration</th>
-        </tr></thead>
-        <tbody>${rxs.map((item, i) => `
-          <tr>
-            <td><strong>${item.name}</strong></td>
-            <td>${item.dosage}</td>
-            <td>${item.frequency}</td>
-            <td>${item.duration || '—'}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="prescription-input-table" style="margin-bottom:12px;">
+          <thead><tr style="background:#f8fafc;">
+            <th>Medicine</th><th>Dose</th><th>Frequency</th><th>Duration</th>
+          </tr></thead>
+          <tbody>${rxs.map((item, i) => `
+            <tr>
+              <td><strong>${item.name}</strong></td>
+              <td>${item.dosage}</td>
+              <td>${item.frequency}</td>
+              <td>${item.duration || '—'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
     `;
   },
 

@@ -88,7 +88,7 @@ input, textarea {
 .kiosk-header {
   background: var(--bg-card);
   border-bottom: 1px solid var(--border-color);
-  padding: 14px 28px;
+  padding: clamp(10px, 2vw, 14px) clamp(16px, 4vw, 28px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -124,7 +124,7 @@ input, textarea {
 }
 
 .brand-name {
-  font-size: 1.6rem;
+  font-size: clamp(1.2rem, 3.5vw, 1.6rem);
   font-weight: 800;
   color: var(--primary-hover);
   line-height: 1.1;
@@ -132,7 +132,7 @@ input, textarea {
 }
 
 .brand-tagline {
-  font-size: 0.85rem;
+  font-size: clamp(0.75rem, 2vw, 0.85rem);
   color: var(--text-muted);
   font-weight: 600;
 }
@@ -189,7 +189,7 @@ input, textarea {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: clamp(12px, 3vw, 24px);
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
@@ -216,13 +216,13 @@ input, textarea {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
-  padding: 36px;
+  padding: clamp(16px, 4.5vw, 36px);
   box-shadow: var(--shadow-kiosk);
   text-align: center;
 }
 
 .kiosk-title {
-  font-size: 2.2rem;
+  font-size: clamp(1.5rem, 5vw, 2.2rem);
   font-weight: 800;
   color: var(--text-main);
   margin-bottom: 10px;
@@ -230,7 +230,7 @@ input, textarea {
 }
 
 .kiosk-subtitle {
-  font-size: 1.15rem;
+  font-size: clamp(0.95rem, 3vw, 1.15rem);
   color: var(--text-muted);
   margin-bottom: 28px;
   font-weight: 500;
@@ -239,6 +239,7 @@ input, textarea {
 /* Touch Buttons */
 .btn-kiosk-primary {
   width: 100%;
+  height: auto;
   min-height: 52px;
   padding: 16px 28px;
   background: linear-gradient(135deg, #10b981, #059669);
@@ -263,6 +264,7 @@ input, textarea {
 
 .btn-kiosk-secondary {
   width: 100%;
+  height: auto;
   min-height: 52px;
   padding: 14px 24px;
   background: white;
@@ -396,8 +398,9 @@ input, textarea {
   background: white;
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 24px 16px;
+  padding: clamp(16px, 3vw, 24px) 16px;
   font-size: 1.4rem;
+  height: auto;
   font-weight: 700;
   color: var(--text-main);
   cursor: pointer;
@@ -430,14 +433,15 @@ input, textarea {
 
 .kiosk-input {
   width: 100%;
-  height: 64px;
+  height: auto;
+  min-height: 64px;
   padding: 16px 20px;
-  font-size: 1.3rem;
+  font-size: clamp(1.1rem, 3.5vw, 1.4rem);
   font-weight: 600;
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   text-align: center;
-  letter-spacing: 2px;
+  letter-spacing: clamp(1px, 1.5vw, 4px);
   outline: none;
 }
 
@@ -560,7 +564,8 @@ input, textarea {
 }
 
 .gender-btn {
-  height: 54px;
+  height: auto;
+  min-height: 54px;
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   background: white;
@@ -568,6 +573,7 @@ input, textarea {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  padding: 10px;
 }
 
 .gender-btn.active {
@@ -727,7 +733,8 @@ input, textarea {
 }
 
 .zone-select-btn {
-  height: 56px;
+  height: auto;
+  min-height: 56px;
   padding: 12px 20px;
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -740,6 +747,8 @@ input, textarea {
   align-items: center;
   justify-content: space-between;
   transition: all 0.2s ease;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .zone-select-btn.active, .zone-select-btn:hover {
@@ -757,6 +766,7 @@ input, textarea {
 }
 
 .option-touch-btn {
+  height: auto;
   min-height: 52px;
   padding: 16px 24px;
   border: 2px solid var(--border-color);
@@ -771,6 +781,8 @@ input, textarea {
   align-items: center;
   justify-content: space-between;
   transition: all 0.2s ease;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .option-touch-btn.selected, .option-touch-btn:hover {
@@ -1017,4 +1029,57 @@ input, textarea {
   .symptom-methods-grid {
     grid-template-columns: 1fr;
   }
+  
+  .doc-stats-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .profile-form-grid, .upload-options-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-group.full-width {
+    grid-column: span 1;
+  }
+  
+  .gender-select-btns {
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .doc-stats-bar {
+    grid-template-columns: 1fr;
+  }
+  
+  .header-trust-badges {
+    display: none; /* Hide trust badges on very small screens to save space */
+  }
+  
+  .summary-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .summary-label, .summary-val {
+    width: 100%;
+  }
+  
+  .kiosk-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .language-bar {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Helper for tables */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
