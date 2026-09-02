@@ -1382,18 +1382,18 @@ function getActiveLanguage() {
 function getLocalizedText(key, fallback = '') {
   const lang = getActiveLanguage();
   if (
-      window.TRANSLATIONS &&
-      window.TRANSLATIONS[lang] &&
-      window.TRANSLATIONS[lang][key]
+      typeof TRANSLATIONS !== 'undefined' &&
+      TRANSLATIONS[lang] &&
+      TRANSLATIONS[lang][key]
   ) {
-      return window.TRANSLATIONS[lang][key];
+      return TRANSLATIONS[lang][key];
   }
   if (
-      window.TRANSLATIONS &&
-      window.TRANSLATIONS.en &&
-      window.TRANSLATIONS.en[key]
+      typeof TRANSLATIONS !== 'undefined' &&
+      TRANSLATIONS.en &&
+      TRANSLATIONS.en[key]
   ) {
-      return window.TRANSLATIONS.en[key];
+      return TRANSLATIONS.en[key];
   }
   return fallback;
 }
