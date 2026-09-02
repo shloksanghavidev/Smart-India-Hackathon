@@ -4,6 +4,34 @@
  * and connected follow-up questions for all symptom pathways.
  */
 
+// --- ROBUST TRANSLATION & SPEECH HELPER ---
+function getLocalizedText(key, fallbackText) {
+  const lang = localStorage.getItem('medisarthi_lang') || 'en';
+  if (window.translations && window.translations[lang] && window.translations[lang][key]) {
+    return window.translations[lang][key];
+  }
+  return fallbackText;
+}
+
+function speakText(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel(); 
+  
+  const lang = localStorage.getItem('medisarthi_lang') || 'en';
+  const langMap = {
+    'hi': 'hi-IN',
+    'mr': 'mr-IN',
+    'ta': 'ta-IN',
+    'bn': 'bn-IN',
+    'te': 'te-IN',
+    'en': 'en-IN'
+  };
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = langMap[lang] || 'en-IN';
+  window.speechSynthesis.speak(utterance);
+}
+
 const App = {
   currentLang: 'en',
   currentScreen: 1,
@@ -12,37 +40,13 @@ const App = {
 
   t(enStr) {
     if (!enStr) return enStr;
-    const lang = localStorage.getItem('selectedLanguage') || this.currentLang || 'en';
-    if (!window.TRANSLATIONS) return enStr;
-    const dictEn = TRANSLATIONS['en'] || {};
-    const dictCur = TRANSLATIONS[lang] || dictEn;
-    if (dictCur[enStr]) return dictCur[enStr];
-    const key = Object.keys(dictEn).find(k => dictEn[k] === enStr);
-    return key && dictCur[key] ? dictCur[key] : enStr;
+    return getLocalizedText(enStr, enStr);
   },
 
   speak(text) {
     if (!text) return;
-    const lang = localStorage.getItem('selectedLanguage') || this.currentLang || 'en';
     const translatedText = this.t(text);
-    if (window.VoiceController) {
-      VoiceController.speak(translatedText, lang);
-    } else if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(translatedText);
-      const langMap = {
-        en: 'en-IN',
-        hi: 'hi-IN',
-        mr: 'mr-IN',
-        ta: 'ta-IN',
-        bn: 'bn-IN',
-        te: 'te-IN'
-      };
-      utterance.lang = langMap[lang] || 'en-IN';
-      utterance.rate = 0.95;
-      utterance.pitch = 1.0;
-      window.speechSynthesis.speak(utterance);
-    }
+    speakText(translatedText);
   },
 
   // ── Adaptive Question Engine State ──────────────────────────────────────────
@@ -439,6 +443,7 @@ const App = {
     if (!TRANSLATIONS[langCode]) langCode = 'en';
     this.currentLang = langCode;
     localStorage.setItem('selectedLanguage', langCode);
+    localStorage.setItem('medisarthi_lang', langCode);
     document.querySelectorAll('.language-bar .lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('onclick')?.includes(`'${langCode}'`));
     });
