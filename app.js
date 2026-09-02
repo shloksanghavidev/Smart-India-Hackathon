@@ -382,46 +382,75 @@ const App = {
   // ── AYUSH MULTI-QUESTION FLOW ────────────────────────────────────────────────
   ayushQuestions: [
     {
-      id: 'ay_sleep', text: 'Sleep Routine',
-      subtitle: 'How many hours of sleep do you get on a typical night?',
-      type: 'options',
-      icon: '<i class="fa-solid fa-moon" style="color:var(--primary);"></i>',
-      options: ['7-8 hours (regular)','5-6 hours','Irregular / disturbed','Less than 5 hours']
+      id: 'ay_sleep', title: 'Sleep Pattern',
+      text: 'What time do you usually sleep and wake up, and how would you describe your sleep?',
+      subtitle: 'Select your sleep pattern', type: 'options', icon: '<i class="fa-solid fa-moon" style="color:var(--primary);"></i>',
+      options: ['Regular & restful','Regular but not restful','Irregular','Frequently disturbed']
     },
     {
-      id: 'ay_schedule', text: 'Daily Schedule & Meals',
-      subtitle: 'Are your meals and daily routine regular?',
-      type: 'options',
-      icon: '<i class="fa-solid fa-clock" style="color:var(--primary);"></i>',
-      options: ['Very regular','Mostly regular','Irregular (skip meals)','Highly unpredictable']
+      id: 'ay_routine', title: 'Daily Routine',
+      text: 'How regular is your daily routine for waking, meals, work/study and bedtime?',
+      subtitle: 'Select your routine regularity', type: 'options', icon: '<i class="fa-solid fa-clock" style="color:var(--primary);"></i>',
+      options: ['Very regular','Mostly regular','Somewhat irregular','Highly irregular']
     },
     {
-      id: 'ay_food', text: 'Fresh Home-cooked Meals',
-      subtitle: 'How often do you eat freshly prepared home food?',
-      type: 'options',
-      icon: '<i class="fa-solid fa-bowl-food" style="color:var(--primary);"></i>',
-      options: ['All meals','Most meals','Sometimes','Rarely (mostly outside food)']
+      id: 'ay_food', title: 'Food Pattern',
+      text: 'What best describes your usual eating pattern?',
+      subtitle: 'Select your eating habit', type: 'options', icon: '<i class="fa-solid fa-bowl-food" style="color:var(--primary);"></i>',
+      options: ['Mostly home-cooked','Mix of home-cooked & outside','Mostly outside or packaged','Irregular meals']
     },
     {
-      id: 'ay_digestion', text: 'Digestion & Appetite',
-      subtitle: 'How is your digestion and feeling of hunger?',
-      type: 'options',
-      icon: '<i class="fa-solid fa-fire-burner" style="color:var(--primary);"></i>',
-      options: ['Good appetite, clear digestion','Variable appetite','Frequent bloating/acidity','Poor appetite/constipation']
+      id: 'ay_meal_timing', title: 'Meal Timing',
+      text: 'How often do you skip or delay your meals?',
+      subtitle: 'Select meal regularity', type: 'options', icon: '<i class="fa-solid fa-utensils" style="color:var(--primary);"></i>',
+      options: ['Never','Occasionally','Frequently','Almost every day']
     },
     {
-      id: 'ay_activity', text: 'Physical Activity',
-      subtitle: 'What is your daily walking or physical activity habit?',
-      type: 'options',
-      icon: '<i class="fa-solid fa-person-walking" style="color:var(--primary);"></i>',
-      options: ['Active (30+ mins walking/exercise)','Moderate (household chores/light walking)','Sedentary (mostly sitting)']
+      id: 'ay_digestion', title: 'Digestion',
+      text: 'How would you describe your digestion after meals?',
+      subtitle: 'Select digestion feeling', type: 'options', icon: '<i class="fa-solid fa-fire-burner" style="color:var(--primary);"></i>',
+      options: ['Comfortable','Occasional bloating or gas','Frequent bloating or gas','Acidity or heartburn','Constipation','Irregular or loose stools']
     },
     {
-      id: 'ay_yoga', text: 'Wellness Practices',
-      subtitle: 'Do you engage in Yoga, Pranayama, or meditation?',
-      type: 'options',
-      icon: '<i class="fa-solid fa-om" style="color:var(--primary);"></i>',
-      options: ['Daily','Occasionally','Rarely','No, but interested','No']
+      id: 'ay_appetite', title: 'Appetite',
+      text: 'How has your appetite been recently?',
+      subtitle: 'Select appetite status', type: 'options', icon: '<i class="fa-solid fa-apple-whole" style="color:var(--primary);"></i>',
+      options: ['Normal','Increased','Reduced','Changes frequently']
+    },
+    {
+      id: 'ay_activity', title: 'Physical Activity',
+      text: 'How much physical activity or exercise do you usually get?',
+      subtitle: 'Select activity level', type: 'options', icon: '<i class="fa-solid fa-person-walking" style="color:var(--primary);"></i>',
+      options: ['Daily','3–5 days a week','1–2 days a week','Rarely','None']
+    },
+    {
+      id: 'ay_screen_time', title: 'Screen & Sitting Time',
+      text: 'How much of your day do you usually spend sitting or using screens?',
+      subtitle: 'Select daily sitting/screen duration', type: 'options', icon: '<i class="fa-solid fa-desktop" style="color:var(--primary);"></i>',
+      options: ['Less than 2 hours','2–5 hours','5–8 hours','More than 8 hours']
+    },
+    {
+      id: 'ay_stress', title: 'Stress',
+      text: 'How often do you feel stressed or mentally overwhelmed?',
+      subtitle: 'Select stress frequency', type: 'options', icon: '<i class="fa-solid fa-brain" style="color:var(--primary);"></i>',
+      options: ['Rarely','Sometimes','Often','Almost every day']
+    },
+    {
+      id: 'ay_stress_mgmt', title: 'Stress Management',
+      text: 'What do you usually do to relax or manage stress?',
+      subtitle: 'Select relaxation habit', type: 'options', icon: '<i class="fa-solid fa-heart" style="color:var(--primary);"></i>',
+      options: ['Walking/exercise','Yoga','Meditation or breathing','Music/creative activities','Talking to others','Rest/sleep','Nothing specific','Other']
+    },
+    {
+      id: 'ay_wellness', title: 'Wellness Practices',
+      text: 'Do you currently follow practices such as yoga, meditation, breathing exercises, oil massage, or other traditional wellness practices?',
+      subtitle: 'Select wellness practice routine', type: 'options', icon: '<i class="fa-solid fa-om" style="color:var(--primary);"></i>',
+      options: ['Regularly','Occasionally','Tried before','Not currently']
+    },
+    {
+      id: 'ay_lifestyle_concern', title: 'Lifestyle Concern',
+      text: 'Is there any lifestyle habit or wellness concern you would like the doctor to know about?',
+      subtitle: 'Optional free-text input', type: 'text', icon: '<i class="fa-solid fa-pen-fancy" style="color:var(--primary);"></i>'
     }
   ],
 
@@ -929,10 +958,39 @@ const App = {
     const ofLabel = getLocalizedText('of', 'of');
     const listenLabel = getLocalizedText('listen', 'Listen');
     const backLabel = getLocalizedText('back', 'Back');
+    const skipLabel = getLocalizedText('Skip for now', 'Skip for now');
     const helpLabel = getLocalizedText('need_help', 'Need Help?');
     
     const localizedQuestion = getLocalizedText(q.text, q.text);
-    const localizedSubtitle = getLocalizedText(q.subtitle, q.subtitle);
+    const localizedSubtitle = getLocalizedText(q.subtitle || '', q.subtitle || '');
+
+    let bodyContent = '';
+    if (q.type === 'options') {
+      bodyContent = `<div class="options-vertical-list">
+        ${q.options.map(opt =>
+          `<button class="option-touch-btn" onclick="App.answerAyush('${opt.replace(/'/g,"\\'")}')">
+            <span>${getLocalizedText(opt, opt)}</span> <i class="fa-solid fa-chevron-right"></i>
+          </button>`
+        ).join('')}
+      </div>`;
+    } else {
+      const placeholderText = getLocalizedText('Type any lifestyle habit or concern...', 'Type any lifestyle habit or concern...');
+      const continueBtnText = getLocalizedText('Save & Continue', 'Save & Continue');
+      const speakLabel = getLocalizedText('speak', 'Speak');
+      const existingVal = this.ayushAnswers[q.id] || '';
+
+      bodyContent = `<div style="margin-bottom:20px;">
+        <textarea id="ayush-free-text" class="kiosk-input" style="height:110px;font-size:1.05rem;text-align:left;resize:none;" placeholder="${placeholderText}">${existingVal}</textarea>
+        <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;">
+          <button class="btn-kiosk-secondary" style="flex:1;min-width:140px;" onclick="App.toggleAyushVoiceInput()">
+            <i class="fa-solid fa-microphone"></i> ${speakLabel}
+          </button>
+          <button class="btn-kiosk-primary" style="flex:2;min-width:180px;" onclick="App.answerAyushText()">
+            ${continueBtnText} <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>`;
+    }
 
     container.innerHTML = `
       <div class="kiosk-card">
@@ -952,16 +1010,13 @@ const App = {
         <h2 class="kiosk-title" id="ayush-q-text" style="margin-bottom:8px;">${localizedQuestion}</h2>
         <p class="kiosk-subtitle" style="margin-bottom:20px;">${localizedSubtitle}</p>
 
-        <div class="options-vertical-list">
-          ${q.options.map(opt =>
-            `<button class="option-touch-btn" onclick="App.answerAyush('${opt.replace(/'/g,"\\'")}')">
-              <span>${getLocalizedText(opt, opt)}</span> <i class="fa-solid fa-chevron-right"></i>
-            </button>`
-          ).join('')}
-        </div>
+        ${bodyContent}
 
         <div class="step-nav-footer">
           <button class="btn-back" onclick="App.prevAyush()"><i class="fa-solid fa-arrow-left"></i> ${backLabel}</button>
+          <button class="btn-kiosk-secondary" style="width:auto;min-height:38px;padding:4px 16px;border-color:var(--text-muted);color:var(--text-muted);" onclick="App.skipAyush()">
+            <i class="fa-solid fa-forward"></i> ${skipLabel}
+          </button>
           <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> ${helpLabel}</button>
         </div>
       </div>
@@ -971,14 +1026,45 @@ const App = {
     setTimeout(() => speakText(localizedQuestion), 300);
   },
 
+  skipAyush() {
+    const q = this.ayushQuestions[this.ayushIndex];
+    delete this.ayushAnswers[q.id];
+    this.ayushIndex++;
+    this.showAyushQuestion();
+  },
+
   answerAyush(answer) {
     const q = this.ayushQuestions[this.ayushIndex];
     this.ayushAnswers[q.id] = answer;
-    this.logMsg("Patient", `AYUSH – ${q.text}: ${answer}`);
+    this.logMsg("Patient", `AYUSH – ${q.title || q.text}: ${answer}`);
     setTimeout(() => {
       this.ayushIndex++;
       this.showAyushQuestion();
-    }, 300);
+    }, 250);
+  },
+
+  answerAyushText() {
+    const q = this.ayushQuestions[this.ayushIndex];
+    const txt = document.getElementById('ayush-free-text')?.value.trim();
+    if (txt) {
+      this.ayushAnswers[q.id] = txt;
+      this.logMsg("Patient", `AYUSH – ${q.title || q.text}: ${txt}`);
+    } else {
+      delete this.ayushAnswers[q.id];
+    }
+    this.ayushIndex++;
+    this.showAyushQuestion();
+  },
+
+  toggleAyushVoiceInput() {
+    const textarea = document.getElementById('ayush-free-text');
+    if (!textarea) return;
+    VoiceController.setLanguage(this.currentLang);
+    VoiceController.startListening((transcript, isFinal) => {
+      textarea.value = transcript;
+    }, (isListening) => {
+      if (isListening) this.showNotification('🎤 Listening for voice input...');
+    });
   },
 
   prevAyush() {
@@ -991,13 +1077,23 @@ const App = {
     const container = document.getElementById('ayush-summary-container');
     if (!container) return;
     const q = this.ayushQuestions;
-    let rows = q.map(item => {
-      const ans = this.ayushAnswers[item.id] || 'Not provided';
-      return `<div class="summary-row">
-        <div class="summary-label">${item.icon} ${getLocalizedText(item.text, item.text)}</div>
-        <div class="summary-val">${getLocalizedText(ans, ans)}</div>
+    const answeredItems = q.filter(item => this.ayushAnswers[item.id]);
+
+    let rowsHtml = '';
+    if (answeredItems.length === 0) {
+      rowsHtml = `<div style="padding:20px;text-align:center;color:var(--text-muted);font-style:italic;background:#f8fafc;border-radius:var(--radius-md);margin-bottom:16px;">
+        ${getLocalizedText('No wellness questions were answered (all skipped).', 'No wellness questions were answered (all skipped).')}
       </div>`;
-    }).join('');
+    } else {
+      rowsHtml = `<div class="summary-table-card" style="text-align:left;margin-bottom:16px;">` +
+        answeredItems.map(item => {
+          const val = this.ayushAnswers[item.id];
+          return `<div class="summary-row">
+            <div class="summary-label">${item.icon || '🌿'} ${getLocalizedText(item.title || item.text, item.title || item.text)}</div>
+            <div class="summary-val">${getLocalizedText(val, val)}</div>
+          </div>`;
+        }).join('') + `</div>`;
+    }
 
     const disclaimerText = getLocalizedText('This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.', 'This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.');
     const continueBtnText = getLocalizedText('Continue to Medical Reports', 'Continue to Medical Reports');
@@ -1005,7 +1101,7 @@ const App = {
     const helpBtnText = getLocalizedText('need_help', 'Need Help?');
 
     container.innerHTML = `
-      <div class="summary-table-card" style="text-align:left;">${rows}</div>
+      ${rowsHtml}
       <div class="ai-safety-alert" style="margin-bottom:20px;">
         <i class="fa-solid fa-leaf" style="font-size:1.3rem;color:#059669;"></i>
         ${disclaimerText}
@@ -1086,9 +1182,8 @@ const App = {
       bowel: getSummaryField(['bowel']),
       pastHistory: getSummaryField(['past', 'previous']),
       associated: this.buildAssociatedSymptomsSummary(),
-      medicalHistory: this.state.medicalHistory || 'None provided',
       medications: this.state.medications || 'None',
-      allergies: this.state.allergies || 'Not provided',
+      allergies: this.state.allergies || 'Penicillin',
       documents: this.state.reportsUploaded && this.state.reportsUploaded.length > 0 
         ? `${this.state.reportsUploaded.length} uploaded: ` + this.state.reportsUploaded.map(r => r.title).join(', ') 
         : 'None uploaded'
@@ -1244,14 +1339,26 @@ const App = {
     setV('doc-sum-nausea', s.nauseaVomiting);
     setV('doc-sum-bowel', s.bowel);
     setV('doc-sum-past', s.pastHistory);
-    setV('doc-sum-history', s.medicalHistory);
     setV('doc-sum-meds', s.medications);
-    setV('doc-sum-allergies', s.allergies);
+    setV('doc-sum-allergies', s.allergies || 'Penicillin');
     setV('doc-sum-documents', s.documents);
-    if (p.ayush.completed) {
-      setV('doc-sum-ayush', `Sleep: ${p.ayush.sleep} | Diet: ${p.ayush.food} | Digestion: ${p.ayush.digestion} | Yoga: ${p.ayush.yoga}`);
+    if (p.ayush && (p.ayush.completed || Object.keys(p.ayush.answers || {}).length > 0)) {
+      const ansObj = p.ayush.answers || p.ayushAnswers || {};
+      const parts = [];
+      if (ansObj.ay_sleep) parts.push(`Sleep: ${ansObj.ay_sleep}`);
+      if (ansObj.ay_routine) parts.push(`Routine: ${ansObj.ay_routine}`);
+      if (ansObj.ay_food) parts.push(`Food: ${ansObj.ay_food}`);
+      if (ansObj.ay_digestion) parts.push(`Digestion: ${ansObj.ay_digestion}`);
+      if (ansObj.ay_activity) parts.push(`Activity: ${ansObj.ay_activity}`);
+      if (ansObj.ay_stress) parts.push(`Stress: ${ansObj.ay_stress}`);
+      if (ansObj.ay_wellness) parts.push(`Wellness: ${ansObj.ay_wellness}`);
+      if (ansObj.ay_lifestyle_concern) parts.push(`Concern: ${ansObj.ay_lifestyle_concern}`);
+      
+      if (parts.length === 0 && p.ayush.sleep) parts.push(`Sleep: ${p.ayush.sleep}`);
+
+      setV('doc-sum-ayush', parts.length > 0 ? parts.join(' · ') : 'Not answered');
     } else {
-      setV('doc-sum-ayush', 'AYUSH survey not completed');
+      setV('doc-sum-ayush', 'Not answered');
     }
 
     document.getElementById('doc-notes-textarea').value = p.doctorNotes || "";
@@ -1359,22 +1466,254 @@ const App = {
     const p = this.activeDoctorPatient;
     const body = document.getElementById('ayush-modal-body');
     if (!body) return;
-    if (p && p.ayush && p.ayush.completed) {
-      const fields = [
-        ['Sleep Routine', p.ayush.sleep], ['Daily Schedule', p.ayush.schedule], ['Home-cooked Meals', p.ayush.food],
-        ['Digestion', p.ayush.digestion], ['Physical Activity', p.ayush.activity], ['Wellness Practices', p.ayush.yoga]
-      ];
+    const ansObj = p?.ayush?.answers || p?.ayushAnswers || {};
+    
+    const qList = this.ayushQuestions;
+    const answeredRows = [];
+    
+    qList.forEach(q => {
+      const val = ansObj[q.id];
+      if (val) {
+        answeredRows.push([q.title || q.text, val]);
+      }
+    });
+
+    if (answeredRows.length === 0 && p?.ayush) {
+      if (p.ayush.sleep) answeredRows.push(['Sleep Routine', p.ayush.sleep]);
+      if (p.ayush.schedule) answeredRows.push(['Daily Schedule', p.ayush.schedule]);
+      if (p.ayush.food) answeredRows.push(['Food Pattern', p.ayush.food]);
+      if (p.ayush.digestion) answeredRows.push(['Digestion', p.ayush.digestion]);
+      if (p.ayush.activity) answeredRows.push(['Physical Activity', p.ayush.activity]);
+      if (p.ayush.yoga) answeredRows.push(['Wellness Practices', p.ayush.yoga]);
+    }
+
+    if (answeredRows.length > 0) {
       body.innerHTML = `<div class="summary-table-card" style="text-align:left;">` +
-        fields.map(([label, val]) => `
+        answeredRows.map(([label, val]) => `
           <div class="summary-row">
             <div class="summary-label">${label}</div>
-            <div class="summary-val">${val || 'Not provided'}</div>
+            <div class="summary-val">${val}</div>
           </div>`).join('') +
         `</div>`;
     } else {
-      body.innerHTML = '<p style="color:var(--text-muted);">Patient did not complete AYUSH wellness survey.</p>';
+      body.innerHTML = '<p style="color:var(--text-muted);padding:14px;text-align:center;">No AYUSH wellness responses provided (skipped or not completed).</p>';
     }
     document.getElementById('ayush-modal').classList.add('active');
+  },
+
+  printPrescription() {
+    if (!this.activeDoctorPatient) {
+      this.showNotification('⚠️ No patient selected for prescription PDF.');
+      return;
+    }
+
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      this.showNotification('⚠️ PDF generator library loading failed.');
+      return;
+    }
+
+    const p = this.activeDoctorPatient;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 40;
+
+    // --- HEADER / BRANDING ---
+    doc.setFillColor(2, 132, 199); // MediSarthi Primary Blue
+    doc.rect(0, 0, pageWidth, 70, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.text('MediSarthi', 40, 38);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text('Official Clinical Prescription · Government Hospital Network', 40, 53);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('City General Hospital, Mumbai', pageWidth - 40, 35, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text('Department of General Medicine', pageWidth - 40, 50, { align: 'right' });
+
+    y = 90;
+
+    // --- DOCTOR & CONSULTATION DETAILS ---
+    doc.setTextColor(30, 41, 59);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.text('Dr. Meera Sharma', 40, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text('MD General Medicine · Reg No: MMC-2018-84920', 40, y + 14);
+
+    const todayDate = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    doc.setTextColor(30, 41, 59);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text(`Date: ${todayDate}`, pageWidth - 40, y, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5);
+    doc.text(`Time: ${p.time || '09:15 AM'}`, pageWidth - 40, y + 14, { align: 'right' });
+
+    y += 36;
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(1);
+    doc.line(40, y, pageWidth - 40, y);
+
+    y += 16;
+
+    // --- PATIENT DETAILS BOX ---
+    doc.setFillColor(248, 250, 252);
+    doc.setDrawColor(203, 213, 225);
+    doc.roundedRect(40, y, pageWidth - 80, 54, 6, 6, 'FD');
+
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text(`Patient Name: ${p.name}`, 54, y + 22);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5);
+    doc.setTextColor(71, 85, 105);
+    doc.text(`Age / Gender: ${p.age}y / ${p.gender}`, 54, y + 40);
+    doc.text(`Patient ID: ${p.id}`, 260, y + 22);
+    doc.text(`Chief Complaint: ${p.chiefComplaint || 'Consultation'}`, 260, y + 40);
+
+    y += 70;
+
+    // --- DIAGNOSIS / CLINICAL NOTES ---
+    const doctorNotes = document.getElementById('doc-notes-textarea')?.value.trim() || p.doctorNotes || '';
+    if (doctorNotes) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(2, 132, 199);
+      doc.text('Clinical Diagnosis & Observations', 40, y);
+      y += 14;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.5);
+      doc.setTextColor(51, 65, 85);
+      const splitNotes = doc.splitTextToSize(doctorNotes, pageWidth - 80);
+      doc.text(splitNotes, 40, y);
+      y += (splitNotes.length * 13) + 14;
+    }
+
+    // --- PRESCRIPTIONS TABLE ---
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(2, 132, 199);
+    doc.text('Rx — Prescribed Medicines', 40, y);
+    y += 14;
+
+    const rxs = p.prescriptions || [];
+    
+    // Table Header
+    doc.setFillColor(241, 245, 249);
+    doc.rect(40, y, pageWidth - 80, 22, 'F');
+    doc.setDrawColor(203, 213, 225);
+    doc.line(40, y + 22, pageWidth - 40, y + 22);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(30, 41, 59);
+    doc.text('#', 48, y + 15);
+    doc.text('Medicine Name', 70, y + 15);
+    doc.text('Dosage', 230, y + 15);
+    doc.text('Frequency', 310, y + 15);
+    doc.text('Duration', 390, y + 15);
+    doc.text('Instructions', 460, y + 15);
+
+    y += 22;
+
+    if (rxs.length === 0) {
+      y += 18;
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(9.5);
+      doc.setTextColor(148, 163, 184);
+      doc.text('No prescription medications entered.', 48, y);
+      y += 16;
+    } else {
+      rxs.forEach((rx, index) => {
+        y += 18;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(15, 23, 42);
+        doc.text(`${index + 1}`, 48, y);
+        doc.text(rx.name || '—', 70, y);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(51, 65, 85);
+        doc.text(rx.dosage || '—', 230, y);
+        doc.text(rx.frequency || '—', 310, y);
+        doc.text(rx.duration || '—', 390, y);
+        doc.text(rx.instructions || '—', 460, y);
+
+        y += 6;
+        doc.setDrawColor(241, 245, 249);
+        doc.line(40, y, pageWidth - 40, y);
+      });
+    }
+
+    y += 30;
+
+    // --- ALLERGIES / CAUTION WARNING ---
+    const allergies = p.summary?.allergies || this.state.allergies || 'Penicillin';
+    if (allergies && allergies !== 'None' && allergies !== 'Not provided') {
+      doc.setFillColor(254, 242, 242);
+      doc.setDrawColor(252, 165, 165);
+      doc.roundedRect(40, y, pageWidth - 80, 28, 4, 4, 'FD');
+
+      doc.setTextColor(185, 28, 28);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.text(`Known Allergies: ${allergies}`, 52, y + 18);
+
+      y += 42;
+    }
+
+    // --- FOOTER & SIGNATURE ---
+    const footerY = Math.max(y + 40, 720);
+
+    doc.setDrawColor(148, 163, 184);
+    doc.line(pageWidth - 200, footerY - 25, pageWidth - 40, footerY - 25);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(30, 41, 59);
+    doc.text('Dr. Meera Sharma', pageWidth - 120, footerY - 10, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text('Authorized Medical Officer', pageWidth - 120, footerY + 2, { align: 'center' });
+
+    doc.setDrawColor(226, 232, 240);
+    doc.line(40, footerY + 20, pageWidth - 40, footerY + 20);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(148, 163, 184);
+    doc.text('Generated via MediSarthi Kiosk & Doctor Consultation Desk · Digital Verification Code: MS-RX-' + Math.floor(100000 + Math.random() * 900000), 40, footerY + 34);
+
+    // --- GENERATE PDF FILE DOWNLOAD AND BLOB PREVIEW ---
+    const fileName = `MediSarthi_Prescription_${p.id}_${p.name.replace(/\s+/g, '_')}.pdf`;
+    
+    // 1. Download .pdf file directly
+    doc.save(fileName);
+
+    // 2. Open PDF blob in a new browser tab
+    try {
+      const pdfBlob = doc.output('blob');
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
+    } catch (e) {
+      console.log('Blob URL popup blocked or unsupported:', e);
+    }
+
+    this.showNotification(`📄 Prescription PDF downloaded: ${fileName}`);
   },
 
   closeAyushModal() {

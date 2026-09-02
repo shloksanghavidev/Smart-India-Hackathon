@@ -353,7 +353,6 @@
           <div class="summary-row"><div class="summary-label" data-i18n="onset">Onset</div><div class="summary-val" id="sum-onset">Gradual</div></div>
           <div class="summary-row"><div class="summary-label" data-i18n="associated_symptoms">Associated Symptoms</div><div class="summary-val" id="sum-associated">None reported</div></div>
           <div class="summary-row"><div class="summary-label" data-i18n="aggravating_factors">Aggravating Factors</div><div class="summary-val" id="sum-aggravating">After eating</div></div>
-          <div class="summary-row"><div class="summary-label" data-i18n="medical_history">Medical History</div><div class="summary-val" id="sum-history">Mild Hypertension</div></div>
           <div class="summary-row"><div class="summary-label" data-i18n="allergies">Allergies</div><div class="summary-val" id="sum-allergies">Penicillin</div></div>
           <div class="summary-row"><div class="summary-label" data-i18n="current_medications">Current Medications</div><div class="summary-val" id="sum-meds">Amlodipine 5mg OD</div></div>
           <div class="summary-row"><div class="summary-label" data-i18n="medical_documents">Medical Documents</div><div class="summary-val" id="sum-documents">None uploaded</div></div>
@@ -384,7 +383,7 @@
 
         <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:var(--radius-md);padding:16px 20px;margin:0 auto 24px;max-width:560px;text-align:left;">
           <p style="font-size:0.95rem;color:#166534;font-weight:600;line-height:1.6;">
-            <i class="fa-solid fa-leaf"></i> &nbsp;This is a <strong>short 8-question wellness survey</strong> about your lifestyle, sleep, diet, and habits.<br>
+            <i class="fa-solid fa-leaf"></i> &nbsp;This is a <strong>short 12-question wellness survey</strong> about your lifestyle, sleep, diet, and habits.<br>
             It takes approximately <strong>2–3 minutes</strong> to complete and helps the doctor provide more complete care.
           </p>
         </div>
@@ -393,7 +392,7 @@
           <button class="option-touch-btn" style="border-color:var(--primary);" onclick="App.setAyushOption(true)">
             <div>
               <strong style="font-size:1.2rem;display:block;" data-i18n="yes_continue">Yes, Continue with AYUSH Survey</strong>
-              <span style="font-size:0.9rem;color:var(--text-muted);font-weight:500;">8 lifestyle & wellness questions</span>
+              <span style="font-size:0.9rem;color:var(--text-muted);font-weight:500;" data-i18n="12 lifestyle & wellness questions">12 lifestyle & wellness questions</span>
             </div>
             <i class="fa-solid fa-leaf" style="color:var(--primary);font-size:1.5rem;"></i>
           </button>
@@ -624,11 +623,10 @@
               <div class="summary-row"><div class="summary-label">Nausea / Vomiting</div><div class="summary-val" id="doc-sum-nausea">Mild nausea</div></div>
               <div class="summary-row"><div class="summary-label">Bowel Changes</div><div class="summary-val" id="doc-sum-bowel">Normal</div></div>
               <div class="summary-row"><div class="summary-label">Past History of This</div><div class="summary-val" id="doc-sum-past">First time</div></div>
-              <div class="summary-row"><div class="summary-label">Medical History</div><div class="summary-val" id="doc-sum-history">Mild Hypertension</div></div>
               <div class="summary-row"><div class="summary-label">Current Medications</div><div class="summary-val" id="doc-sum-meds">Amlodipine 5mg OD</div></div>
               <div class="summary-row"><div class="summary-label">Allergies</div><div class="summary-val" id="doc-sum-allergies">Penicillin</div></div>
               <div class="summary-row"><div class="summary-label">Medical Documents</div><div class="summary-val" id="doc-sum-documents">None uploaded</div></div>
-              <div class="summary-row"><div class="summary-label">AYUSH Wellness</div><div class="summary-val" id="doc-sum-ayush">Regular sleep · Veg diet</div></div>
+              <div class="summary-row"><div class="summary-label">AYUSH Wellness Snapshot</div><div class="summary-val" id="doc-sum-ayush">Regular sleep · Veg diet</div></div>
             </div>
           </div>
 
@@ -663,7 +661,12 @@
 
           <!-- Prescription -->
           <div class="doc-section-card">
-            <h4 style="font-size:1rem;font-weight:800;margin-bottom:12px;"><i class="fa-solid fa-pills"></i> Prescription</h4>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+              <h4 style="font-size:1rem;font-weight:800;margin:0;"><i class="fa-solid fa-pills"></i> Prescription</h4>
+              <button class="btn-kiosk-primary touch-pulse-btn" style="width:auto;min-height:36px;padding:5px 16px;font-size:0.88rem;background:linear-gradient(135deg,#0284c7,#0369a1);" onclick="App.printPrescription()">
+                <i class="fa-solid fa-file-pdf"></i> Print Prescription PDF
+              </button>
+            </div>
             <div id="prescriptions-list-table">
               <p style="color:var(--text-muted);font-size:0.85rem;">No prescriptions added yet.</p>
             </div>
@@ -756,6 +759,7 @@
   </div>
 </div>
 
+<script src="jspdf.umd.min.js"></script>
 <script src="data.js"></script>
 <script src="translations.js"></script>
 <script src="speech.js"></script>
