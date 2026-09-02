@@ -575,7 +575,7 @@ const App = {
     setTimeout(() => {
       overlay.style.display = 'none';
       document.getElementById('aadhaar-input').value = "9876 5432 1098";
-      this.patient.aadhaar = "987654321098";
+      this.state.aadhaar = "987654321098";
       this.showNotification("✅ Aadhaar QR scanned successfully!");
       setTimeout(() => this.showScreen(4), 700);
     }, 2500);
@@ -594,7 +594,7 @@ const App = {
       this.showNotification("⚠️ Please enter exactly 12 digits.");
       return;
     }
-    this.patient.aadhaar = raw;
+    this.state.aadhaar = raw;
     this.showScreen(4);
   },
 
