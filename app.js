@@ -488,6 +488,7 @@ const App = {
       4: 'step-4',
       5: 'step-5',
       6: 'step-complaint',
+      7: 'step-allergy',
       12: 'step-summary',
       13: 'step-ayurveda',
       14: 'step-documents',
