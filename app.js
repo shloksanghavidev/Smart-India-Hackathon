@@ -11,12 +11,38 @@ const App = {
   patientType: 'new',
 
   t(enStr) {
+    if (!enStr) return enStr;
+    const lang = localStorage.getItem('selectedLanguage') || this.currentLang || 'en';
     if (!window.TRANSLATIONS) return enStr;
     const dictEn = TRANSLATIONS['en'] || {};
-    const dictCur = TRANSLATIONS[this.currentLang] || dictEn;
+    const dictCur = TRANSLATIONS[lang] || dictEn;
     if (dictCur[enStr]) return dictCur[enStr];
     const key = Object.keys(dictEn).find(k => dictEn[k] === enStr);
     return key && dictCur[key] ? dictCur[key] : enStr;
+  },
+
+  speak(text) {
+    if (!text) return;
+    const lang = localStorage.getItem('selectedLanguage') || this.currentLang || 'en';
+    const translatedText = this.t(text);
+    if (window.VoiceController) {
+      VoiceController.speak(translatedText, lang);
+    } else if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(translatedText);
+      const langMap = {
+        en: 'en-IN',
+        hi: 'hi-IN',
+        mr: 'mr-IN',
+        ta: 'ta-IN',
+        bn: 'bn-IN',
+        te: 'te-IN'
+      };
+      utterance.lang = langMap[lang] || 'en-IN';
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
   },
 
   // ── Adaptive Question Engine State ──────────────────────────────────────────
@@ -399,6 +425,10 @@ const App = {
   // ── INITIALIZATION ────────────────────────────────────────────────────────
   init() {
     console.log("Initializing MediSarthi App Engine...");
+    const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+    this.currentLang = savedLang;
+    window.translate = (text) => this.t(text);
+    window.speak = (text) => this.speak(text);
     this.updateLanguageUI();
     this.renderDoctorQueue();
     this.selectDoctorPatient("MS1001");
@@ -408,6 +438,7 @@ const App = {
   setLanguage(langCode) {
     if (!TRANSLATIONS[langCode]) langCode = 'en';
     this.currentLang = langCode;
+    localStorage.setItem('selectedLanguage', langCode);
     document.querySelectorAll('.language-bar .lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('onclick')?.includes(`'${langCode}'`));
     });
@@ -416,6 +447,11 @@ const App = {
     });
     VoiceController.setLanguage(langCode);
     this.updateLanguageUI();
+
+    if (this.currentScreen === 20) this.showAdaptiveQuestion();
+    else if (this.currentScreen === 17) this.showAyushQuestion();
+    else if (this.currentScreen === 16) this.renderAyushSummary();
+    else if (this.currentScreen === 12) this.updateSummaryCard();
   },
 
   selectLanguageAndContinue(langCode) {
@@ -465,8 +501,8 @@ const App = {
       btn.classList.toggle('active', btn.getAttribute('onclick')?.includes(`showScreen(${screenNum})`));
     });
     if (screenNum === 6) {
-      const text = (window.TRANSLATIONS && TRANSLATIONS[this.currentLang]?.what_brings_you) || "What brings you here today?";
-      setTimeout(() => { if (window.VoiceController) VoiceController.speak(text, this.currentLang); }, 400);
+      const text = this.t('what_brings_you');
+      setTimeout(() => { App.speak(text); }, 400);
     }
   },
 
@@ -614,21 +650,21 @@ const App = {
     let optionsHtml = '';
     if (q.type === 'body_map') {
       optionsHtml = this.renderBodyMapHTML(q);
-      } else if (q.type === 'severity') {
-        optionsHtml = `<div class="severity-ratings-grid" style="margin-bottom:24px;">
-          <div class="severity-card" onclick="App.answerAQ('Mild')"><h3>${App.t('Mild')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${App.t('Little or no interference with daily activities')}</p></div>
-          <div class="severity-card" onclick="App.answerAQ('Moderate')"><h3>${App.t('Moderate')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${App.t('Some interference with daily activities')}</p></div>
-          <div class="severity-card" onclick="App.answerAQ('Severe')"><h3>${App.t('Severe')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${App.t('Significant interference with daily activities')}</p></div>
-        </div>`;
-      } else if (q.type === 'text') {
+    } else if (q.type === 'severity') {
+      optionsHtml = `<div class="severity-ratings-grid" style="margin-bottom:24px;">
+        <div class="severity-card" onclick="App.answerAQ('Mild')"><h3>${App.t('Mild')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${App.t('Little or no interference with daily activities')}</p></div>
+        <div class="severity-card" onclick="App.answerAQ('Moderate')"><h3>${App.t('Moderate')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${App.t('Some interference with daily activities')}</p></div>
+        <div class="severity-card" onclick="App.answerAQ('Severe')"><h3>${App.t('Severe')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${App.t('Significant interference with daily activities')}</p></div>
+      </div>`;
+    } else if (q.type === 'text') {
       optionsHtml = `<div style="margin-bottom:24px;">
-        <textarea id="aq-free-text" class="kiosk-input" style="height:110px;font-size:1.05rem;text-align:left;resize:none;" placeholder="Type what you are feeling here..."></textarea>
+        <textarea id="aq-free-text" class="kiosk-input" style="height:110px;font-size:1.05rem;text-align:left;resize:none;" placeholder="${App.t('type_your_problem')}"></textarea>
         <div style="display:flex;gap:10px;margin-top:12px;">
           <button class="btn-kiosk-secondary" onclick="App.triggerAQVoice()" style="width:50%;">
-            <i class="fa-solid fa-microphone"></i> Speak
+            <i class="fa-solid fa-microphone"></i> ${App.t('speak')}
           </button>
           <button class="btn-kiosk-primary" onclick="App.answerAQText()" style="width:50%;">
-            Next <i class="fa-solid fa-arrow-right"></i>
+            ${App.t('continue')} <i class="fa-solid fa-arrow-right"></i>
           </button>
         </div>
       </div>`;
@@ -643,15 +679,21 @@ const App = {
         `</div>`;
     }
 
+    const qLabel = App.t('Question');
+    const ofLabel = App.t('of');
+    const listenLabel = App.t('listen');
+    const backLabel = App.t('back');
+    const helpLabel = App.t('need_help');
+
     container.innerHTML = `
       <div class="kiosk-card">
         <!-- Progress Bar -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
           <span style="font-size:0.92rem;font-weight:700;color:var(--primary);background:var(--primary-light);padding:4px 14px;border-radius:999px;">
-            Question ${current} of ${total}
+            ${qLabel} ${current} ${ofLabel} ${total}
           </span>
-          <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.88rem;width:auto;" onclick="VoiceController.speak(document.getElementById('aq-q-text').innerText, App.currentLang)">
-            <i class="fa-solid fa-volume-high"></i> Listen
+          <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.88rem;width:auto;" onclick="App.speak(document.getElementById('aq-q-text').innerText)">
+            <i class="fa-solid fa-volume-high"></i> ${listenLabel}
           </button>
         </div>
         <div style="background:var(--border-color);border-radius:999px;height:6px;margin-bottom:24px;">
@@ -664,18 +706,20 @@ const App = {
         ${optionsHtml}
 
         <div class="step-nav-footer">
-          <button class="btn-back" onclick="App.prevAQ()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-          <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> Need Help?</button>
+          <button class="btn-back" onclick="App.prevAQ()"><i class="fa-solid fa-arrow-left"></i> ${backLabel}</button>
+          <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> ${helpLabel}</button>
         </div>
       </div>
     `;
 
     this.showScreen(20);
     // Speak question aloud
-    setTimeout(() => VoiceController.speak(q.text, this.currentLang), 300);
+    setTimeout(() => App.speak(q.text), 300);
   },
 
   renderBodyMapHTML(q) {
+    const selectedLabel = App.t('selected_location');
+    const continueLabel = App.t('continue');
     return `
       <div class="body-location-wrapper" style="margin-bottom:20px;">
         <div class="body-silhouette-card">
@@ -696,25 +740,25 @@ const App = {
             <rect id="svg-left" x="52" y="120" width="22" height="55" rx="5" fill="#10b981" opacity="0.2" stroke="#059669" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Left Side')"/>
             <rect id="svg-right" x="126" y="120" width="22" height="55" rx="5" fill="#10b981" opacity="0.2" stroke="#059669" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Right Side')"/>
             <!-- Labels -->
-            <text x="100" y="103" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">Upper</text>
-            <text x="100" y="143" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">Navel</text>
-            <text x="100" y="185" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">Lower</text>
-            <text x="40" y="155" text-anchor="middle" font-size="8" fill="#059669" font-weight="bold">Left</text>
-            <text x="160" y="155" text-anchor="middle" font-size="8" fill="#059669" font-weight="bold">Right</text>
+            <text x="100" y="103" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">${App.t('Upper')}</text>
+            <text x="100" y="143" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">${App.t('Navel')}</text>
+            <text x="100" y="185" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">${App.t('Lower')}</text>
+            <text x="40" y="155" text-anchor="middle" font-size="8" fill="#059669" font-weight="bold">${App.t('Left')}</text>
+            <text x="160" y="155" text-anchor="middle" font-size="8" fill="#059669" font-weight="bold">${App.t('Right')}</text>
           </svg>
         </div>
         <div class="abdomen-zones-grid" style="flex:1;">
           ${q.options.map(zone =>
-            `<button class="zone-select-btn" id="zone-btn-${zone.replace(/\s/g,'-')}" onclick="App.selectBodyZoneAQ('${zone}')">
-              <span>${zone}</span> <i class="fa-solid fa-chevron-right"></i>
+            `<button class="zone-select-btn" id="zone-btn-${zone.replace(/\s/g,'-')}" onclick="App.selectBodyZoneAQ('${zone.replace(/'/g,"\\'")}')">
+              <span>${App.t(zone)}</span> <i class="fa-solid fa-chevron-right"></i>
             </button>`
           ).join('')}
         </div>
       </div>
       <div id="zone-selected-display" style="background:var(--primary-light);padding:12px 16px;border-radius:var(--radius-md);font-weight:700;margin-bottom:20px;display:none;">
-        ✅ Selected: <span id="zone-selected-text" style="color:var(--primary-hover);">—</span>
+        ✅ ${selectedLabel}: <span id="zone-selected-text" style="color:var(--primary-hover);">—</span>
         <button class="btn-kiosk-primary" onclick="App.continueAfterBodyMap()" style="float:right;width:auto;min-height:38px;padding:4px 18px;font-size:0.9rem;">
-          Continue <i class="fa-solid fa-arrow-right"></i>
+          ${continueLabel} <i class="fa-solid fa-arrow-right"></i>
         </button>
       </div>
     `;
@@ -722,14 +766,15 @@ const App = {
 
   selectBodyZoneAQ(zoneName) {
     this.state.bodyLocation = zoneName;
+    const translatedZone = App.t(zoneName);
     // Highlight zone buttons
     document.querySelectorAll('.zone-select-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.innerText.trim().startsWith(zoneName));
+      btn.classList.toggle('active', btn.innerText.trim().startsWith(translatedZone) || btn.innerText.trim().startsWith(zoneName));
     });
     const display = document.getElementById('zone-selected-display');
     const textEl = document.getElementById('zone-selected-text');
     if (display && textEl) {
-      textEl.innerText = zoneName;
+      textEl.innerText = translatedZone;
       display.style.display = 'block';
     }
     // Highlight SVG zones
@@ -760,12 +805,13 @@ const App = {
     const q = this.aqFlow[this.aqIndex];
     this.aqAnswers[q.id] = answer;
     this.logMsg("Patient", `${q.text} → ${answer}`);
+    const translatedAnswer = App.t(answer);
     // Highlight selected button briefly
     document.querySelectorAll('.option-touch-btn').forEach(btn => {
-      if (btn.innerText.trim().startsWith(answer.substring(0,15))) btn.classList.add('selected');
+      if (btn.innerText.trim().startsWith(translatedAnswer.substring(0,15)) || btn.innerText.trim().startsWith(answer.substring(0,15))) btn.classList.add('selected');
     });
     document.querySelectorAll('.severity-card').forEach(c => {
-      if (c.innerText.includes(answer.split(' ')[0])) {
+      if (c.innerText.includes(translatedAnswer.split(' ')[0]) || c.innerText.includes(answer.split(' ')[0])) {
         c.classList.add('selected', answer.toLowerCase());
       }
     });
@@ -832,15 +878,21 @@ const App = {
     const container = document.getElementById('ayush-container');
     if (!container) return;
 
+    const ayushQLabel = App.t('AYUSH Question');
+    const ofLabel = App.t('of');
+    const listenLabel = App.t('listen');
+    const backLabel = App.t('back');
+    const helpLabel = App.t('need_help');
+
     container.innerHTML = `
       <div class="kiosk-card">
         <div style="font-size:2.5rem;margin-bottom:8px;">${q.icon || '🌿'}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
           <span style="font-size:0.92rem;font-weight:700;color:#059669;background:#ecfdf5;padding:4px 14px;border-radius:999px;">
-            AYUSH Question ${current} of ${total}
+            ${ayushQLabel} ${current} ${ofLabel} ${total}
           </span>
-          <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.88rem;width:auto;" onclick="VoiceController.speak(document.getElementById('ayush-q-text').innerText, App.currentLang)">
-            <i class="fa-solid fa-volume-high"></i> Listen
+          <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.88rem;width:auto;" onclick="App.speak(document.getElementById('ayush-q-text').innerText)">
+            <i class="fa-solid fa-volume-high"></i> ${listenLabel}
           </button>
         </div>
         <div style="background:var(--border-color);border-radius:999px;height:6px;margin-bottom:24px;">
@@ -859,14 +911,14 @@ const App = {
         </div>
 
         <div class="step-nav-footer">
-          <button class="btn-back" onclick="App.prevAyush()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-          <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> Need Help?</button>
+          <button class="btn-back" onclick="App.prevAyush()"><i class="fa-solid fa-arrow-left"></i> ${backLabel}</button>
+          <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> ${helpLabel}</button>
         </div>
       </div>
     `;
 
     this.showScreen(17);
-    setTimeout(() => VoiceController.speak(q.text, this.currentLang), 300);
+    setTimeout(() => App.speak(q.text), 300);
   },
 
   answerAyush(answer) {
@@ -896,18 +948,24 @@ const App = {
         <div class="summary-val">${App.t(ans)}</div>
       </div>`;
     }).join('');
+
+    const disclaimerText = App.t('This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.');
+    const continueBtnText = App.t('Continue to Medical Reports');
+    const backBtnText = App.t('back');
+    const helpBtnText = App.t('need_help');
+
     container.innerHTML = `
       <div class="summary-table-card" style="text-align:left;">${rows}</div>
       <div class="ai-safety-alert" style="margin-bottom:20px;">
         <i class="fa-solid fa-leaf" style="font-size:1.3rem;color:#059669;"></i>
-        This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.
+        ${disclaimerText}
       </div>
       <button class="btn-kiosk-primary" onclick="App.showScreen(14)">
-        Continue to Medical Reports <i class="fa-solid fa-arrow-right"></i>
+        ${continueBtnText} <i class="fa-solid fa-arrow-right"></i>
       </button>
       <div class="step-nav-footer">
-        <button class="btn-back" onclick="App.ayushIndex=App.ayushQuestions.length-1;App.showAyushQuestion()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-        <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> Need Help?</button>
+        <button class="btn-back" onclick="App.ayushIndex=App.ayushQuestions.length-1;App.showAyushQuestion()"><i class="fa-solid fa-arrow-left"></i> ${backBtnText}</button>
+        <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> ${helpBtnText}</button>
       </div>
     `;
   },
@@ -916,7 +974,7 @@ const App = {
   updateSummaryCard() {
     const setVal = (id, val) => {
       const el = document.getElementById(id);
-      if (el) el.innerText = val || 'Not provided';
+      if (el) el.innerText = App.t(val) || App.t('Not provided');
     };
     setVal('sum-problem', this.state.chiefComplaint);
     setVal('sum-duration', this.aqAnswers[Object.keys(this.aqAnswers).find(k => k.includes('duration'))] || 'Not specified');
@@ -934,10 +992,10 @@ const App = {
     const parts = [];
     Object.entries(this.aqAnswers).forEach(([key, val]) => {
       if ((key.includes('nausea') || key.includes('fever') || key.includes('cough') || key.includes('rash') || key.includes('vomit') || key.includes('throat') || key.includes('chest')) && !val.startsWith('No')) {
-        parts.push(val);
+        parts.push(App.t(val));
       }
     });
-    return parts.length ? parts.join('; ') : 'None reported';
+    return parts.length ? parts.join('; ') : App.t('None reported');
   },
 
   // ── REPORTS MODULE ────────────────────────────────────────────────────────

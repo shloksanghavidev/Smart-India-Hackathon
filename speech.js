@@ -115,7 +115,7 @@ const VoiceController = {
     const langMap = {
       en: 'en-IN',
       hi: 'hi-IN',
-      mr: 'hi-IN',
+      mr: 'mr-IN',
       ta: 'ta-IN',
       bn: 'bn-IN',
       te: 'te-IN'
