@@ -21,7 +21,6 @@ function speakText(text) {
   const langMap = {
     'hi': 'hi-IN',
     'mr': 'mr-IN',
-    'ta': 'ta-IN',
     'bn': 'bn-IN',
     'te': 'te-IN',
     'en': 'en-IN'
@@ -1409,7 +1408,6 @@ function speakText(text) {
       en: 'en-IN',
       hi: 'hi-IN',
       mr: 'mr-IN',
-      ta: 'ta-IN',
       bn: 'bn-IN',
       te: 'te-IN'
   };
@@ -1421,11 +1419,20 @@ function speakText(text) {
   utterance.volume = 1;
   
   const voices = window.speechSynthesis.getVoices();
-  const matchingVoice = voices.find(voice =>
+  let matchingVoice = voices.find(voice =>
       voice.lang.toLowerCase() === utterance.lang.toLowerCase()
   ) || voices.find(voice =>
       voice.lang.toLowerCase().startsWith(lang) || (lang === 'mr' && voice.lang.toLowerCase().startsWith('mar'))
   );
+  
+  // Devanagari Fallback: If Marathi voice is missing, use Hindi voice to read Marathi text
+  // This ensures understandable speech instead of English gibberish, since both use Devanagari.
+  if (!matchingVoice && lang === 'mr') {
+      matchingVoice = voices.find(voice => voice.lang.toLowerCase().startsWith('hi'));
+      if (matchingVoice) {
+          utterance.lang = matchingVoice.lang;
+      }
+  }
   
   if (matchingVoice) {
       utterance.voice = matchingVoice;
