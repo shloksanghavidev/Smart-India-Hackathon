@@ -457,6 +457,35 @@ const App = {
   ayushIndex: 0,
   ayushAnswers: {},
 
+  // ── LOCAL STORAGE PATIENT QUEUE PERSISTENCE ─────────────────────────────
+  getStoredQueue() {
+    try {
+      const stored = localStorage.getItem('medisarthi_patient_queue');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.error("Error reading stored patient queue:", e);
+    }
+    // Seed with DEMO_DATA.patientQueue if localStorage key does not exist
+    if (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.patientQueue) {
+      this.saveStoredQueue(DEMO_DATA.patientQueue);
+      return DEMO_DATA.patientQueue;
+    }
+    return [];
+  },
+
+  saveStoredQueue(queue) {
+    try {
+      localStorage.setItem('medisarthi_patient_queue', JSON.stringify(queue));
+    } catch (e) {
+      console.error("Error saving patient queue to localStorage:", e);
+    }
+  },
+
   // ── INITIALIZATION ────────────────────────────────────────────────────────
   init() {
     console.log("Initializing MediSarthi App Engine...");
@@ -464,9 +493,27 @@ const App = {
     this.currentLang = savedLang;
     window.translate = (text) => this.t(text);
     window.speak = (text) => this.speak(text);
-    this.updateLanguageUI();
-    this.renderDoctorQueue();
-    this.selectDoctorPatient("MS1001");
+
+    // Sync queue from localStorage (medisarthi_patient_queue is source of truth)
+    const storedQueue = this.getStoredQueue();
+    if (typeof DEMO_DATA !== 'undefined') {
+      DEMO_DATA.patientQueue = storedQueue;
+    }
+
+    // Page-aware initialization
+    const docDashboard = document.getElementById('doctor-dashboard-main');
+    if (docDashboard) {
+      docDashboard.style.display = 'block';
+      this.renderDoctorQueue();
+      if (storedQueue.length > 0) {
+        this.selectDoctorPatient(storedQueue[0].id);
+      }
+    }
+
+    const kioskWrapper = document.getElementById('patient-kiosk-wrapper');
+    if (kioskWrapper) {
+      this.updateLanguageUI();
+    }
   },
 
   // ── LANGUAGE ENGINE ───────────────────────────────────────────────────────
@@ -504,7 +551,7 @@ const App = {
   },
 
   openMoreLanguages() {
-    alert("Supported Indian Languages:\nEnglish | हिंदी (Hindi) | मराठी (Marathi) | தமிழ் (Tamil) | বাংলা (Bengali) | తెలుగు (Telugu) | ಕನ್ನಡ (Kannada) | ગુજરાતી (Gujarati) | ਪੰਜਾਬੀ (Punjabi) | ଓଡ଼ିଆ (Odia)");
+    alert("Supported Indian Languages:\nEnglish | हिंदी (Hindi) | मराठी (Marathi) | বাংলা (Bengali) | తెలుగు (Telugu) | ಕನ್ನಡ (Kannada) | ગુજરાતી (Gujarati) | ਪੰਜਾਬੀ (Punjabi) | ଓଡ଼ିଆ (Odia)");
   },
 
   // ── SCREEN ROUTING ────────────────────────────────────────────────────────
@@ -548,18 +595,16 @@ const App = {
 
   switchMode(targetMode) {
     this.mode = targetMode;
-    const kiosk = document.getElementById('patient-kiosk-wrapper');
-    const doctor = document.getElementById('step-doctor-portal');
     if (targetMode === 'doctor') {
-      kiosk.classList.add('hidden');
-      doctor.classList.remove('hidden');
-      // Show login, hide dashboard until actually logged in
-      document.getElementById('doctor-login-card').classList.remove('hidden');
-      document.getElementById('doctor-dashboard-main').classList.add('hidden');
-    } else {
+      window.location.href = 'doctor-login.html';
+      return;
+    }
+    const kiosk = document.getElementById('patient-kiosk-wrapper');
+    if (kiosk) {
       kiosk.classList.remove('hidden');
-      doctor.classList.add('hidden');
       this.showScreen(1);
+    } else {
+      window.location.href = 'index.html';
     }
   },
 
@@ -1258,13 +1303,13 @@ const App = {
     const summary = this.buildClinicalSummary();
 
     const newQueuePatient = {
-      id: this.state.patientId,
-      name: this.state.fullName,
+      id: this.state.patientId || ("MS" + Math.floor(1000 + Math.random() * 9000)),
+      name: this.state.fullName || "Anonymous Patient",
       age: parseInt(this.state.age) || 0,
-      gender: this.state.gender,
+      gender: this.state.gender || "Not specified",
       time: this.nowTime(),
       status: "Waiting",
-      chiefComplaint: this.state.chiefComplaint,
+      chiefComplaint: this.state.chiefComplaint || "General Consultation",
       summary: summary,
       ayush: {
         completed: this.state.ayushRequested,
@@ -1273,35 +1318,48 @@ const App = {
         food: this.ayushAnswers.ay_food || 'Not provided',
         digestion: this.ayushAnswers.ay_digestion || 'Not provided',
         activity: this.ayushAnswers.ay_activity || 'Not provided',
-        yoga: this.ayushAnswers.ay_yoga || 'Not provided'
+        yoga: this.ayushAnswers.ay_yoga || 'Not provided',
+        answers: { ...this.ayushAnswers }
       },
       reports: [...this.state.reportsUploaded],
       conversationLog: [...this.state.conversationLog],
       prescriptions: [],
       doctorNotes: ""
     };
-    DEMO_DATA.patientQueue.unshift(newQueuePatient);
-    this.renderDoctorQueue();
+
+    const queue = this.getStoredQueue();
+    queue.unshift(newQueuePatient);
+    this.saveStoredQueue(queue);
+    DEMO_DATA.patientQueue = queue;
+
+    if (document.getElementById('doc-queue-list')) {
+      this.renderDoctorQueue();
+    }
     this.showScreen(15);
   },
 
   // ── DOCTOR PORTAL ─────────────────────────────────────────────────────────
   loginDoctor() {
+    if (window.location.pathname.includes('doctor-login.html') || (document.getElementById('doc-login-id') && !document.getElementById('doctor-dashboard-main'))) {
+      window.location.href = 'doctor.html';
+      return;
+    }
     const loginCard = document.getElementById('doctor-login-card');
     const dashboard = document.getElementById('doctor-dashboard-main');
-    loginCard.classList.add('hidden');
-    loginCard.style.display = 'none';
-    dashboard.classList.remove('hidden');
-    dashboard.style.display = 'block';
-    // Render stat cards
-    const q = DEMO_DATA.patientQueue;
-    document.getElementById('stat-total').innerText = q.length;
-    document.getElementById('stat-waiting').innerText = q.filter(p => p.status === 'Waiting').length;
-    document.getElementById('stat-consulting').innerText = q.filter(p => p.status === 'In Consultation').length;
-    document.getElementById('stat-completed').innerText = q.filter(p => p.status === 'Completed').length;
+    if (loginCard) {
+      loginCard.classList.add('hidden');
+      loginCard.style.display = 'none';
+    }
+    if (dashboard) {
+      dashboard.classList.remove('hidden');
+      dashboard.style.display = 'block';
+    }
 
+    DEMO_DATA.patientQueue = this.getStoredQueue();
     this.renderDoctorQueue();
-    this.selectDoctorPatient(DEMO_DATA.patientQueue[0].id);
+    if (DEMO_DATA.patientQueue.length > 0) {
+      this.selectDoctorPatient(DEMO_DATA.patientQueue[0].id);
+    }
   },
 
   renderDoctorQueue() {
@@ -1340,13 +1398,23 @@ const App = {
     if (!p) return;
     this.activeDoctorPatient = p;
 
-    document.getElementById('doc-patient-name').innerText = p.name;
-    document.getElementById('doc-patient-meta').innerText = `${p.age}y ${p.gender} · ID: ${p.id} · Time: ${p.time}`;
-    document.getElementById('doc-patient-status').innerText = p.status;
-    document.getElementById('doc-patient-status').style.background = { Waiting:'#fef3c7', 'In Consultation':'#dbeafe', Completed:'#dcfce7' }[p.status] || '#f3f4f6';
-    document.getElementById('doc-patient-status').style.color = { Waiting:'#92400e', 'In Consultation':'#1e40af', Completed:'#166534' }[p.status] || '#374151';
+    const setTxt = (id, val) => { const e = document.getElementById(id); if(e) e.innerText = val; };
+    setTxt('doc-patient-name', p.name);
+    setTxt('doc-patient-meta', `${p.age}y ${p.gender} · ID: ${p.id} · Time: ${p.time}`);
+    setTxt('doc-patient-status', p.status);
 
-    const s = p.summary;
+    const statusEl = document.getElementById('doc-patient-status');
+    if (statusEl) {
+      statusEl.style.background = { Waiting:'#fef3c7', 'In Consultation':'#dbeafe', Completed:'#dcfce7' }[p.status] || '#f3f4f6';
+      statusEl.style.color = { Waiting:'#92400e', 'In Consultation':'#1e40af', Completed:'#166534' }[p.status] || '#374151';
+    }
+
+    const banner = document.getElementById('completion-banner');
+    if (banner) {
+      banner.style.display = p.status === 'Completed' ? 'block' : 'none';
+    }
+
+    const s = p.summary || {};
     const setV = (id, val) => { const e = document.getElementById(id); if(e) e.innerText = val || 'Not provided'; };
     setV('doc-sum-complaint', s.problem);
     setV('doc-sum-duration', s.duration);
@@ -1379,32 +1447,35 @@ const App = {
       setV('doc-sum-ayush', 'Not answered');
     }
 
-    document.getElementById('doc-notes-textarea').value = p.doctorNotes || "";
+    const notesEl = document.getElementById('doc-notes-textarea');
+    if (notesEl) notesEl.value = p.doctorNotes || "";
 
     this.renderPrescriptionsList();
 
     const reportsBox = document.getElementById('doc-reports-list');
-    if (p.reports && p.reports.length > 0) {
-      reportsBox.innerHTML = p.reports.map(r => `
-        <div class="uploaded-file-item" style="margin-bottom:8px;">
-          <div>
-            <i class="fa-solid fa-file-medical" style="color:var(--primary);margin-right:6px;"></i>
-            <strong>${r.title}</strong> — <span style="font-size:0.8rem;color:var(--text-muted);">${r.date}</span>
+    if (reportsBox) {
+      if (p.reports && p.reports.length > 0) {
+        reportsBox.innerHTML = p.reports.map(r => `
+          <div class="uploaded-file-item" style="margin-bottom:8px;">
+            <div>
+              <i class="fa-solid fa-file-medical" style="color:var(--primary);margin-right:6px;"></i>
+              <strong>${r.title}</strong> — <span style="font-size:0.8rem;color:var(--text-muted);">${r.date}</span>
+            </div>
+            <button class="btn-kiosk-secondary" style="min-height:30px;padding:2px 10px;font-size:0.8rem;width:auto;" onclick="App.previewReport('${r.title}')">
+              <i class="fa-solid fa-eye"></i> View
+            </button>
           </div>
-          <button class="btn-kiosk-secondary" style="min-height:30px;padding:2px 10px;font-size:0.8rem;width:auto;" onclick="App.previewReport('${r.title}')">
-            <i class="fa-solid fa-eye"></i> View
-          </button>
-        </div>
-      `).join('');
-    } else {
-      reportsBox.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;"><i class="fa-solid fa-folder-open"></i> No reports uploaded for this patient.</p>';
+        `).join('');
+      } else {
+        reportsBox.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;"><i class="fa-solid fa-folder-open"></i> No reports uploaded for this patient.</p>';
+      }
     }
     this.renderDoctorQueue();
   },
 
   renderPrescriptionsList() {
     const listTable = document.getElementById('prescriptions-list-table');
-    if (!this.activeDoctorPatient) return;
+    if (!listTable || !this.activeDoctorPatient) return;
     const rxs = this.activeDoctorPatient.prescriptions || [];
     if (rxs.length === 0) {
       listTable.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No prescriptions added yet.</p>';
@@ -1430,17 +1501,20 @@ const App = {
   },
 
   addPrescriptionItem() {
-    const name = document.getElementById('rx-name').value.trim();
-    const dosage = document.getElementById('rx-dosage').value.trim() || '500mg';
-    const freq = document.getElementById('rx-freq').value.trim() || '1-0-1';
-    const duration = document.getElementById('rx-duration').value.trim() || '5 days';
-    const instructions = document.getElementById('rx-instructions').value.trim() || '';
+    const nameEl = document.getElementById('rx-name');
+    if (!nameEl) return;
+    const name = nameEl.value.trim();
+    const dosage = (document.getElementById('rx-dosage')?.value || '').trim() || '500mg';
+    const freq = (document.getElementById('rx-freq')?.value || '').trim() || '1-0-1';
+    const duration = (document.getElementById('rx-duration')?.value || '').trim() || '5 days';
+    const instructions = (document.getElementById('rx-instructions')?.value || '').trim() || '';
     if (!name) { this.showNotification('⚠️ Please enter medicine name.'); return; }
     if (!this.activeDoctorPatient.prescriptions) this.activeDoctorPatient.prescriptions = [];
     this.activeDoctorPatient.prescriptions.push({ name, dosage, frequency: freq, duration, instructions });
     ['rx-name','rx-dosage','rx-freq','rx-duration','rx-instructions'].forEach(id => {
       const el = document.getElementById(id); if(el) el.value = '';
     });
+    this.saveStoredQueue(DEMO_DATA.patientQueue);
     this.renderPrescriptionsList();
     this.showNotification(`✅ "${name}" added to prescription.`);
   },
@@ -1449,7 +1523,9 @@ const App = {
     if (!this.activeDoctorPatient) return;
     if (confirm(`Complete consultation for ${this.activeDoctorPatient.name}? This will mark the patient as done.`)) {
       this.activeDoctorPatient.status = "Completed";
-      this.activeDoctorPatient.doctorNotes = document.getElementById('doc-notes-textarea').value;
+      const notesEl = document.getElementById('doc-notes-textarea');
+      if (notesEl) this.activeDoctorPatient.doctorNotes = notesEl.value;
+      this.saveStoredQueue(DEMO_DATA.patientQueue);
       this.renderDoctorQueue();
       this.selectDoctorPatient(this.activeDoctorPatient.id);
       this.showNotification(`✅ Consultation for ${this.activeDoctorPatient.name} marked as Completed.`);

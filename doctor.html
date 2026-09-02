@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediSarthi — Doctor Consultation Desk</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body style="background:#f1f5f9; min-height:100vh;">
+
+  <!-- Doctor Dashboard Main -->
+  <div id="doctor-dashboard-main" style="display:block;">
+
+    <!-- Doctor Header -->
+    <header class="doctor-header">
+      <div class="doc-brand"><i class="fa-solid fa-user-doctor"></i> MediSarthi — Doctor Desk</div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="font-weight:600;color:#94a3b8;">Dr. Meera Sharma · MD General Medicine</span>
+        <span style="background:#1e3a5f;color:#38bdf8;padding:4px 12px;border-radius:99px;font-size:0.82rem;font-weight:700;">City General Hospital, Mumbai</span>
+        <button class="btn-back" style="background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;padding:6px 14px;border-radius:8px;" onclick="window.location.href='doctor-login.html'">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </header>
+
+    <!-- Stat Cards Row -->
+    <div class="doc-stats-row">
+      <div class="doc-stat-card">
+        <div class="doc-stat-num" id="stat-total">0</div>
+        <div class="doc-stat-label">Today's Patients</div>
+      </div>
+      <div class="doc-stat-card">
+        <div class="doc-stat-num" id="stat-waiting" style="color:#d97706;">0</div>
+        <div class="doc-stat-label">Waiting</div>
+      </div>
+      <div class="doc-stat-card">
+        <div class="doc-stat-num" id="stat-consulting" style="color:#0284c7;">0</div>
+        <div class="doc-stat-label">In Consultation</div>
+      </div>
+      <div class="doc-stat-card">
+        <div class="doc-stat-num" id="stat-completed" style="color:#059669;">0</div>
+        <div class="doc-stat-label">Completed</div>
+      </div>
+    </div>
+
+    <!-- Dashboard Layout Grid -->
+    <div class="doctor-layout-grid">
+
+      <!-- Left Panel: Patient Queue -->
+      <div class="patient-queue-panel">
+        <h3 style="font-size:1.15rem;font-weight:800;margin-bottom:12px;">Patient Queue</h3>
+        <input type="text" placeholder="Search patient name or ID..." class="kiosk-input" style="height:42px;font-size:0.9rem;text-align:left;margin-bottom:14px;" onkeyup="App.filterPatientQueue(this.value)">
+        <div id="doc-queue-list"></div>
+      </div>
+
+      <!-- Right Panel: Clinical View -->
+      <div class="doc-consult-main">
+
+        <!-- Column 1: Patient Header, Summary, Notes -->
+        <div>
+          <div class="doc-section-card">
+            <div id="completion-banner" style="display:none;background:#dcfce7;color:#15803d;padding:10px 14px;border-radius:8px;font-weight:700;margin-bottom:14px;">
+              ✅ Consultation Completed Successfully!
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+              <div>
+                <h2 style="font-size:1.4rem;font-weight:800;" id="doc-patient-name">Select Patient</h2>
+                <p style="color:var(--text-muted);font-size:0.88rem;" id="doc-patient-meta">—</p>
+                <span id="doc-patient-status" style="font-size:0.8rem;font-weight:700;padding:3px 12px;border-radius:99px;background:#fef3c7;color:#92400e;">Waiting</span>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn-kiosk-secondary" style="width:auto;min-height:38px;padding:5px 12px;font-size:0.85rem;" onclick="App.openFullConversationModal()">
+                  <i class="fa-solid fa-comments"></i> View Conversation
+                </button>
+                <button class="btn-kiosk-secondary" style="width:auto;min-height:38px;padding:5px 12px;font-size:0.85rem;border-color:#059669;color:#059669;" onclick="App.openAyushModal()">
+                  <i class="fa-solid fa-leaf"></i> AYUSH Context
+                </button>
+              </div>
+            </div>
+
+            <h4 style="font-size:1rem;font-weight:800;color:var(--primary);margin-bottom:12px;">
+              <i class="fa-solid fa-clipboard-list"></i> Clinical History Summary
+            </h4>
+            <div style="font-size:0.75rem;color:#1e40af;background:#eff6ff;border:1px solid #bfdbfe;padding:6px 12px;border-radius:8px;margin-bottom:10px;">
+              <i class="fa-solid fa-robot"></i> AI-generated from patient responses — verify during consultation.
+            </div>
+
+            <div class="summary-table-card" style="box-shadow:none;border-color:#f1f5f9;">
+              <div class="summary-row"><div class="summary-label">Chief Complaint</div><div class="summary-val" id="doc-sum-complaint">—</div></div>
+              <div class="summary-row"><div class="summary-label">Duration</div><div class="summary-val" id="doc-sum-duration">—</div></div>
+              <div class="summary-row"><div class="summary-label">Location</div><div class="summary-val" id="doc-sum-location">—</div></div>
+              <div class="summary-row"><div class="summary-label">Severity</div><div class="summary-val" id="doc-sum-severity">—</div></div>
+              <div class="summary-row"><div class="summary-label">Onset</div><div class="summary-val" id="doc-sum-onset">—</div></div>
+              <div class="summary-row"><div class="summary-label">Aggravating Factors</div><div class="summary-val" id="doc-sum-eating">—</div></div>
+              <div class="summary-row"><div class="summary-label">Nausea / Vomiting</div><div class="summary-val" id="doc-sum-nausea">—</div></div>
+              <div class="summary-row"><div class="summary-label">Bowel Changes</div><div class="summary-val" id="doc-sum-bowel">—</div></div>
+              <div class="summary-row"><div class="summary-label">Past History of This</div><div class="summary-val" id="doc-sum-past">—</div></div>
+              <div class="summary-row"><div class="summary-label">Current Medications</div><div class="summary-val" id="doc-sum-meds">—</div></div>
+              <div class="summary-row"><div class="summary-label">Allergies</div><div class="summary-val" id="doc-sum-allergies">—</div></div>
+              <div class="summary-row"><div class="summary-label">Medical Documents</div><div class="summary-val" id="doc-sum-documents">—</div></div>
+              <div class="summary-row"><div class="summary-label">AYUSH Wellness Snapshot</div><div class="summary-val" id="doc-sum-ayush">—</div></div>
+            </div>
+          </div>
+
+          <!-- Doctor Notes -->
+          <div class="doc-section-card">
+            <h4 style="font-size:1rem;font-weight:800;margin-bottom:10px;"><i class="fa-solid fa-pen-to-square"></i> Doctor Notes & Diagnosis</h4>
+            <textarea id="doc-notes-textarea" class="kiosk-input" style="height:110px;font-size:0.95rem;text-align:left;resize:vertical;" placeholder="Type clinical observations, working diagnosis, or instructions for the patient record..."></textarea>
+          </div>
+        </div>
+
+        <!-- Column 2: Reports, History, Prescriptions, Action -->
+        <div>
+          <!-- Reports -->
+          <div class="doc-section-card">
+            <h4 style="font-size:1rem;font-weight:800;margin-bottom:12px;"><i class="fa-solid fa-file-medical"></i> Medical Reports</h4>
+            <div id="doc-reports-list"></div>
+            <p style="font-size:0.78rem;color:var(--text-muted);margin-top:8px;font-style:italic;">Original reports only. No automated interpretation is performed by MediSarthi.</p>
+          </div>
+
+          <!-- Previous Consultations -->
+          <div class="doc-section-card">
+            <h4 style="font-size:1rem;font-weight:800;margin-bottom:10px;"><i class="fa-solid fa-clock-rotate-left"></i> Previous Consultations</h4>
+            <div style="font-size:0.88rem;color:var(--text-muted);">
+              <div style="border-left:3px solid var(--primary);padding:8px 12px;margin-bottom:8px;background:#f8fafc;border-radius:0 8px 8px 0;">
+                <strong style="color:var(--text-main);">12 Jul 2026</strong> — Hypertension follow-up. BP 135/88. Continued Amlodipine.
+              </div>
+              <div style="border-left:3px solid #94a3b8;padding:8px 12px;margin-bottom:8px;background:#f8fafc;border-radius:0 8px 8px 0;">
+                <strong style="color:var(--text-main);">02 Apr 2026</strong> — Seasonal fever. Paracetamol prescribed. Resolved.
+              </div>
+            </div>
+          </div>
+
+          <!-- Prescription -->
+          <div class="doc-section-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+              <h4 style="font-size:1rem;font-weight:800;margin:0;"><i class="fa-solid fa-pills"></i> Prescription</h4>
+              <button class="btn-kiosk-primary touch-pulse-btn" style="width:auto;min-height:36px;padding:5px 16px;font-size:0.88rem;background:linear-gradient(135deg,#0284c7,#0369a1);" onclick="App.printPrescription()">
+                <i class="fa-solid fa-file-pdf"></i> Print Prescription PDF
+              </button>
+            </div>
+            <div id="prescriptions-list-table">
+              <p style="color:var(--text-muted);font-size:0.85rem;">No prescriptions added yet.</p>
+            </div>
+            <!-- Add Rx Form -->
+            <div style="background:var(--bg-app);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:14px;margin-top:14px;">
+              <p style="font-size:0.88rem;font-weight:700;margin-bottom:10px;color:var(--text-main);">Add Medicine:</p>
+              <input type="text" id="rx-name" placeholder="Medicine Name (e.g. Paracetamol)" class="kiosk-input" style="height:38px;font-size:0.85rem;text-align:left;margin-bottom:7px;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px;">
+                <input type="text" id="rx-dosage" placeholder="Dosage (500mg)" class="kiosk-input" style="height:38px;font-size:0.85rem;text-align:left;">
+                <input type="text" id="rx-freq" placeholder="Frequency (1-0-1)" class="kiosk-input" style="height:38px;font-size:0.85rem;text-align:left;">
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;">
+                <input type="text" id="rx-duration" placeholder="Duration (5 days)" class="kiosk-input" style="height:38px;font-size:0.85rem;text-align:left;">
+                <input type="text" id="rx-instructions" placeholder="Instructions (After food)" class="kiosk-input" style="height:38px;font-size:0.85rem;text-align:left;">
+              </div>
+              <button class="btn-kiosk-primary" style="height:42px;min-height:42px;font-size:0.9rem;" onclick="App.addPrescriptionItem()">
+                <i class="fa-solid fa-plus"></i> Add Medicine
+              </button>
+            </div>
+          </div>
+
+          <!-- Complete Consultation -->
+          <button class="btn-kiosk-primary" style="background:linear-gradient(135deg,#059669,#047857);font-size:1.05rem;" onclick="App.completeDoctorConsultation()">
+            <i class="fa-solid fa-circle-check"></i> Complete Consultation
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALS -->
+  <!-- Conversation Transcript Modal -->
+  <div id="conversation-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-size:1.2rem;font-weight:800;"><i class="fa-solid fa-comments"></i> Full AI Conversation Transcript</h3>
+        <button onclick="App.closeConversationModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="transcript-dialog-body" style="max-height:420px;overflow-y:auto;padding:14px;background:#f8fafc;border-radius:var(--radius-md);"></div>
+      <button class="btn-kiosk-secondary" style="margin-top:14px;" onclick="App.closeConversationModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- AYUSH Detailed Modal -->
+  <div id="ayush-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-size:1.2rem;font-weight:800;"><i class="fa-solid fa-leaf" style="color:#15803d;"></i> AYUSH Wellness Context</h3>
+        <button onclick="App.closeAyushModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="ayush-modal-body" style="max-height:400px;overflow-y:auto;"></div>
+      <p style="font-size:0.78rem;color:var(--text-muted);margin-top:10px;font-style:italic;">AYUSH wellness context is provided for holistic care reference only — not a clinical diagnosis.</p>
+      <button class="btn-kiosk-secondary" style="margin-top:12px;" onclick="App.closeAyushModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- Report Preview Modal -->
+  <div id="report-preview-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-size:1.2rem;font-weight:800;"><i class="fa-solid fa-file-medical"></i> Medical Report</h3>
+        <button onclick="App.closeReportPreview()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:30px;border-radius:var(--radius-md);text-align:center;">
+        <i class="fa-solid fa-file-waveform" style="font-size:4rem;color:var(--primary);margin-bottom:16px;"></i>
+        <h4 id="report-preview-filename" style="font-size:1.2rem;margin-bottom:8px;">Blood Test Report</h4>
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:18px;">Source document stored securely. No automated clinical analysis performed.</p>
+        <button class="btn-kiosk-secondary" onclick="App.showNotification('Downloading report...')"><i class="fa-solid fa-download"></i> Download Copy</button>
+      </div>
+      <button class="btn-kiosk-primary" style="margin-top:14px;" onclick="App.closeReportPreview()">Close</button>
+    </div>
+  </div>
+
+  <script src="jspdf.umd.min.js"></script>
+  <script src="data.js"></script>
+  <script src="translations.js"></script>
+  <script src="speech.js"></script>
+  <script src="intent.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

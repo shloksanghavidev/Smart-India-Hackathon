@@ -1,6 +1,6 @@
 /**
  * MediSarthi — Multilingual Dictionary
- * Supports English (en), Hindi (hi), Marathi (mr), Tamil (ta), Bengali (bn), Telugu (te)
+ * Supports English (en), Hindi (hi), Marathi (mr), Bengali (bn), Telugu (te)
  */
 
 const TRANSLATIONS = {
