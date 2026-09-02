@@ -574,10 +574,28 @@ const App = {
     overlay.style.display = 'flex';
     setTimeout(() => {
       overlay.style.display = 'none';
-      document.getElementById('aadhaar-input').value = "987654321098";
+      document.getElementById('aadhaar-input').value = "9876 5432 1098";
+      this.patient.aadhaar = "987654321098";
       this.showNotification("✅ Aadhaar QR scanned successfully!");
       setTimeout(() => this.showScreen(4), 700);
     }, 2500);
+  },
+
+  formatAadhaarInput(input) {
+    let raw = input.value.replace(/\D/g, '').substring(0, 12);
+    let formatted = raw.replace(/(\d{4})(?=\d)/g, '$1 ');
+    input.value = formatted;
+  },
+
+  validateAadhaarAndContinue() {
+    const input = document.getElementById('aadhaar-input');
+    const raw = input.value.replace(/\D/g, '');
+    if (raw.length !== 12) {
+      this.showNotification("⚠️ Please enter exactly 12 digits.");
+      return;
+    }
+    this.patient.aadhaar = raw;
+    this.showScreen(4);
   },
 
   selectPatientType(type) {
