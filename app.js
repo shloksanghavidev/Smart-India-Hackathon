@@ -66,6 +66,9 @@ const App = {
     bodyLocation: "Around Navel",
     duration: "1 – 3 days",
     severity: "Moderate",
+    medicalHistory: "",
+    allergies: "",
+    medications: "",
     reportsUploaded: [
       { title: "Blood Test (CBC)", date: "20 May 2026", type: "pdf" }
     ],
@@ -507,6 +510,9 @@ const App = {
     if (screenNum === 6) {
       const text = this.t('what_brings_you');
       setTimeout(() => { speakText(text); }, 400);
+    } else if (screenNum === 7) {
+      const text = this.t('allergy_question');
+      setTimeout(() => { speakText(text); }, 400);
     }
   },
 
@@ -559,7 +565,16 @@ const App = {
       document.getElementById('retrieved-last-visit').innerText = p.lastVisit;
       document.getElementById('retrieved-history').innerText = p.medicalHistory;
       document.getElementById('retrieved-allergies').innerText = p.allergies;
-      this.state = { ...this.state, fullName: p.name, age: String(p.age), gender: p.gender, patientId: p.id };
+      this.state = { 
+        ...this.state, 
+        fullName: p.name, 
+        age: String(p.age), 
+        gender: p.gender, 
+        patientId: p.id,
+        medicalHistory: p.medicalHistory,
+        allergies: p.allergies,
+        medications: p.medications
+      };
     } else {
       existingView.style.display = 'none';
       newForm.style.display = 'block';
@@ -584,9 +599,33 @@ const App = {
       this.state.age = age;
       this.state.mobile = document.getElementById('input-mobile').value || "";
     }
+    const allergyInput = document.getElementById('input-allergy');
+    if (this.patientType === 'existing' && this.state.allergies && this.state.allergies.toLowerCase() !== 'none' && this.state.allergies.toLowerCase() !== 'no known allergies') {
+      allergyInput.value = this.state.allergies;
+    } else {
+      allergyInput.value = '';
+    }
+
     this.state.conversationLog = [
       { sender: "MediSarthi", text: "Welcome to MediSarthi! What brings you here today?", time: this.nowTime() }
     ];
+    this.showScreen(7);
+  },
+
+  setNoAllergies() {
+    this.state.allergies = this.t('no_known_allergies');
+    this.logMsg("Patient", `Allergies: ${this.state.allergies}`);
+    this.showScreen(6);
+  },
+
+  submitAllergy() {
+    const val = document.getElementById('input-allergy').value.trim();
+    if (!val) {
+      this.showNotification(`⚠️ ${this.t('error_no_allergy_input')}`);
+      return;
+    }
+    this.state.allergies = val;
+    this.logMsg("Patient", `Allergies: ${val}`);
     this.showScreen(6);
   },
 
@@ -1013,6 +1052,7 @@ const App = {
     setVal('sum-history', summary.medicalHistory);
     setVal('sum-allergies', summary.allergies);
     setVal('sum-meds', summary.medications);
+    setVal('sum-documents', summary.documents);
   },
 
   buildAssociatedSymptomsSummary() {
@@ -1045,9 +1085,12 @@ const App = {
       bowel: getSummaryField(['bowel']),
       pastHistory: getSummaryField(['past', 'previous']),
       associated: this.buildAssociatedSymptomsSummary(),
-      medicalHistory: this.patientType === 'existing' ? 'Mild Hypertension (on Amlodipine 5mg)' : 'None provided',
-      medications: this.patientType === 'existing' ? 'Amlodipine 5mg OD' : 'None',
-      allergies: this.patientType === 'existing' ? 'Penicillin' : 'None provided'
+      medicalHistory: this.state.medicalHistory || 'None provided',
+      medications: this.state.medications || 'None',
+      allergies: this.state.allergies || 'Not provided',
+      documents: this.state.reportsUploaded && this.state.reportsUploaded.length > 0 
+        ? `${this.state.reportsUploaded.length} uploaded: ` + this.state.reportsUploaded.map(r => r.title).join(', ') 
+        : 'None uploaded'
     };
   },
 
@@ -1203,6 +1246,7 @@ const App = {
     setV('doc-sum-history', s.medicalHistory);
     setV('doc-sum-meds', s.medications);
     setV('doc-sum-allergies', s.allergies);
+    setV('doc-sum-documents', s.documents);
     if (p.ayush.completed) {
       setV('doc-sum-ayush', `Sleep: ${p.ayush.sleep} | Diet: ${p.ayush.food} | Digestion: ${p.ayush.digestion} | Yoga: ${p.ayush.yoga}`);
     } else {

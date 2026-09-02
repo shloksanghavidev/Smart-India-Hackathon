@@ -234,6 +234,31 @@
       </div>
     </section>
 
+    <!-- ── STEP 7: ALLERGY QUESTION ──────────────────────────────────────── -->
+    <section id="step-allergy" class="step-view hidden">
+      <div class="kiosk-card">
+        <h2 class="kiosk-title" id="allergy-q-text" data-i18n="allergy_question">Do you have any known allergies?</h2>
+        <p class="kiosk-subtitle" data-i18n="allergy_subtitle">Please type your allergy or select 'No known allergies'.</p>
+        
+        <div style="margin-bottom:24px;">
+          <input type="text" id="input-allergy" class="kiosk-input" placeholder="e.g. Penicillin, Dust, Peanuts" onkeypress="if(event.key==='Enter') App.submitAllergy()">
+          <div style="display:flex;gap:10px;margin-top:12px;">
+            <button class="btn-kiosk-secondary" onclick="App.setNoAllergies()" style="width:50%;" data-i18n="no_known_allergies">
+              No known allergies
+            </button>
+            <button class="btn-kiosk-primary" onclick="App.submitAllergy()" style="width:50%;">
+              <span data-i18n="continue">Continue</span> <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="step-nav-footer">
+          <button class="btn-back" onclick="App.showScreen(5)"><i class="fa-solid fa-arrow-left"></i> Back</button>
+          <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> Need Help?</button>
+        </div>
+      </div>
+    </section>
+
     <!-- ── STEP 6: AI HISTORY TAKING (Voice/Text/Choose) ─────────────── -->
     <section id="step-complaint" class="step-view hidden">
       <div class="kiosk-card">
@@ -301,7 +326,7 @@
         </div>
 
         <div class="step-nav-footer">
-          <button class="btn-back" onclick="App.showScreen(5)"><i class="fa-solid fa-arrow-left"></i> Back</button>
+          <button class="btn-back" onclick="App.showScreen(7)"><i class="fa-solid fa-arrow-left"></i> Back</button>
           <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> Need Help?</button>
         </div>
       </div>
@@ -331,6 +356,7 @@
           <div class="summary-row"><div class="summary-label" data-i18n="medical_history">Medical History</div><div class="summary-val" id="sum-history">Mild Hypertension</div></div>
           <div class="summary-row"><div class="summary-label" data-i18n="allergies">Allergies</div><div class="summary-val" id="sum-allergies">Penicillin</div></div>
           <div class="summary-row"><div class="summary-label" data-i18n="current_medications">Current Medications</div><div class="summary-val" id="sum-meds">Amlodipine 5mg OD</div></div>
+          <div class="summary-row"><div class="summary-label" data-i18n="medical_documents">Medical Documents</div><div class="summary-val" id="sum-documents">None uploaded</div></div>
         </div>
 
         <div class="ai-safety-alert" style="margin-bottom:20px;">
@@ -601,6 +627,7 @@
               <div class="summary-row"><div class="summary-label">Medical History</div><div class="summary-val" id="doc-sum-history">Mild Hypertension</div></div>
               <div class="summary-row"><div class="summary-label">Current Medications</div><div class="summary-val" id="doc-sum-meds">Amlodipine 5mg OD</div></div>
               <div class="summary-row"><div class="summary-label">Allergies</div><div class="summary-val" id="doc-sum-allergies">Penicillin</div></div>
+              <div class="summary-row"><div class="summary-label">Medical Documents</div><div class="summary-val" id="doc-sum-documents">None uploaded</div></div>
               <div class="summary-row"><div class="summary-label">AYUSH Wellness</div><div class="summary-val" id="doc-sum-ayush">Regular sleep · Veg diet</div></div>
             </div>
           </div>
