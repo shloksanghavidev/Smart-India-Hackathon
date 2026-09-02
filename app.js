@@ -1000,27 +1000,55 @@ const App = {
       }
     };
     
-    setVal('sum-problem', this.state.chiefComplaint);
-    setVal('sum-duration', this.aqAnswers[Object.keys(this.aqAnswers).find(k => k.includes('duration'))] || 'Not specified');
-    setVal('sum-location', this.state.bodyLocation);
-    setVal('sum-severity', this.aqAnswers[Object.keys(this.aqAnswers).find(k => k.includes('severity'))] || 'Not specified');
-    setVal('sum-onset', this.aqAnswers[Object.keys(this.aqAnswers).find(k => k.includes('onset'))] || 'Not specified');
+    const summary = this.buildClinicalSummary();
     
-    setListVal('sum-associated', this.buildAssociatedSymptomsSummary());
-    setVal('sum-aggravating', this.aqAnswers[Object.keys(this.aqAnswers).find(k => k.includes('eating') || k.includes('light') || k.includes('activity'))] || 'Not specified');
-    setVal('sum-history', this.patientType === 'existing' ? 'Mild Hypertension (on Amlodipine 5mg)' : 'Not provided');
-    setVal('sum-allergies', this.patientType === 'existing' ? 'Penicillin' : 'Not provided');
-    setVal('sum-meds', this.patientType === 'existing' ? 'Amlodipine 5mg OD' : 'None');
+    setVal('sum-problem', summary.problem);
+    setVal('sum-duration', summary.duration);
+    setVal('sum-location', summary.location);
+    setVal('sum-severity', summary.severity);
+    setVal('sum-onset', summary.onset);
+    
+    setListVal('sum-associated', summary.associated);
+    setVal('sum-aggravating', summary.eatingWorse);
+    setVal('sum-history', summary.medicalHistory);
+    setVal('sum-allergies', summary.allergies);
+    setVal('sum-meds', summary.medications);
   },
 
   buildAssociatedSymptomsSummary() {
     const parts = [];
     Object.entries(this.aqAnswers).forEach(([key, val]) => {
-      if ((key.includes('nausea') || key.includes('fever') || key.includes('cough') || key.includes('rash') || key.includes('vomit') || key.includes('throat') || key.includes('chest')) && !val.startsWith('No')) {
+      if ((key.includes('nausea') || key.includes('fever') || key.includes('cough') || key.includes('rash') || key.includes('vomit') || key.includes('throat') || key.includes('chest') || key.includes('breathing') || key.includes('chills') || key.includes('body_ache') || key.includes('swelling') || key.includes('other_symptoms')) && !val.startsWith('No') && !val.startsWith('Neither')) {
         parts.push(val); // Push stable English value
       }
     });
     return parts.length ? parts.join('; ') : 'None reported';
+  },
+
+  buildClinicalSummary() {
+    const getSummaryField = (keyIncludes) => {
+      const key = Object.keys(this.aqAnswers).find(k => keyIncludes.some(s => k.includes(s)));
+      return key ? this.aqAnswers[key] : 'Not provided';
+    };
+
+    const locAns = getSummaryField(['location']);
+    const finalLocation = (this.state.bodyLocation !== "Not specified") ? this.state.bodyLocation : (locAns !== 'Not provided' ? locAns : 'Not specified');
+
+    return {
+      problem: this.state.chiefComplaint,
+      duration: getSummaryField(['duration']),
+      severity: getSummaryField(['severity']),
+      location: finalLocation,
+      onset: getSummaryField(['onset']),
+      eatingWorse: getSummaryField(['eating', 'light', 'activity']),
+      nauseaVomiting: getSummaryField(['nausea', 'vomit']),
+      bowel: getSummaryField(['bowel']),
+      pastHistory: getSummaryField(['past', 'previous']),
+      associated: this.buildAssociatedSymptomsSummary(),
+      medicalHistory: this.patientType === 'existing' ? 'Mild Hypertension (on Amlodipine 5mg)' : 'None provided',
+      medications: this.patientType === 'existing' ? 'Amlodipine 5mg OD' : 'None',
+      allergies: this.patientType === 'existing' ? 'Penicillin' : 'None provided'
+    };
   },
 
   // ── REPORTS MODULE ────────────────────────────────────────────────────────
@@ -1070,11 +1098,8 @@ const App = {
   },
 
   submitPatientFlow() {
-    // Build rich summary from aqAnswers
-    const getSummaryField = (keyIncludes) => {
-      const key = Object.keys(this.aqAnswers).find(k => keyIncludes.some(s => k.includes(s)));
-      return key ? this.aqAnswers[key] : 'Not provided';
-    };
+    const summary = this.buildClinicalSummary();
+
     const newQueuePatient = {
       id: this.state.patientId,
       name: this.state.fullName,
@@ -1083,20 +1108,7 @@ const App = {
       time: this.nowTime(),
       status: "Waiting",
       chiefComplaint: this.state.chiefComplaint,
-      summary: {
-        problem: this.state.chiefComplaint,
-        duration: getSummaryField(['duration']),
-        severity: getSummaryField(['severity']),
-        location: this.state.bodyLocation,
-        onset: getSummaryField(['onset']),
-        eatingWorse: getSummaryField(['eating','light','activity']),
-        nauseaVomiting: getSummaryField(['nausea','vomit']),
-        bowel: getSummaryField(['bowel']),
-        pastHistory: getSummaryField(['past','previous']),
-        medicalHistory: this.patientType === 'existing' ? 'Mild Hypertension' : 'None provided',
-        medications: this.patientType === 'existing' ? 'Amlodipine 5mg OD' : 'None',
-        allergies: this.patientType === 'existing' ? 'Penicillin' : 'None'
-      },
+      summary: summary,
       ayush: {
         completed: this.state.ayushRequested,
         sleep: this.ayushAnswers.ay_sleep || 'Not provided',
