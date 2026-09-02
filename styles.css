@@ -1082,7 +1082,16 @@ input, textarea {
   
   .language-bar {
     width: 100%;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+  
+  .lang-btn {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    flex: 1 1 auto;
+    text-align: center;
   }
 }
 
