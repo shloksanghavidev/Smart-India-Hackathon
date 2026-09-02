@@ -507,7 +507,7 @@ const App = {
     });
     if (screenNum === 6) {
       const text = this.t('what_brings_you');
-      setTimeout(() => { App.speak(text); }, 400);
+      setTimeout(() => { speakText(text); }, 400);
     }
   },
 
@@ -555,7 +555,7 @@ const App = {
       const p = DEMO_DATA.existingPatients[0];
       document.getElementById('retrieved-name').innerText = p.name;
       document.getElementById('retrieved-full-name').innerText = p.name;
-      document.getElementById('retrieved-age-gender').innerText = `${p.age} / ${p.gender}`;
+      document.getElementById('retrieved-age-gender').innerText = `${p.age} / ${getLocalizedText(p.gender, p.gender)}`;
       document.getElementById('retrieved-id').innerText = p.id;
       document.getElementById('retrieved-last-visit').innerText = p.lastVisit;
       document.getElementById('retrieved-history').innerText = p.medicalHistory;
@@ -657,19 +657,19 @@ const App = {
       optionsHtml = this.renderBodyMapHTML(q);
     } else if (q.type === 'severity') {
       optionsHtml = `<div class="severity-ratings-grid" style="margin-bottom:24px;">
-        <div class="severity-card" onclick="App.answerAQ('Mild')"><h3>${App.t('Mild')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${App.t('Little or no interference with daily activities')}</p></div>
-        <div class="severity-card" onclick="App.answerAQ('Moderate')"><h3>${App.t('Moderate')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${App.t('Some interference with daily activities')}</p></div>
-        <div class="severity-card" onclick="App.answerAQ('Severe')"><h3>${App.t('Severe')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${App.t('Significant interference with daily activities')}</p></div>
+        <div class="severity-card" onclick="App.answerAQ('Mild')"><h3>${getLocalizedText('Mild', 'Mild')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${getLocalizedText('Little or no interference with daily activities', 'Little or no interference with daily activities')}</p></div>
+        <div class="severity-card" onclick="App.answerAQ('Moderate')"><h3>${getLocalizedText('Moderate', 'Moderate')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${getLocalizedText('Some interference with daily activities', 'Some interference with daily activities')}</p></div>
+        <div class="severity-card" onclick="App.answerAQ('Severe')"><h3>${getLocalizedText('Severe', 'Severe')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${getLocalizedText('Significant interference with daily activities', 'Significant interference with daily activities')}</p></div>
       </div>`;
     } else if (q.type === 'text') {
       optionsHtml = `<div style="margin-bottom:24px;">
-        <textarea id="aq-free-text" class="kiosk-input" style="height:110px;font-size:1.05rem;text-align:left;resize:none;" placeholder="${App.t('type_your_problem')}"></textarea>
+        <textarea id="aq-free-text" class="kiosk-input" style="height:110px;font-size:1.05rem;text-align:left;resize:none;" placeholder="${getLocalizedText('type_your_problem', 'Type what you are feeling...')}"></textarea>
         <div style="display:flex;gap:10px;margin-top:12px;">
           <button class="btn-kiosk-secondary" onclick="App.triggerAQVoice()" style="width:50%;">
-            <i class="fa-solid fa-microphone"></i> ${App.t('speak')}
+            <i class="fa-solid fa-microphone"></i> ${getLocalizedText('speak', 'Speak')}
           </button>
           <button class="btn-kiosk-primary" onclick="App.answerAQText()" style="width:50%;">
-            ${App.t('continue')} <i class="fa-solid fa-arrow-right"></i>
+            ${getLocalizedText('continue', 'Continue')} <i class="fa-solid fa-arrow-right"></i>
           </button>
         </div>
       </div>`;
@@ -678,17 +678,20 @@ const App = {
       optionsHtml = `<div class="options-vertical-list">` +
         q.options.map(opt =>
           `<button class="option-touch-btn" onclick="App.answerAQ('${opt.replace(/'/g,"\\'")}')">
-            <span>${App.t(opt)}</span> <i class="fa-solid fa-chevron-right"></i>
+            <span>${getLocalizedText(opt, opt)}</span> <i class="fa-solid fa-chevron-right"></i>
           </button>`
         ).join('') +
         `</div>`;
     }
 
-    const qLabel = App.t('Question');
-    const ofLabel = App.t('of');
-    const listenLabel = App.t('listen');
-    const backLabel = App.t('back');
-    const helpLabel = App.t('need_help');
+    const qLabel = getLocalizedText('Question', 'Question');
+    const ofLabel = getLocalizedText('of', 'of');
+    const listenLabel = getLocalizedText('listen', 'Listen');
+    const backLabel = getLocalizedText('back', 'Back');
+    const helpLabel = getLocalizedText('need_help', 'Need Help?');
+    
+    const localizedQuestion = getLocalizedText(q.text, q.text);
+    const localizedSubtitle = getLocalizedText(q.subtitle || '', q.subtitle || '');
 
     container.innerHTML = `
       <div class="kiosk-card">
@@ -697,7 +700,7 @@ const App = {
           <span style="font-size:0.92rem;font-weight:700;color:var(--primary);background:var(--primary-light);padding:4px 14px;border-radius:999px;">
             ${qLabel} ${current} ${ofLabel} ${total}
           </span>
-          <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.88rem;width:auto;" onclick="App.speak(document.getElementById('aq-q-text').innerText)">
+          <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.88rem;width:auto;" onclick="speakText(document.getElementById('aq-q-text').innerText)">
             <i class="fa-solid fa-volume-high"></i> ${listenLabel}
           </button>
         </div>
@@ -705,8 +708,8 @@ const App = {
           <div style="background:var(--primary);width:${(current/total)*100}%;height:6px;border-radius:999px;transition:width 0.4s ease;"></div>
         </div>
 
-        <h2 class="kiosk-title" id="aq-q-text" style="margin-bottom:10px;">${App.t(q.text)}</h2>
-        <p class="kiosk-subtitle" style="margin-bottom:24px;">${App.t(q.subtitle || '')}</p>
+        <h2 class="kiosk-title" id="aq-q-text" style="margin-bottom:10px;">${localizedQuestion}</h2>
+        <p class="kiosk-subtitle" style="margin-bottom:24px;">${localizedSubtitle}</p>
 
         ${optionsHtml}
 
@@ -719,12 +722,12 @@ const App = {
 
     this.showScreen(20);
     // Speak question aloud
-    setTimeout(() => App.speak(q.text), 300);
+    setTimeout(() => speakText(localizedQuestion), 300);
   },
 
   renderBodyMapHTML(q) {
-    const selectedLabel = App.t('selected_location');
-    const continueLabel = App.t('continue');
+    const selectedLabel = getLocalizedText('selected_location', 'Selected Location');
+    const continueLabel = getLocalizedText('continue', 'Continue');
     return `
       <div class="body-location-wrapper" style="margin-bottom:20px;">
         <div class="body-silhouette-card">
@@ -745,17 +748,17 @@ const App = {
             <rect id="svg-left" x="52" y="120" width="22" height="55" rx="5" fill="#10b981" opacity="0.2" stroke="#059669" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Left Side')"/>
             <rect id="svg-right" x="126" y="120" width="22" height="55" rx="5" fill="#10b981" opacity="0.2" stroke="#059669" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Right Side')"/>
             <!-- Labels -->
-            <text x="100" y="103" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">${App.t('Upper')}</text>
-            <text x="100" y="143" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">${App.t('Navel')}</text>
-            <text x="100" y="185" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">${App.t('Lower')}</text>
-            <text x="40" y="155" text-anchor="middle" font-size="8" fill="#059669" font-weight="bold">${App.t('Left')}</text>
-            <text x="160" y="155" text-anchor="middle" font-size="8" fill="#059669" font-weight="bold">${App.t('Right')}</text>
+            <text x="100" y="103" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">${getLocalizedText('Upper', 'Upper')}</text>
+            <text x="100" y="143" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">${getLocalizedText('Navel', 'Navel')}</text>
+            <text x="100" y="185" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">${getLocalizedText('Lower', 'Lower')}</text>
+            <text x="40" y="155" text-anchor="middle" font-size="8" fill="#059669" font-weight="bold">${getLocalizedText('Left', 'Left')}</text>
+            <text x="160" y="155" text-anchor="middle" font-size="8" fill="#059669" font-weight="bold">${getLocalizedText('Right', 'Right')}</text>
           </svg>
         </div>
         <div class="abdomen-zones-grid" style="flex:1;">
           ${q.options.map(zone =>
             `<button class="zone-select-btn" id="zone-btn-${zone.replace(/\s/g,'-')}" onclick="App.selectBodyZoneAQ('${zone.replace(/'/g,"\\'")}')">
-              <span>${App.t(zone)}</span> <i class="fa-solid fa-chevron-right"></i>
+              <span>${getLocalizedText(zone, zone)}</span> <i class="fa-solid fa-chevron-right"></i>
             </button>`
           ).join('')}
         </div>
@@ -768,10 +771,10 @@ const App = {
       </div>
     `;
   },
-
+  
   selectBodyZoneAQ(zoneName) {
     this.state.bodyLocation = zoneName;
-    const translatedZone = App.t(zoneName);
+    const translatedZone = getLocalizedText(zoneName, zoneName);
     // Highlight zone buttons
     document.querySelectorAll('.zone-select-btn').forEach(btn => {
       btn.classList.toggle('active', btn.innerText.trim().startsWith(translatedZone) || btn.innerText.trim().startsWith(zoneName));
@@ -810,7 +813,7 @@ const App = {
     const q = this.aqFlow[this.aqIndex];
     this.aqAnswers[q.id] = answer;
     this.logMsg("Patient", `${q.text} → ${answer}`);
-    const translatedAnswer = App.t(answer);
+    const translatedAnswer = getLocalizedText(answer, answer);
     // Highlight selected button briefly
     document.querySelectorAll('.option-touch-btn').forEach(btn => {
       if (btn.innerText.trim().startsWith(translatedAnswer.substring(0,15)) || btn.innerText.trim().startsWith(answer.substring(0,15))) btn.classList.add('selected');
@@ -883,11 +886,14 @@ const App = {
     const container = document.getElementById('ayush-container');
     if (!container) return;
 
-    const ayushQLabel = App.t('AYUSH Question');
-    const ofLabel = App.t('of');
-    const listenLabel = App.t('listen');
-    const backLabel = App.t('back');
-    const helpLabel = App.t('need_help');
+    const ayushQLabel = getLocalizedText('AYUSH Question', 'AYUSH Question');
+    const ofLabel = getLocalizedText('of', 'of');
+    const listenLabel = getLocalizedText('listen', 'Listen');
+    const backLabel = getLocalizedText('back', 'Back');
+    const helpLabel = getLocalizedText('need_help', 'Need Help?');
+    
+    const localizedQuestion = getLocalizedText(q.text, q.text);
+    const localizedSubtitle = getLocalizedText(q.subtitle, q.subtitle);
 
     container.innerHTML = `
       <div class="kiosk-card">
@@ -896,7 +902,7 @@ const App = {
           <span style="font-size:0.92rem;font-weight:700;color:#059669;background:#ecfdf5;padding:4px 14px;border-radius:999px;">
             ${ayushQLabel} ${current} ${ofLabel} ${total}
           </span>
-          <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.88rem;width:auto;" onclick="App.speak(document.getElementById('ayush-q-text').innerText)">
+          <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.88rem;width:auto;" onclick="speakText(document.getElementById('ayush-q-text').innerText)">
             <i class="fa-solid fa-volume-high"></i> ${listenLabel}
           </button>
         </div>
@@ -904,13 +910,13 @@ const App = {
           <div style="background:#10b981;width:${(current/total)*100}%;height:6px;border-radius:999px;transition:width 0.4s ease;"></div>
         </div>
 
-        <h2 class="kiosk-title" id="ayush-q-text" style="margin-bottom:8px;">${App.t(q.text)}</h2>
-        <p class="kiosk-subtitle" style="margin-bottom:20px;">${App.t(q.subtitle)}</p>
+        <h2 class="kiosk-title" id="ayush-q-text" style="margin-bottom:8px;">${localizedQuestion}</h2>
+        <p class="kiosk-subtitle" style="margin-bottom:20px;">${localizedSubtitle}</p>
 
         <div class="options-vertical-list">
           ${q.options.map(opt =>
             `<button class="option-touch-btn" onclick="App.answerAyush('${opt.replace(/'/g,"\\'")}')">
-              <span>${App.t(opt)}</span> <i class="fa-solid fa-chevron-right"></i>
+              <span>${getLocalizedText(opt, opt)}</span> <i class="fa-solid fa-chevron-right"></i>
             </button>`
           ).join('')}
         </div>
@@ -923,7 +929,7 @@ const App = {
     `;
 
     this.showScreen(17);
-    setTimeout(() => App.speak(q.text), 300);
+    setTimeout(() => speakText(localizedQuestion), 300);
   },
 
   answerAyush(answer) {
@@ -949,15 +955,15 @@ const App = {
     let rows = q.map(item => {
       const ans = this.ayushAnswers[item.id] || 'Not provided';
       return `<div class="summary-row">
-        <div class="summary-label">${item.icon} ${App.t(item.text)}</div>
-        <div class="summary-val">${App.t(ans)}</div>
+        <div class="summary-label">${item.icon} ${getLocalizedText(item.text, item.text)}</div>
+        <div class="summary-val">${getLocalizedText(ans, ans)}</div>
       </div>`;
     }).join('');
 
-    const disclaimerText = App.t('This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.');
-    const continueBtnText = App.t('Continue to Medical Reports');
-    const backBtnText = App.t('back');
-    const helpBtnText = App.t('need_help');
+    const disclaimerText = getLocalizedText('This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.', 'This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.');
+    const continueBtnText = getLocalizedText('Continue to Medical Reports', 'Continue to Medical Reports');
+    const backBtnText = getLocalizedText('back', 'Back');
+    const helpBtnText = getLocalizedText('need_help', 'Need Help?');
 
     container.innerHTML = `
       <div class="summary-table-card" style="text-align:left;">${rows}</div>
@@ -979,14 +985,29 @@ const App = {
   updateSummaryCard() {
     const setVal = (id, val) => {
       const el = document.getElementById(id);
-      if (el) el.innerText = App.t(val) || App.t('Not provided');
+      if (el) el.innerText = getLocalizedText(val || 'Not provided', val || 'Not provided');
     };
+    
+    // Convert arrays or delimited strings correctly for display
+    const setListVal = (id, valListStr) => {
+      const el = document.getElementById(id);
+      if (el) {
+        if (!valListStr || valListStr === 'None reported' || valListStr === 'Not provided') {
+           el.innerText = getLocalizedText(valListStr || 'Not provided', valListStr || 'Not provided');
+           return;
+        }
+        const parts = valListStr.split('; ').map(p => getLocalizedText(p, p));
+        el.innerText = parts.join('; ');
+      }
+    };
+    
     setVal('sum-problem', this.state.chiefComplaint);
     setVal('sum-duration', this.aqAnswers[Object.keys(this.aqAnswers).find(k => k.includes('duration'))] || 'Not specified');
     setVal('sum-location', this.state.bodyLocation);
     setVal('sum-severity', this.aqAnswers[Object.keys(this.aqAnswers).find(k => k.includes('severity'))] || 'Not specified');
     setVal('sum-onset', this.aqAnswers[Object.keys(this.aqAnswers).find(k => k.includes('onset'))] || 'Not specified');
-    setVal('sum-associated', this.buildAssociatedSymptomsSummary());
+    
+    setListVal('sum-associated', this.buildAssociatedSymptomsSummary());
     setVal('sum-aggravating', this.aqAnswers[Object.keys(this.aqAnswers).find(k => k.includes('eating') || k.includes('light') || k.includes('activity'))] || 'Not specified');
     setVal('sum-history', this.patientType === 'existing' ? 'Mild Hypertension (on Amlodipine 5mg)' : 'Not provided');
     setVal('sum-allergies', this.patientType === 'existing' ? 'Penicillin' : 'Not provided');
@@ -997,10 +1018,10 @@ const App = {
     const parts = [];
     Object.entries(this.aqAnswers).forEach(([key, val]) => {
       if ((key.includes('nausea') || key.includes('fever') || key.includes('cough') || key.includes('rash') || key.includes('vomit') || key.includes('throat') || key.includes('chest')) && !val.startsWith('No')) {
-        parts.push(App.t(val));
+        parts.push(val); // Push stable English value
       }
     });
-    return parts.length ? parts.join('; ') : App.t('None reported');
+    return parts.length ? parts.join('; ') : 'None reported';
   },
 
   // ── REPORTS MODULE ────────────────────────────────────────────────────────
@@ -1354,29 +1375,61 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- ROBUST TRANSLATION & SPEECH HELPER ---
-function getLocalizedText(key, fallbackText) {
-  const lang = localStorage.getItem('medisarthi_lang') || 'en';
-  if (window.translations && window.translations[lang] && window.translations[lang][key]) {
-    return window.translations[lang][key];
+function getActiveLanguage() {
+  return localStorage.getItem('medisarthi_lang') || 'en';
+}
+
+function getLocalizedText(key, fallback = '') {
+  const lang = getActiveLanguage();
+  if (
+      window.TRANSLATIONS &&
+      window.TRANSLATIONS[lang] &&
+      window.TRANSLATIONS[lang][key]
+  ) {
+      return window.TRANSLATIONS[lang][key];
   }
-  return fallbackText;
+  if (
+      window.TRANSLATIONS &&
+      window.TRANSLATIONS.en &&
+      window.TRANSLATIONS.en[key]
+  ) {
+      return window.TRANSLATIONS.en[key];
+  }
+  return fallback;
 }
 
 function speakText(text) {
-  if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel(); 
+  if (!text || !window.speechSynthesis) return;
+
+  window.speechSynthesis.cancel();
   
-  const lang = localStorage.getItem('medisarthi_lang') || 'en';
-  const langMap = {
-    'hi': 'hi-IN',
-    'mr': 'mr-IN',
-    'ta': 'ta-IN',
-    'bn': 'bn-IN',
-    'te': 'te-IN',
-    'en': 'en-IN'
+  const lang = getActiveLanguage();
+  
+  const languageMap = {
+      en: 'en-IN',
+      hi: 'hi-IN',
+      mr: 'mr-IN',
+      ta: 'ta-IN',
+      bn: 'bn-IN',
+      te: 'te-IN'
   };
   
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = langMap[lang] || 'en-IN';
+  utterance.lang = languageMap[lang] || 'en-IN';
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+  
+  const voices = window.speechSynthesis.getVoices();
+  const matchingVoice = voices.find(voice =>
+      voice.lang.toLowerCase() === utterance.lang.toLowerCase()
+  ) || voices.find(voice =>
+      voice.lang.toLowerCase().startsWith(lang)
+  );
+  
+  if (matchingVoice) {
+      utterance.voice = matchingVoice;
+  }
+  
   window.speechSynthesis.speak(utterance);
 }

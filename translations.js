@@ -472,7 +472,10 @@ const TRANSLATIONS = {
     "Yes, Continue with AYUSH Survey": "Yes, Continue with AYUSH Survey",
     "8 lifestyle & wellness questions": "8 lifestyle & wellness questions",
     "Proceed directly to medical reports upload": "Proceed directly to medical reports upload",
-    "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.": "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice."
+    "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.": "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.",
+        "Mild Hypertension (on Amlodipine 5mg)": "Mild Hypertension (on Amlodipine 5mg)",
+        "Penicillin": "Penicillin",
+        "Amlodipine 5mg OD": "Amlodipine 5mg OD"
   },
 
   hi: {
@@ -928,7 +931,10 @@ const TRANSLATIONS = {
     "Yes, Continue with AYUSH Survey": "हाँ, आयुष सर्वेक्षण के साथ आगे बढ़ें",
     "8 lifestyle & wellness questions": "8 जीवनशैली एवं कल्याण प्रश्न",
     "Proceed directly to medical reports upload": "सीधे मेडिकल रिपोर्ट अपलोड पर जाएँ",
-    "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.": "यह आयुष कल्याण संदर्भ केवल समग्र स्वास्थ्य देखभाल के लिए है। यह कोई चिकित्सा निदान या उपचार सलाह नहीं है।"
+    "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.": "यह आयुष कल्याण संदर्भ केवल समग्र स्वास्थ्य देखभाल के लिए है। यह कोई चिकित्सा निदान या उपचार सलाह नहीं है।",
+        "Mild Hypertension (on Amlodipine 5mg)": "हल्का उच्च रक्तचाप (एमलोडिपिन 5mg पर)",
+        "Penicillin": "पेनिसिलिन",
+        "Amlodipine 5mg OD": "एमलोडिपिन 5mg OD"
   },
 
   mr: {
@@ -1384,7 +1390,10 @@ const TRANSLATIONS = {
     "Yes, Continue with AYUSH Survey": "होय, आयुष सर्वेक्षणासह पुढे जा",
     "8 lifestyle & wellness questions": "जीवनशैलीचे 8 सोपे प्रश्न",
     "Proceed directly to medical reports upload": "थेट रिपोर्ट अपलोडकडे जा",
-    "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.": "ही आयुष वेलनेस माहिती केवळ सर्वांगीण आरोग्यासाठी आहे. हे कोणतेही वैद्यकीय निदान किंवा उपचाराचा सल्ला नाही."
+    "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.": "ही आयुष वेलनेस माहिती केवळ सर्वांगीण आरोग्यासाठी आहे. हे कोणतेही वैद्यकीय निदान किंवा उपचाराचा सल्ला नाही.",
+        "Mild Hypertension (on Amlodipine 5mg)": "सौम्य उच्च रक्तदाब (अम्लोडिपिन 5mg वर)",
+        "Penicillin": "पेनिसिलीन",
+        "Amlodipine 5mg OD": "अम्लोडिपिन 5mg OD"
   },
 
   ta: {
@@ -1820,8 +1829,8 @@ const TRANSLATIONS = {
 
     // Tamil Helper Texts
     "Little or no interference with daily activities": "தினசரி வேலையில் குறைவான அல்லது பாதிப்பு இல்லை",
-    "Some interference with daily activities": "தினசரி வேலையில் லேசான பாதிப்பு",
-    "Significant interference with daily activities": "தினசரி வேலையில் கடுமையான பாதிப்பு",
+    "Some interference with daily activities": "தினசரி செயல்பாடுகளில் சில இடையூறுகள்",
+    "Significant interference with daily activities": "தினசரி செயல்பாடுகளில் குறிப்பிடத்தக்க இடையூறு",
     "Question": "கேள்வி",
     "of": "இல்",
     "AYUSH Question": "ஆயுஷ் கேள்வி",
@@ -1833,14 +1842,17 @@ const TRANSLATIONS = {
     "None": "எதுவும் இல்லை",
     "Upper": "மேல்",
     "Navel": "தொப்புள்",
-    "Lower": "அடி",
+    "Lower": "கீழ்",
     "Left": "இடது",
     "Right": "வலது",
     "Continue to Medical Reports": "மருத்துவ அறிக்கைகளுக்குச் செல்",
     "Yes, Continue with AYUSH Survey": "ஆம், ஆயுஷ் கேள்விகளுடன் தொடரவும்",
     "8 lifestyle & wellness questions": "8 வாழ்க்கை முறை கேள்விகள்",
     "Proceed directly to medical reports upload": "நேரடியாக அறிக்கைகள் பதிவேற்றத்திற்குச் செல்",
-    "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.": "இந்த ஆயுஷ் நல்வாழ்வுத் தகவல் பொதுவான சுகாதாரப் பயன்பாட்டிற்கு மட்டுமே. இது மருத்துவக் கண்டறிதல் அல்லது சிகிச்சை ஆலோசனையல்ல."
+    "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.": "இந்த ஆயுஷ் நல்வாழ்வுத் தகவல் முழுமையான பராமரிப்புக்கான குறிப்பாக மட்டுமே வழங்கப்படுகிறது. இது மருத்துவ நோயறிதல் அல்லது சிகிச்சை ஆலோசனை அல்ல.",
+        "Mild Hypertension (on Amlodipine 5mg)": "லேசான உயர் இரத்த அழுத்தம் (ஆம்லோடிபின் 5mg)",
+        "Penicillin": "பென்சிலின்",
+        "Amlodipine 5mg OD": "ஆம்லோடிபின் 5mg OD"
   },
 
   bn: {
@@ -2290,13 +2302,16 @@ const TRANSLATIONS = {
     "Upper": "উপরের",
     "Navel": "নাভি",
     "Lower": "নিচের",
-    "Left": "বাঁ",
+    "Left": "বাম",
     "Right": "ডান",
     "Continue to Medical Reports": "মেডিকেল রিপোর্টে এগিয়ে যান",
     "Yes, Continue with AYUSH Survey": "হ্যাঁ, আয়ুশ সমীক্ষা শুরু করুন",
     "8 lifestyle & wellness questions": "জীবনযাত্রার ৮টি সহজ প্রশ্ন",
     "Proceed directly to medical reports upload": "সোজা রিপোর্ট আপলোডে যান",
-    "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.": "এই আয়ুশ ওয়েলনেস তথ্যটি সামগ্রিক স্বাস্থ্য সহায়তার জন্য। এটি কোনো চিকিৎসাগত রোগ নির্ণয় বা চিকিৎসার পরামর্শ নয়।"
+    "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.": "এই আয়ুশ ওয়েলনেস তথ্যটি সামগ্রিক স্বাস্থ্য সহায়তার জন্য। এটি কোনো চিকিৎসাগত রোগ নির্ণয় বা চিকিৎসার পরামর্শ নয়।",
+        "Mild Hypertension (on Amlodipine 5mg)": "মৃদু উচ্চ রক্তচাপ (অ্যামলোডিপিন 5mg এর উপর)",
+        "Penicillin": "পেনিসিলিন",
+        "Amlodipine 5mg OD": "অ্যামলোডিপিন 5mg OD"
   },
 
   te: {
@@ -2731,7 +2746,7 @@ const TRANSLATIONS = {
     "No, but interested": "లేదు, కానీ ఆసక్తి ఉంది",
 
     // Telugu Helper Texts
-    "Little or no interference with daily activities": "రోజువారీ పనులకు ఎటువంటి ఇబ్బంది లేదు",
+    "Little or no interference with daily activities": "రోజువారీ పనులకు తక్కువ లేదా ఎటువంటి ఇబ్బంది లేదు",
     "Some interference with daily activities": "రోజువారీ పనులకు కొంత ఇబ్బంది",
     "Significant interference with daily activities": "రోజువారీ పనులకు తీవ్రమైన ఇబ్బంది",
     "Question": "ప్రశ్న",
@@ -2752,6 +2767,9 @@ const TRANSLATIONS = {
     "Yes, Continue with AYUSH Survey": "అవును, ఆయుష్ వివరాలతో కొనసాగించండి",
     "8 lifestyle & wellness questions": "8 రకాల జీవనశైలి ప్రశ్నలు",
     "Proceed directly to medical reports upload": "నేరుగా రిపోర్టుల అప్‌లోడ్‌కు వెళ్లండి",
-    "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.": "ఈ ఆయుష్ వివరాలు సంపూర్ణ సంరక్షణ సూచన కోసం మాత్రమే. ఇది వైద్య నిర్ధారణ లేదా చికిత్స సలహా కాదు."
+    "This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.": "ఈ ఆయుష్ వివరాలు సంపూర్ణ సంరక్షణ సూచన కోసం మాత్రమే. ఇది వైద్య నిర్ధారణ లేదా చికిత్స సలహా కాదు.",
+        "Mild Hypertension (on Amlodipine 5mg)": "తేలికపాటి అధిక రక్తపోటు (అమ్లోడిపిన్ 5mg పై)",
+        "Penicillin": "పెన్సిలిన్",
+        "Amlodipine 5mg OD": "అమ్లోడిపిన్ 5mg OD"
   }
 };
