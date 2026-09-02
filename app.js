@@ -1352,3 +1352,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// --- ROBUST TRANSLATION & SPEECH HELPER ---
+function getLocalizedText(key, fallbackText) {
+  const lang = localStorage.getItem('medisarthi_lang') || 'en';
+  if (window.translations && window.translations[lang] && window.translations[lang][key]) {
+    return window.translations[lang][key];
+  }
+  return fallbackText;
+}
+
+function speakText(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel(); 
+  
+  const lang = localStorage.getItem('medisarthi_lang') || 'en';
+  const langMap = {
+    'hi': 'hi-IN',
+    'mr': 'mr-IN',
+    'ta': 'ta-IN',
+    'bn': 'bn-IN',
+    'te': 'te-IN',
+    'en': 'en-IN'
+  };
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = langMap[lang] || 'en-IN';
+  window.speechSynthesis.speak(utterance);
+}
