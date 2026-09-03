@@ -1533,10 +1533,10 @@ const App = {
     const nameEl = document.getElementById('rx-name');
     if (!nameEl) return;
     const name = nameEl.value.trim();
-    const dosage = (document.getElementById('rx-dosage')?.value || '').trim() || '500mg';
-    const freq = (document.getElementById('rx-freq')?.value || '').trim() || '1-0-1';
-    const duration = (document.getElementById('rx-duration')?.value || '').trim() || '5 days';
-    const instructions = (document.getElementById('rx-instructions')?.value || '').trim() || '';
+    const dosage = (document.getElementById('rx-dosage')?.value || '').trim();
+    const freq = (document.getElementById('rx-freq')?.value || '').trim();
+    const duration = (document.getElementById('rx-duration')?.value || '').trim();
+    const instructions = (document.getElementById('rx-instructions')?.value || '').trim();
     if (!name) { this.showNotification('⚠️ Please enter medicine name.'); return; }
     if (!this.activeDoctorPatient.prescriptions) this.activeDoctorPatient.prescriptions = [];
     this.activeDoctorPatient.prescriptions.push({ name, dosage, frequency: freq, duration, instructions });
@@ -1635,6 +1635,18 @@ const App = {
     if (!window.jspdf || !window.jspdf.jsPDF) {
       this.showNotification('⚠️ PDF generator library loading failed.');
       return;
+    }
+
+    // Auto-add medicine currently in input fields if doctor hasn't clicked 'Add Medicine' yet
+    const pendingNameEl = document.getElementById('rx-name');
+    if (pendingNameEl && pendingNameEl.value.trim()) {
+      this.addPrescriptionItem();
+    }
+
+    // Sync current doctor notes from textarea to activeDoctorPatient state
+    const notesEl = document.getElementById('doc-notes-textarea');
+    if (notesEl && this.activeDoctorPatient) {
+      this.activeDoctorPatient.doctorNotes = notesEl.value;
     }
 
     const p = this.activeDoctorPatient;
@@ -1764,21 +1776,41 @@ const App = {
       y += 16;
     } else {
       rxs.forEach((rx, index) => {
-        y += 18;
+        const nameText = rx.name || '—';
+        const dosageText = rx.dosage || '—';
+        const freqText = rx.frequency || '—';
+        const durText = rx.duration || '—';
+        const instText = rx.instructions || '—';
+
+        const nameLines = doc.splitTextToSize(nameText, 150);
+        const dosageLines = doc.splitTextToSize(dosageText, 75);
+        const freqLines = doc.splitTextToSize(freqText, 75);
+        const durLines = doc.splitTextToSize(durText, 65);
+        const instLines = doc.splitTextToSize(instText, 90);
+
+        const maxLines = Math.max(nameLines.length, dosageLines.length, freqLines.length, durLines.length, instLines.length, 1);
+        const rowHeight = (maxLines * 12) + 14;
+
+        if (y + rowHeight > 780) {
+          doc.addPage();
+          y = 40;
+        }
+
+        y += 14;
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(9.5);
         doc.setTextColor(15, 23, 42);
         doc.text(`${index + 1}`, 48, y);
-        doc.text(rx.name || '—', 70, y);
+        doc.text(nameLines, 70, y);
 
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(51, 65, 85);
-        doc.text(rx.dosage || '—', 230, y);
-        doc.text(rx.frequency || '—', 310, y);
-        doc.text(rx.duration || '—', 390, y);
-        doc.text(rx.instructions || '—', 460, y);
+        doc.text(dosageLines, 230, y);
+        doc.text(freqLines, 310, y);
+        doc.text(durLines, 390, y);
+        doc.text(instLines, 460, y);
 
-        y += 6;
+        y += (maxLines - 1) * 12 + 8;
         doc.setDrawColor(241, 245, 249);
         doc.line(40, y, pageWidth - 40, y);
       });
