@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MediSarthi — Doctor Portal Login</title>
+  <script>
+    if (sessionStorage.getItem('medisarthi_doc_auth') === 'true') {
+      window.location.href = 'doctor.html';
+    }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
@@ -11,7 +16,7 @@
 <body style="background:#f8fafc; min-height:100vh; display:flex; flex-direction:column;">
 
   <!-- Header -->
-  <header style="background:white; border-bottom:1px solid var(--border-color); padding:16px 32px; display:flex; align-items:center; justify-space-between;">
+  <header style="background:white; border-bottom:1px solid var(--border-color); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
     <div style="display:flex; align-items:center; gap:12px;">
       <div style="width:40px; height:40px; background:linear-gradient(135deg, var(--primary), #0284c7); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:1.2rem;">
         <i class="fa-solid fa-stethoscope"></i>
@@ -30,23 +35,26 @@
 
   <!-- Login Main -->
   <main style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px;">
-    <div id="doctor-login-card" style="max-width:480px; width:100%; margin:0 auto; padding:40px; background:white; border-radius:var(--radius-lg); box-shadow:var(--shadow-kiosk); text-align:center;">
+    <div id="doctor-login-card" style="max-width:440px; width:100%; margin:0 auto; padding:36px 28px; background:white; border-radius:var(--radius-lg); box-shadow:var(--shadow-kiosk); text-align:center;">
       <div style="font-size:3rem; color:var(--doc-primary); margin-bottom:12px;"><i class="fa-solid fa-user-doctor"></i></div>
       <h2 style="font-size:1.8rem; font-weight:800; margin-bottom:6px;" data-i18n="doctor_portal">Doctor Portal</h2>
-      <p style="color:var(--text-muted); margin-bottom:24px;">MediSarthi Clinical Consultation Desk</p>
-      <div class="form-group" style="text-align:left; margin-bottom:14px;">
-        <label>Doctor ID / Mobile</label>
-        <input type="text" id="doc-login-id" class="kiosk-input" style="height:52px; font-size:1rem; text-align:left;" value="DR_SHARMA_104">
+      <p style="color:var(--text-muted); margin-bottom:20px; font-size:0.92rem;">MediSarthi Clinical Consultation Desk</p>
+
+      <div id="login-error-msg" style="display:none; background:#fef2f2; color:#dc2626; border:1px solid #fca5a5; padding:10px 14px; border-radius:8px; font-size:0.88rem; font-weight:600; margin-bottom:18px; text-align:center;"></div>
+
+      <div class="form-group" style="text-align:left; margin-bottom:16px;">
+        <label style="font-weight:600; font-size:0.9rem; color:var(--text-main); margin-bottom:6px; display:block;">Doctor ID</label>
+        <input type="text" id="doc-login-id" class="kiosk-input" style="height:50px; min-height:50px; font-size:1rem; text-align:left; letter-spacing:normal;" placeholder="Enter Doctor ID" onkeydown="if(event.key==='Enter') App.loginDoctor()">
       </div>
-      <div class="form-group" style="text-align:left; margin-bottom:22px;">
-        <label>Password</label>
-        <input type="password" id="doc-login-pass" class="kiosk-input" style="height:52px; font-size:1rem; text-align:left;" value="password123">
+      <div class="form-group" style="text-align:left; margin-bottom:24px;">
+        <label style="font-weight:600; font-size:0.9rem; color:var(--text-main); margin-bottom:6px; display:block;">Password</label>
+        <input type="password" id="doc-login-pass" class="kiosk-input" style="height:50px; min-height:50px; font-size:1rem; text-align:left; letter-spacing:normal;" placeholder="Enter password" onkeydown="if(event.key==='Enter') App.loginDoctor()">
       </div>
-      <button class="btn-kiosk-primary" style="background:linear-gradient(135deg,#0284c7,#0369a1); font-size:1.1rem; width:100%;" onclick="App.loginDoctor()">
-        Login as Dr. Sharma <i class="fa-solid fa-right-to-bracket"></i>
+      <button class="btn-kiosk-primary" style="background:linear-gradient(135deg,#0284c7,#0369a1); font-size:1.05rem; width:100%; min-height:48px;" onclick="App.loginDoctor()">
+        Doctor Login <i class="fa-solid fa-right-to-bracket" style="margin-left:6px;"></i>
       </button>
-      <div style="margin-top:18px;">
-        <a href="index.html" class="btn-help-link" style="text-decoration:none;"><i class="fa-solid fa-arrow-left"></i> Back to Patient Kiosk</a>
+      <div style="margin-top:20px;">
+        <a href="index.html" class="btn-help-link" style="text-decoration:none; font-size:0.88rem;"><i class="fa-solid fa-arrow-left"></i> Back to Patient Kiosk</a>
       </div>
     </div>
   </main>

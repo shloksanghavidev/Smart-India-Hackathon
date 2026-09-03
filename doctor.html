@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MediSarthi — Doctor Consultation Desk</title>
+  <script>
+    if (sessionStorage.getItem('medisarthi_doc_auth') !== 'true') {
+      window.location.href = 'doctor-login.html';
+    }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
@@ -16,10 +21,10 @@
     <!-- Doctor Header -->
     <header class="doctor-header">
       <div class="doc-brand"><i class="fa-solid fa-user-doctor"></i> MediSarthi — Doctor Desk</div>
-      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-        <span style="font-weight:600;color:#94a3b8;">Dr. Meera Sharma · MD General Medicine</span>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <span style="font-weight:600;color:#94a3b8;font-size:0.9rem;">Dr. Meera Sharma · MD General Medicine</span>
         <span style="background:#1e3a5f;color:#38bdf8;padding:4px 12px;border-radius:99px;font-size:0.82rem;font-weight:700;">City General Hospital, Mumbai</span>
-        <button class="btn-back" style="background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;padding:6px 14px;border-radius:8px;" onclick="window.location.reload()">
+        <button class="btn-back" style="background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.2);cursor:pointer;padding:7px 16px;border-radius:8px;font-weight:600;font-size:0.88rem;display:inline-flex;align-items:center;gap:6px;" onclick="App.logoutDoctor()">
           <i class="fa-solid fa-right-from-bracket"></i> Logout
         </button>
       </div>
@@ -50,8 +55,10 @@
 
       <!-- Left Panel: Patient Queue -->
       <div class="patient-queue-panel">
-        <h3 style="font-size:1.15rem;font-weight:800;margin-bottom:12px;">Patient Queue</h3>
-        <input type="text" placeholder="Search patient name or ID..." class="kiosk-input" style="height:42px;font-size:0.9rem;text-align:left;margin-bottom:14px;" onkeyup="App.filterPatientQueue(this.value)">
+        <h3 style="font-size:1.15rem;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <i class="fa-solid fa-users" style="color:var(--primary);"></i> Patient Queue
+        </h3>
+        <input type="text" placeholder="Search patient name or ID..." class="kiosk-input" style="height:42px;min-height:42px;font-size:0.9rem;text-align:left;letter-spacing:normal;margin-bottom:14px;" onkeyup="App.filterPatientQueue(this.value)">
         <div id="doc-queue-list"></div>
       </div>
 
@@ -66,9 +73,9 @@
             </div>
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
               <div>
-                <h2 style="font-size:1.4rem;font-weight:800;" id="doc-patient-name">Select Patient</h2>
-                <p style="color:var(--text-muted);font-size:0.88rem;" id="doc-patient-meta">—</p>
-                <span id="doc-patient-status" style="font-size:0.8rem;font-weight:700;padding:3px 12px;border-radius:99px;background:#fef3c7;color:#92400e;">Waiting</span>
+                <h2 style="font-size:1.45rem;font-weight:800;color:var(--text-main);margin-bottom:4px;" id="doc-patient-name">Select Patient</h2>
+                <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:6px;" id="doc-patient-meta">—</p>
+                <span id="doc-patient-status" style="font-size:0.8rem;font-weight:700;padding:4px 12px;border-radius:99px;background:#fef3c7;color:#92400e;">Waiting</span>
               </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <button class="btn-kiosk-secondary" style="width:auto;min-height:38px;padding:5px 12px;font-size:0.85rem;" onclick="App.openFullConversationModal()">
@@ -80,34 +87,61 @@
               </div>
             </div>
 
-            <h4 style="font-size:1rem;font-weight:800;color:var(--primary);margin-bottom:12px;">
+            <h4 style="font-size:1.05rem;font-weight:800;color:var(--primary);margin-bottom:12px;">
               <i class="fa-solid fa-clipboard-list"></i> Clinical History Summary
             </h4>
-            <div style="font-size:0.75rem;color:#1e40af;background:#eff6ff;border:1px solid #bfdbfe;padding:6px 12px;border-radius:8px;margin-bottom:10px;">
+            <div style="font-size:0.78rem;color:#1e40af;background:#eff6ff;border:1px solid #bfdbfe;padding:8px 12px;border-radius:8px;margin-bottom:14px;">
               <i class="fa-solid fa-robot"></i> AI-generated from patient responses — verify during consultation.
             </div>
 
-            <div class="summary-table-card" style="box-shadow:none;border-color:#f1f5f9;">
-              <div class="summary-row"><div class="summary-label">Chief Complaint</div><div class="summary-val" id="doc-sum-complaint">—</div></div>
-              <div class="summary-row"><div class="summary-label">Duration</div><div class="summary-val" id="doc-sum-duration">—</div></div>
-              <div class="summary-row"><div class="summary-label">Location</div><div class="summary-val" id="doc-sum-location">—</div></div>
-              <div class="summary-row"><div class="summary-label">Severity</div><div class="summary-val" id="doc-sum-severity">—</div></div>
-              <div class="summary-row"><div class="summary-label">Onset</div><div class="summary-val" id="doc-sum-onset">—</div></div>
-              <div class="summary-row"><div class="summary-label">Aggravating Factors</div><div class="summary-val" id="doc-sum-eating">—</div></div>
-              <div class="summary-row"><div class="summary-label">Nausea / Vomiting</div><div class="summary-val" id="doc-sum-nausea">—</div></div>
-              <div class="summary-row"><div class="summary-label">Bowel Changes</div><div class="summary-val" id="doc-sum-bowel">—</div></div>
-              <div class="summary-row"><div class="summary-label">Past History of This</div><div class="summary-val" id="doc-sum-past">—</div></div>
-              <div class="summary-row"><div class="summary-label">Current Medications</div><div class="summary-val" id="doc-sum-meds">—</div></div>
-              <div class="summary-row"><div class="summary-label">Allergies</div><div class="summary-val" id="doc-sum-allergies">—</div></div>
-              <div class="summary-row"><div class="summary-label">Medical Documents</div><div class="summary-val" id="doc-sum-documents">—</div></div>
-              <div class="summary-row"><div class="summary-label">AYUSH Wellness Snapshot</div><div class="summary-val" id="doc-sum-ayush">—</div></div>
+            <div class="summary-table-card" style="box-shadow:none;border:none;padding:0;background:none;">
+              <!-- Group 1: Primary Complaint -->
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:12px;">
+                <div style="font-size:0.82rem;font-weight:700;color:#0284c7;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                  <i class="fa-solid fa-notes-medical"></i> Primary Complaint
+                </div>
+                <div class="summary-row"><div class="summary-label">Chief Complaint</div><div class="summary-val" id="doc-sum-complaint">—</div></div>
+                <div class="summary-row"><div class="summary-label">Duration</div><div class="summary-val" id="doc-sum-duration">—</div></div>
+                <div class="summary-row"><div class="summary-label">Location</div><div class="summary-val" id="doc-sum-location">—</div></div>
+                <div class="summary-row"><div class="summary-label">Severity</div><div class="summary-val" id="doc-sum-severity">—</div></div>
+                <div class="summary-row"><div class="summary-label">Onset</div><div class="summary-val" id="doc-sum-onset">—</div></div>
+                <div class="summary-row"><div class="summary-label">Aggravating Factors</div><div class="summary-val" id="doc-sum-eating">—</div></div>
+              </div>
+
+              <!-- Group 2: Associated Symptoms & Episode History -->
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:12px;">
+                <div style="font-size:0.82rem;font-weight:700;color:#0284c7;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                  <i class="fa-solid fa-list-check"></i> Associated Symptoms & Episode History
+                </div>
+                <div class="summary-row"><div class="summary-label">Nausea / Vomiting</div><div class="summary-val" id="doc-sum-nausea">—</div></div>
+                <div class="summary-row"><div class="summary-label">Bowel Changes</div><div class="summary-val" id="doc-sum-bowel">—</div></div>
+                <div class="summary-row"><div class="summary-label">Past History of This Complaint</div><div class="summary-val" id="doc-sum-past">—</div></div>
+              </div>
+
+              <!-- Group 3: Patient Context -->
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:12px;">
+                <div style="font-size:0.82rem;font-weight:700;color:#0284c7;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                  <i class="fa-solid fa-user-shield"></i> Patient Context
+                </div>
+                <div class="summary-row"><div class="summary-label">Allergies</div><div class="summary-val" id="doc-sum-allergies">—</div></div>
+                <div class="summary-row"><div class="summary-label">Current Medications</div><div class="summary-val" id="doc-sum-meds">—</div></div>
+                <div class="summary-row"><div class="summary-label">Medical Documents</div><div class="summary-val" id="doc-sum-documents">—</div></div>
+              </div>
+
+              <!-- Group 4: AYUSH Wellness Context -->
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;">
+                <div style="font-size:0.82rem;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                  <i class="fa-solid fa-leaf"></i> AYUSH Wellness Context
+                </div>
+                <div class="summary-row"><div class="summary-label">AYUSH Wellness Snapshot</div><div class="summary-val" id="doc-sum-ayush">—</div></div>
+              </div>
             </div>
           </div>
 
           <!-- Doctor Notes -->
           <div class="doc-section-card">
-            <h4 style="font-size:1rem;font-weight:800;margin-bottom:10px;"><i class="fa-solid fa-pen-to-square"></i> Doctor Notes & Diagnosis</h4>
-            <textarea id="doc-notes-textarea" class="kiosk-input" style="height:110px;font-size:0.95rem;text-align:left;resize:vertical;" placeholder="Type clinical observations, working diagnosis, or instructions for the patient record..."></textarea>
+            <h4 style="font-size:1.05rem;font-weight:800;margin-bottom:10px;"><i class="fa-solid fa-pen-to-square"></i> Doctor Notes & Clinical Impression</h4>
+            <textarea id="doc-notes-textarea" class="kiosk-input" style="height:110px;font-size:0.95rem;text-align:left;letter-spacing:normal;resize:vertical;" placeholder="Type clinical observations, working diagnosis, or instructions for the patient record..."></textarea>
           </div>
         </div>
 

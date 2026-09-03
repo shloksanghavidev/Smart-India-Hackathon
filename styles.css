@@ -441,7 +441,7 @@ input, textarea {
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   text-align: center;
-  letter-spacing: clamp(1px, 1.5vw, 4px);
+  letter-spacing: normal;
   outline: none;
 }
 
@@ -1101,3 +1101,71 @@ input, textarea {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+/* DOCTOR PORTAL RESPONSIVE REFINEMENTS */
+@media (max-width: 1024px) {
+  .doctor-header {
+    padding: 14px 20px;
+  }
+  .doc-stats-bar, .doc-stats-row {
+    padding: 16px 20px 0 20px;
+    gap: 12px;
+  }
+  .doctor-layout-grid {
+    padding: 16px 20px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 900px) {
+  .doctor-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .doctor-layout-grid {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+  .doc-consult-main {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .patient-queue-panel {
+    height: auto;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .doc-stats-bar, .doc-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 14px 14px 0 14px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .doc-brand {
+    font-size: 1.2rem;
+  }
+  .doc-stat-card {
+    padding: 12px 14px;
+  }
+  .doc-stat-num {
+    font-size: 1.7rem;
+  }
+  .doc-stat-label {
+    font-size: 0.78rem;
+  }
+  .doc-section-card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .doctor-header {
+    padding: 12px 14px;
+  }
+  .modal-card {
+    padding: 20px 16px;
+    width: 95%;
+  }
+}
+

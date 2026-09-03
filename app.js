@@ -503,10 +503,22 @@ const App = {
     // Page-aware initialization
     const docDashboard = document.getElementById('doctor-dashboard-main');
     if (docDashboard) {
+      if (sessionStorage.getItem('medisarthi_doc_auth') !== 'true') {
+        window.location.href = 'doctor-login.html';
+        return;
+      }
       docDashboard.style.display = 'block';
       this.renderDoctorQueue();
       if (storedQueue.length > 0) {
         this.selectDoctorPatient(storedQueue[0].id);
+      }
+    }
+
+    const loginCard = document.getElementById('doctor-login-card');
+    if (loginCard) {
+      if (sessionStorage.getItem('medisarthi_doc_auth') === 'true') {
+        window.location.href = 'doctor.html';
+        return;
       }
     }
 
@@ -1340,26 +1352,37 @@ const App = {
 
   // ── DOCTOR PORTAL ─────────────────────────────────────────────────────────
   loginDoctor() {
-    if (window.location.pathname.includes('doctor-login.html') || (document.getElementById('doc-login-id') && !document.getElementById('doctor-dashboard-main'))) {
-      window.location.href = 'doctor.html';
+    const docIdEl = document.getElementById('doc-login-id');
+    const docPassEl = document.getElementById('doc-login-pass');
+    const errorMsgEl = document.getElementById('login-error-msg');
+
+    if (!docIdEl || !docPassEl) {
+      if (sessionStorage.getItem('medisarthi_doc_auth') === 'true') {
+        window.location.href = 'doctor.html';
+      } else {
+        window.location.href = 'doctor-login.html';
+      }
       return;
     }
-    const loginCard = document.getElementById('doctor-login-card');
-    const dashboard = document.getElementById('doctor-dashboard-main');
-    if (loginCard) {
-      loginCard.classList.add('hidden');
-      loginCard.style.display = 'none';
-    }
-    if (dashboard) {
-      dashboard.classList.remove('hidden');
-      dashboard.style.display = 'block';
-    }
 
-    DEMO_DATA.patientQueue = this.getStoredQueue();
-    this.renderDoctorQueue();
-    if (DEMO_DATA.patientQueue.length > 0) {
-      this.selectDoctorPatient(DEMO_DATA.patientQueue[0].id);
+    const docId = docIdEl.value.trim();
+    const docPass = docPassEl.value.trim();
+
+    if (docId === 'DR-MEDISARTHI' && docPass === 'SIH2026@Doctor') {
+      if (errorMsgEl) errorMsgEl.style.display = 'none';
+      sessionStorage.setItem('medisarthi_doc_auth', 'true');
+      window.location.href = 'doctor.html';
+    } else {
+      if (errorMsgEl) {
+        errorMsgEl.innerText = '❌ Invalid Doctor ID or Password. Please check credentials.';
+        errorMsgEl.style.display = 'block';
+      }
     }
+  },
+
+  logoutDoctor() {
+    sessionStorage.removeItem('medisarthi_doc_auth');
+    window.location.href = 'doctor-login.html';
   },
 
   renderDoctorQueue() {
@@ -1396,6 +1419,12 @@ const App = {
   selectDoctorPatient(patientId) {
     const p = DEMO_DATA.patientQueue.find(item => item.id === patientId) || DEMO_DATA.patientQueue[0];
     if (!p) return;
+
+    if (p.status === 'Waiting') {
+      p.status = 'In Consultation';
+      this.saveStoredQueue(DEMO_DATA.patientQueue);
+    }
+
     this.activeDoctorPatient = p;
 
     const setTxt = (id, val) => { const e = document.getElementById(id); if(e) e.innerText = val; };
@@ -1616,7 +1645,7 @@ const App = {
     let y = 40;
 
     // --- HEADER / BRANDING ---
-    doc.setFillColor(2, 132, 199); // MediSarthi Primary Blue
+    doc.setFillColor(15, 23, 42); // MediSarthi Dark Navy (#0f172a)
     doc.rect(0, 0, pageWidth, 70, 'F');
 
     doc.setTextColor(255, 255, 255);
@@ -1687,7 +1716,7 @@ const App = {
     if (doctorNotes) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(11);
-      doc.setTextColor(2, 132, 199);
+      doc.setTextColor(15, 23, 42);
       doc.text('Clinical Diagnosis & Observations', 40, y);
       y += 14;
 
@@ -1702,7 +1731,7 @@ const App = {
     // --- PRESCRIPTIONS TABLE ---
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    doc.setTextColor(2, 132, 199);
+    doc.setTextColor(15, 23, 42);
     doc.text('Rx — Prescribed Medicines', 40, y);
     y += 14;
 
