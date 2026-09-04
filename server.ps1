@@ -1,6 +1,6 @@
 # Simple PowerShell Web Server for MediSarthi Kiosk Prototype
 $port = 8080
-$root = "C:\Users\Mahek\.gemini\antigravity-ide\scratch\medisarthi-kiosk"
+$root = $PSScriptRoot
 
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://localhost:$port/")

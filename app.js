@@ -5,19 +5,28 @@
  */
 
 // --- ROBUST TRANSLATION & SPEECH HELPER ---
+function getActiveLanguage() {
+  return localStorage.getItem('medisarthi_lang') || 'en';
+}
+
 function getLocalizedText(key, fallbackText) {
-  const lang = localStorage.getItem('medisarthi_lang') || 'en';
-  if (window.translations && window.translations[lang] && window.translations[lang][key]) {
-    return window.translations[lang][key];
+  if (!key) return '';
+  const lang = getActiveLanguage();
+  const dict = (typeof TRANSLATIONS !== 'undefined' ? TRANSLATIONS : (window.TRANSLATIONS || {}));
+  if (dict[lang] && dict[lang][key] !== undefined) {
+    return dict[lang][key];
   }
-  return fallbackText;
+  if (dict['en'] && dict['en'][key] !== undefined) {
+    return dict['en'][key];
+  }
+  return fallbackText !== undefined ? fallbackText : key;
 }
 
 function speakText(text) {
-  if (!('speechSynthesis' in window)) return;
+  if (!text || !('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel(); 
   
-  const lang = localStorage.getItem('medisarthi_lang') || 'en';
+  const lang = getActiveLanguage();
   const langMap = {
     'hi': 'hi-IN',
     'mr': 'mr-IN',
@@ -28,10 +37,25 @@ function speakText(text) {
   
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = langMap[lang] || 'en-IN';
+  utterance.rate = 0.95;
+  
+  const voices = window.speechSynthesis.getVoices();
+  let matchingVoice = voices.find(voice =>
+    voice.lang.toLowerCase() === utterance.lang.toLowerCase()
+  ) || voices.find(voice =>
+    voice.lang.toLowerCase().startsWith(lang) || (lang === 'mr' && voice.lang.toLowerCase().startsWith('mar'))
+  );
+  
+  if (!matchingVoice && lang === 'mr') {
+    matchingVoice = voices.find(voice => voice.lang.toLowerCase().startsWith('hi'));
+    if (matchingVoice) utterance.lang = matchingVoice.lang;
+  }
+  
+  if (matchingVoice) utterance.voice = matchingVoice;
   window.speechSynthesis.speak(utterance);
 }
 
-const App = {
+const App = window.App = {
   currentLang: 'en',
   currentScreen: 1,
   mode: 'patient',
@@ -55,26 +79,22 @@ const App = {
 
   // ── Patient Kiosk Session State ─────────────────────────────────────────────
   state: {
-    aadhaar: "987654321098",
-    fullName: "Ramesh Patil",
-    age: "45",
+    aadhaar: "",
+    fullName: "",
+    age: "",
     gender: "Male",
-    mobile: "9820154321",
-    patientId: "MS1001",
-    chiefComplaint: "Stomach Pain",
-    symptomIntent: "stomach_pain",
-    bodyLocation: "Around Navel",
-    duration: "1 – 3 days",
-    severity: "Moderate",
+    mobile: "",
+    patientId: "",
+    chiefComplaint: "",
+    symptomIntent: "",
+    bodyLocation: "Not specified",
+    duration: "",
+    severity: "",
     medicalHistory: "",
     allergies: "",
     medications: "",
-    reportsUploaded: [
-      { title: "Blood Test (CBC)", date: "20 May 2026", type: "pdf" }
-    ],
-    conversationLog: [
-      { sender: "MediSarthi", text: "Welcome to MediSarthi! What brings you here today?", time: "09:15 AM" }
-    ],
+    reportsUploaded: [],           // Starts empty by default
+    conversationLog: [],
     ayushAnswers: {},
     ayushRequested: false
   },
@@ -534,11 +554,8 @@ const App = {
     this.currentLang = langCode;
     localStorage.setItem('selectedLanguage', langCode);
     localStorage.setItem('medisarthi_lang', langCode);
-    document.querySelectorAll('.language-bar .lang-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('onclick')?.includes(`'${langCode}'`));
-    });
-    document.querySelectorAll('.lang-card-btn').forEach(btn => {
-      btn.classList.toggle('selected', btn.getAttribute('onclick')?.includes(`'${langCode}'`));
+    document.querySelectorAll('.ms-lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.id === `btn-lang-${langCode}`);
     });
     VoiceController.setLanguage(langCode);
     this.updateLanguageUI();
@@ -554,6 +571,10 @@ const App = {
     this.showScreen(3);
   },
 
+  startFlowDirect() {
+    this.showScreen(2);
+  },
+
   updateLanguageUI() {
     const dict = TRANSLATIONS[this.currentLang] || TRANSLATIONS['en'];
     document.querySelectorAll('[data-i18n]').forEach(elem => {
@@ -563,39 +584,24 @@ const App = {
   },
 
   openMoreLanguages() {
-    alert("Supported Indian Languages:\nEnglish | हिंदी (Hindi) | मराठी (Marathi) | বাংলা (Bengali) | తెలుగు (Telugu) | ಕನ್ನಡ (Kannada) | ગુજરાતી (Gujarati) | ਪੰਜਾਬੀ (Punjabi) | ଓଡ଼ିଆ (Odia)");
+    alert("Supported Indian Languages:\nEnglish | हिंदी (Hindi) | मराठी (Marathi) | বাংলা (Bengali) | తెలుగు (Telugu)");
   },
 
   // ── SCREEN ROUTING ────────────────────────────────────────────────────────
   showScreen(screenNum) {
     this.currentScreen = screenNum;
-    const map = {
-      1: 'step-welcome',
-      2: 'step-language',
-      3: 'step-id',
-      4: 'step-4',
-      5: 'step-5',
-      6: 'step-complaint',
-      7: 'step-allergy',
-      12: 'step-summary',
-      13: 'step-ayurveda',
-      14: 'step-documents',
-      15: 'step-15',
-      16: 'step-16',
-      17: 'step-17',
-      20: 'step-adaptive'
-    };
-    const stepId = map[screenNum] || `step-${screenNum}`;
+    
+    // Hide all step sections
+    document.querySelectorAll('[id^="step-"]').forEach(sec => {
+      sec.style.display = 'none';
+    });
 
-    document.querySelectorAll('.step-view').forEach(sec => sec.classList.add('hidden'));
-    const target = document.getElementById(stepId);
+    const target = document.getElementById(`step-${screenNum}`);
     if (target) {
-      target.classList.remove('hidden');
+      target.style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    document.querySelectorAll('.demo-pill-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('onclick')?.includes(`showScreen(${screenNum})`));
-    });
+
     if (screenNum === 6) {
       const text = this.t('what_brings_you');
       setTimeout(() => { speakText(text); }, 400);
@@ -660,21 +666,38 @@ const App = {
     const existingView = document.getElementById('existing-profile-view');
     const newForm = document.getElementById('new-profile-form');
     if (type === 'existing') {
-      existingView.style.display = 'block';
-      newForm.style.display = 'none';
-      const p = DEMO_DATA.existingPatients[0];
-      document.getElementById('retrieved-name').innerText = p.name;
-      document.getElementById('retrieved-full-name').innerText = p.name;
-      document.getElementById('retrieved-age-gender').innerText = `${p.age} / ${getLocalizedText(p.gender, p.gender)}`;
-      document.getElementById('retrieved-id').innerText = p.id;
-      document.getElementById('retrieved-last-visit').innerText = p.lastVisit;
-      document.getElementById('retrieved-history').innerText = p.medicalHistory;
-      document.getElementById('retrieved-allergies').innerText = p.allergies;
-      this.state = { 
-        ...this.state, 
-        fullName: p.name, 
-        age: String(p.age), 
-        gender: p.gender, 
+      if (existingView) existingView.style.display = 'block';
+      if (newForm) newForm.style.display = 'none';
+      const p = (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.existingPatients && DEMO_DATA.existingPatients[0]) ? DEMO_DATA.existingPatients[0] : {
+        id: "MS1001",
+        name: "Ramesh Patil",
+        age: 45,
+        gender: "Male",
+        mobile: "+91 98201 54321",
+        lastVisit: "12 Jul 2026",
+        medicalHistory: "Mild Hypertension (on Amlodipine 5mg)",
+        allergies: "Penicillin",
+        medications: "Amlodipine 5mg OD"
+      };
+
+      const setIfExists = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
+      };
+
+      setIfExists('retrieved-name', p.name);
+      setIfExists('retrieved-full-name', p.name);
+      setIfExists('retrieved-age-gender', `${p.age} / ${getLocalizedText(p.gender, p.gender)}`);
+      setIfExists('retrieved-id', p.id);
+      setIfExists('retrieved-last-visit', p.lastVisit);
+      setIfExists('retrieved-history', p.medicalHistory);
+      setIfExists('retrieved-allergies', p.allergies);
+
+      this.state = {
+        ...this.state,
+        fullName: p.name,
+        age: String(p.age),
+        gender: p.gender,
         patientId: p.id,
         medicalHistory: p.medicalHistory,
         allergies: p.allergies,
@@ -683,7 +706,32 @@ const App = {
     } else {
       existingView.style.display = 'none';
       newForm.style.display = 'block';
-      this.state.patientId = "MS" + Math.floor(1000 + Math.random() * 9000);
+      // Change 9: Clean state for new patient
+      this.state = {
+        aadhaar: this.state.aadhaar || '',
+        fullName: '',
+        age: '',
+        gender: 'Male',
+        mobile: '',
+        patientId: 'MS' + Math.floor(1000 + Math.random() * 9000),
+        chiefComplaint: '',
+        symptomIntent: '',
+        bodyLocation: 'Not specified',
+        duration: '',
+        severity: '',
+        medicalHistory: '',
+        allergies: '',
+        medications: '',
+        reportsUploaded: [],          // Change 10: no pre-filled reports
+        conversationLog: [],
+        ayushAnswers: {},
+        ayushRequested: false
+      };
+      // Reset report UI
+      const reportContainer = document.getElementById('uploaded-reports-list-container');
+      if (reportContainer) {
+        reportContainer.innerHTML = '<p id="no-reports-msg" style="color:var(--text-muted);font-size:0.9rem;padding:12px 0;">No reports uploaded yet.</p>';
+      }
     }
     this.showScreen(5);
   },
@@ -723,51 +771,211 @@ const App = {
     this.showScreen(6);
   },
 
-  submitAllergy() {
-    const val = document.getElementById('input-allergy').value.trim();
-    if (!val) {
-      this.showNotification(`⚠️ ${this.t('error_no_allergy_input')}`);
-      return;
+  toggleAllergy(btn, name) {
+    const noAllergyChip = document.getElementById('chip-no-allergies');
+    if (noAllergyChip) noAllergyChip.classList.remove('selected');
+    btn.classList.toggle('selected');
+  },
+
+  selectNoAllergies(btn) {
+    document.querySelectorAll('.allergy-chip').forEach(c => c.classList.remove('selected'));
+    btn.classList.add('selected');
+  },
+
+  submitAllergies() {
+    const selectedChips = Array.from(document.querySelectorAll('.allergy-chip.selected')).map(b => b.innerText.replace('✓', '').trim());
+    const isNoAllergy = document.getElementById('chip-no-allergies')?.classList.contains('selected');
+    const extraInput = document.getElementById('input-allergy')?.value.trim() || '';
+
+    let allergies = [];
+    if (isNoAllergy && selectedChips.length === 0) {
+      allergies.push(this.t('no_known_allergies') || 'No Known Allergies');
+    } else {
+      allergies = allergies.concat(selectedChips);
     }
-    this.state.allergies = val;
-    this.logMsg("Patient", `Allergies: ${val}`);
+    if (extraInput) {
+      allergies.push(extraInput);
+    }
+
+    this.state.allergies = allergies.join(', ') || this.t('no_known_allergies');
+    this.logMsg("Patient", `Allergies: ${this.state.allergies}`);
     this.showScreen(6);
   },
 
+  submitAllergy() {
+    this.submitAllergies();
+  },
+
   // ── VOICE & NLP ────────────────────────────────────────────────────────────
+  _pendingVoiceTranscript: '',
+
   triggerVoiceInput() {
     const waveBox = document.getElementById('voice-listening-wave');
     const transcriptText = document.getElementById('voice-transcript-text');
-    waveBox.style.display = 'flex';
+    const confirmBox = document.getElementById('voice-confirm-box');
+    if (confirmBox) confirmBox.style.display = 'none';
+
+    if (waveBox) waveBox.style.display = 'flex';
+    if (transcriptText) {
+      transcriptText.innerText = `"${getLocalizedText('voice_listening_title', 'I am listening...')}"`;
+    }
+
+    VoiceController.setLanguage(this.currentLang);
     VoiceController.startListening(
       (transcript, isFinal) => {
-        transcriptText.innerText = `"${transcript}"`;
+        if (transcriptText) transcriptText.innerText = `"${transcript}"`;
         if (isFinal) {
-          document.getElementById('free-text-input').value = transcript;
-          setTimeout(() => { waveBox.style.display = 'none'; App.processInputIntent(transcript); }, 1000);
+          this._pendingVoiceTranscript = transcript;
+          const freeInput = document.getElementById('free-text-input');
+          if (freeInput) freeInput.value = transcript;
+
+          setTimeout(() => {
+            if (waveBox) waveBox.style.display = 'none';
+            // Show human-centered voice confirmation box
+            if (confirmBox) {
+              const recogEl = document.getElementById('voice-recognized-text');
+              if (recogEl) recogEl.innerText = `"${transcript}"`;
+              confirmBox.style.display = 'block';
+            } else {
+              App.processInputIntent(transcript);
+            }
+          }, 600);
         }
       },
-      (isListening) => { if (!isListening) waveBox.style.display = 'none'; }
+      (isListening) => {
+        if (!isListening && (!this._pendingVoiceTranscript || !confirmBox || confirmBox.style.display === 'none')) {
+          if (waveBox) waveBox.style.display = 'none';
+        }
+      }
     );
+  },
+
+  confirmVoiceInput() {
+    const confirmBox = document.getElementById('voice-confirm-box');
+    if (confirmBox) confirmBox.style.display = 'none';
+    const text = this._pendingVoiceTranscript || document.getElementById('free-text-input')?.value || '';
+    if (text) {
+      this.processInputIntent(text);
+    }
+  },
+
+  retryVoiceInput() {
+    const confirmBox = document.getElementById('voice-confirm-box');
+    if (confirmBox) confirmBox.style.display = 'none';
+    this._pendingVoiceTranscript = '';
+    const freeInput = document.getElementById('free-text-input');
+    if (freeInput) freeInput.value = '';
+    this.triggerVoiceInput();
   },
 
   processInputIntent(customText) {
     const inputVal = (customText || document.getElementById('free-text-input').value).trim();
-    if (!inputVal) { this.showNotification("⚠️ Please type or speak your symptom."); return; }
-    const result = IntentClassifier.classify(inputVal);
-    this.state.chiefComplaint = result.label;
-    this.state.symptomIntent = result.intent;
-    this.logMsg("Patient", inputVal, true);
-    this.logMsg("MediSarthi", `Understood — let me ask you a few questions about your ${result.label}.`);
-    this.startFlow(result.intent);
+    if (!inputVal) {
+      this.showNotification("⚠️ " + getLocalizedText('type_your_problem', 'Please type or speak your symptom.'));
+      return;
+    }
+
+    // Classify intents (supports speech variations & multi-symptom)
+    const results = IntentClassifier.classifyMultiple(inputVal);
+// Extract information already provided by the patient
+const entities = IntentClassifier.extractEntities(inputVal);
+
+console.log("MediSarthi extracted entities:", entities);
+
+// Preserve details that were already mentioned in speech/text
+if (entities.duration) {
+    this.state.duration = entities.duration;
+}
+
+if (entities.severity) {
+    this.state.severity = entities.severity;
+}
+
+if (entities.location) {
+    this.state.bodyLocation = entities.location;
+}
+
+    if (results.length === 0 || results[0].intent === 'something_else') {
+      this.state.chiefComplaint = inputVal.length > 40 ? inputVal.substring(0,40)+'...' : inputVal;
+      this.state.symptomIntent = 'something_else';
+      this.state.secondaryIntents = [];
+      this.logMsg('Patient', inputVal, true);
+
+      const lang = getActiveLanguage();
+      let ackMsg = `Understood. Let us ask a few questions about your health issue.`;
+      if (lang === 'hi') {
+        ackMsg = `समझ गया। हम आपकी स्वास्थ्य समस्या के बारे में कुछ प्रश्न पूछेंगे।`;
+      } else if (lang === 'mr') {
+        ackMsg = `समजले. आम्ही तुमच्या आरोग्य समस्येबद्दल काही प्रश्न विचारू.`;
+      }
+      this.logMsg('MediSarthi', ackMsg);
+
+      this.startFlow('something_else');
+      return;
+    }
+
+    if (results.length >= 2) {
+      // Multi-symptom recognition (e.g. fever + cough)
+      const labels = results.map(r => getLocalizedText(r.intent, r.label)).join(' + ');
+      const englishLabels = results.map(r => r.label).join(' + ');
+      this.state.chiefComplaint = englishLabels;
+      this.state.symptomIntent = results[0].intent;
+      this.state.secondaryIntents = results.slice(1).map(r => r.intent);
+
+      this.logMsg('Patient', inputVal, true);
+
+      const lang = getActiveLanguage();
+      let ackMsg = `Understood. You have ${labels}. I will ask relevant questions.`;
+      if (lang === 'hi') {
+        ackMsg = `समझ गया। आपको ${labels} की समस्या है। आइए संबंधित प्रश्न पूछते हैं।`;
+      } else if (lang === 'mr') {
+        ackMsg = `समजले. तुम्हाला ${labels} चा त्रास आहे. आम्ही काही महत्त्वाचे प्रश्न विचारू.`;
+      }
+      this.logMsg('MediSarthi', ackMsg);
+    } else {
+      // Single symptom recognition (e.g. headache / fever / stomach pain / cough)
+      const result = results[0];
+      this.state.chiefComplaint = result.label;
+      this.state.symptomIntent = result.intent;
+      this.state.secondaryIntents = [];
+
+      this.logMsg('Patient', inputVal, true);
+
+      const localLabel = getLocalizedText(result.intent, result.label);
+      const lang = getActiveLanguage();
+      let ackMsg = `Understood — I will ask you a few questions about your ${localLabel}.`;
+      if (lang === 'hi') {
+        ackMsg = `समझ गया। आपको ${localLabel} की समस्या है।`;
+      } else if (lang === 'mr') {
+        ackMsg = `समजले. तुम्हाला ${localLabel} चा त्रास आहे.`;
+      } else if (lang === 'bn') {
+        ackMsg = `বুঝেছি। আপনার ${localLabel} এর সমস্যা রয়েছে।`;
+      } else if (lang === 'te') {
+        ackMsg = `అర్థమైంది. మీకు ${localLabel} సమస్య ఉంది.`;
+      }
+      this.logMsg('MediSarthi', ackMsg);
+    }
+
+    // AUTOMATIC TRANSITION TO ADAPTIVE FLOW — DO NOT FORCE PATIENT TO CLICK SYMPTOM AGAIN
+    this.startFlow(this.state.symptomIntent);
   },
 
   selectSymptom(symptomKey) {
     const labelMap = { stomach_pain:"Stomach Pain", cough_cold:"Cough / Cold", fever:"Fever", headache:"Headache", body_pain:"Body Pain", something_else:"Something Else" };
     this.state.symptomIntent = symptomKey;
     this.state.chiefComplaint = labelMap[symptomKey] || "Other";
-    this.logMsg("Patient", `Selected: ${this.state.chiefComplaint}`);
-    this.logMsg("MediSarthi", `Understood — let me ask you a few questions about your ${this.state.chiefComplaint}.`);
+    this.state.secondaryIntents = [];
+    const localLabel = getLocalizedText(symptomKey, this.state.chiefComplaint);
+    
+    const lang = getActiveLanguage();
+    let ackMsg = `Understood — I will ask you a few questions about your ${localLabel}.`;
+    if (lang === 'hi') {
+      ackMsg = `समझ गया। आपको ${localLabel} की समस्या है।`;
+    } else if (lang === 'mr') {
+      ackMsg = `समजले. तुम्हाला ${localLabel} चा त्रास आहे.`;
+    }
+    this.logMsg("Patient", `Selected: ${localLabel}`);
+    this.logMsg("MediSarthi", ackMsg);
     this.startFlow(symptomKey);
   },
 
@@ -776,7 +984,54 @@ const App = {
     this.aqFlow = this.flows[intentKey] || this.flows['something_else'];
     this.aqIndex = 0;
     this.aqAnswers = {};
-    this.state.bodyLocation = "Not specified";
+
+    // -----------------------------------------
+    // Map extracted entities into aqAnswers & state
+    // -----------------------------------------
+    const existingLocation = this.state.bodyLocation;
+    const existingDuration = this.state.duration;
+    const existingSeverity = this.state.severity;
+
+    // If patient said stomach pain and location isn't specified, default to Abdomen
+    if (intentKey === 'stomach_pain' && (!existingLocation || existingLocation === 'Not specified')) {
+      this.state.bodyLocation = 'Abdomen';
+    }
+
+    // Map extracted answers to relevant question IDs across flows
+    if (this.state.bodyLocation && this.state.bodyLocation !== 'Not specified') {
+      this.aqAnswers['sp_location'] = this.state.bodyLocation;
+    }
+
+    if (existingDuration) {
+      this.aqFlow.forEach(q => {
+        if (q.id.endsWith('_duration') || q.type === 'duration') {
+          this.aqAnswers[q.id] = existingDuration;
+        }
+      });
+    }
+
+    if (existingSeverity) {
+      this.aqFlow.forEach(q => {
+        if (q.id.endsWith('_severity') || q.type === 'severity') {
+          this.aqAnswers[q.id] = existingSeverity;
+        }
+      });
+    }
+
+    // Fast-forward past any question that already has an answer or is irrelevant
+    while (this.aqIndex < this.aqFlow.length) {
+      const question = this.aqFlow[this.aqIndex];
+      if (this.aqAnswers[question.id]) {
+        this.aqIndex++;
+        continue;
+      }
+      if (this.shouldSkipQuestion(question)) {
+        this.aqIndex++;
+        continue;
+      }
+      break;
+    }
+
     this.showAdaptiveQuestion();
   },
 
@@ -799,10 +1054,32 @@ const App = {
     if (q.type === 'body_map') {
       optionsHtml = this.renderBodyMapHTML(q);
     } else if (q.type === 'severity') {
+      const mildLabel = getLocalizedText('severity_level_mild', 'Mild');
+      const modLabel = getLocalizedText('severity_level_moderate', 'Moderate');
+      const sevLabel = getLocalizedText('severity_level_severe', 'Severe');
+      const verySevLabel = getLocalizedText('severity_level_very_severe', 'Very Severe');
+      const mildDesc = getLocalizedText('mild_desc', 'Little or no interference with daily activities');
+      const modDesc = getLocalizedText('moderate_desc', 'Some interference with daily activities');
+      const sevDesc = getLocalizedText('severe_desc', 'Significant discomfort, difficult to work');
+      const verySevDesc = getLocalizedText('very_severe_desc', 'Extreme distress requiring urgent attention');
+
       optionsHtml = `<div class="severity-ratings-grid" style="margin-bottom:24px;">
-        <div class="severity-card" onclick="App.answerAQ('Mild')"><h3>${getLocalizedText('Mild', 'Mild')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${getLocalizedText('Little or no interference with daily activities', 'Little or no interference with daily activities')}</p></div>
-        <div class="severity-card" onclick="App.answerAQ('Moderate')"><h3>${getLocalizedText('Moderate', 'Moderate')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${getLocalizedText('Some interference with daily activities', 'Some interference with daily activities')}</p></div>
-        <div class="severity-card" onclick="App.answerAQ('Severe')"><h3>${getLocalizedText('Severe', 'Severe')}</h3><p style="font-size:0.8rem;color:var(--text-muted)">${getLocalizedText('Significant interference with daily activities', 'Significant interference with daily activities')}</p></div>
+        <div class="severity-card level-mild" onclick="App.answerAQ('Mild')">
+          <h3>${mildLabel}</h3>
+          <p>${mildDesc}</p>
+        </div>
+        <div class="severity-card level-moderate" onclick="App.answerAQ('Moderate')">
+          <h3>${modLabel}</h3>
+          <p>${modDesc}</p>
+        </div>
+        <div class="severity-card level-severe" onclick="App.answerAQ('Severe')">
+          <h3>${sevLabel}</h3>
+          <p>${sevDesc}</p>
+        </div>
+        <div class="severity-card level-very-severe" onclick="App.answerAQ('Very Severe')">
+          <h3>${verySevLabel}</h3>
+          <p>${verySevDesc}</p>
+        </div>
       </div>`;
     } else if (q.type === 'text') {
       optionsHtml = `<div style="margin-bottom:24px;">
@@ -835,82 +1112,173 @@ const App = {
     
     const localizedQuestion = getLocalizedText(q.text, q.text);
     const localizedSubtitle = getLocalizedText(q.subtitle || '', q.subtitle || '');
+    const currentIntent = this.state.symptomIntent || 'general';
+    const localizedIntent = getLocalizedText(currentIntent, this.state.chiefComplaint || 'Clinical Intake');
+
+    // Abstract subtle clinical motif based on intent
+    let clinicalMotifSvg = '';
+    if (currentIntent === 'stomach_pain') {
+      clinicalMotifSvg = `<svg width="120" height="70" viewBox="0 0 120 70" fill="none" opacity="0.35">
+        <path d="M20 35 Q 40 10, 60 35 T 100 35" stroke="#1F5E5A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <circle cx="60" cy="35" r="5" fill="#D96C2F"/>
+        <line x1="10" y1="55" x2="110" y2="55" stroke="#7FA6A0" stroke-width="1" stroke-dasharray="3 3"/>
+      </svg>`;
+    } else if (currentIntent === 'fever') {
+      clinicalMotifSvg = `<svg width="120" height="70" viewBox="0 0 120 70" fill="none" opacity="0.35">
+        <path d="M15 45 L 35 45 L 45 15 L 55 55 L 65 30 L 75 45 L 105 45" stroke="#D96C2F" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="45" cy="15" r="4" fill="#D96C2F"/>
+      </svg>`;
+    } else if (currentIntent === 'headache') {
+      clinicalMotifSvg = `<svg width="120" height="70" viewBox="0 0 120 70" fill="none" opacity="0.35">
+        <circle cx="60" cy="35" r="24" stroke="#1F5E5A" stroke-width="2" fill="none"/>
+        <path d="M45 35 Q 60 20, 75 35" stroke="#D96C2F" stroke-width="2" fill="none"/>
+      </svg>`;
+    } else if (currentIntent === 'cough_cold') {
+      clinicalMotifSvg = `<svg width="120" height="70" viewBox="0 0 120 70" fill="none" opacity="0.35">
+        <path d="M35 25 C 35 45, 55 55, 55 55 C 55 55, 75 45, 75 25" stroke="#1F5E5A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <line x1="55" y1="15" x2="55" y2="55" stroke="#7FA6A0" stroke-width="2"/>
+      </svg>`;
+    } else {
+      clinicalMotifSvg = `<svg width="120" height="70" viewBox="0 0 120 70" fill="none" opacity="0.35">
+        <rect x="35" y="20" width="50" height="30" rx="4" stroke="#1F5E5A" stroke-width="2" fill="none"/>
+        <line x1="60" y1="20" x2="60" y2="50" stroke="#D96C2F" stroke-width="2"/>
+        <line x1="35" y1="35" x2="85" y2="35" stroke="#D96C2F" stroke-width="2"/>
+      </svg>`;
+    }
 
     container.innerHTML = `
-      <div class="kiosk-card">
-        <!-- Progress Bar -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <span style="font-size:0.92rem;font-weight:700;color:var(--primary);background:var(--primary-light);padding:4px 14px;border-radius:999px;">
-            ${qLabel} ${current} ${ofLabel} ${total}
-          </span>
-          <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.88rem;width:auto;" onclick="speakText(document.getElementById('aq-q-text').innerText)">
-            <i class="fa-solid fa-volume-high"></i> ${listenLabel}
-          </button>
+      <div class="ms-kiosk-split">
+        <!-- LEFT COLUMN: CONTEXT, HEADLINE, PROGRESS & MOTIF -->
+        <div class="ms-kiosk-left">
+          <div class="ms-eyebrow">
+            <span style="color:var(--orange);font-weight:800;">●</span>
+            ${localizedIntent.toUpperCase()} · ${qLabel.toUpperCase()} ${current} ${ofLabel.toUpperCase()} ${total}
+          </div>
+          
+          <div class="aq-progress-bar-wrap" style="margin:8px 0 20px;">
+            <div class="aq-progress-fill" style="width:${(current/total)*100}%;"></div>
+          </div>
+
+          <h2 class="ms-headline" id="aq-q-text" style="font-size:clamp(1.6rem, 2.4vw, 2.2rem);line-height:1.2;margin-bottom:12px;color:var(--teal-deepest);">
+            ${localizedQuestion}
+          </h2>
+          
+          ${localizedSubtitle ? `<p class="ms-subline" style="font-size:1rem;color:var(--text-sub);margin-bottom:24px;">${localizedSubtitle}</p>` : ''}
+
+          <div style="display:flex;align-items:center;gap:14px;margin-top:16px;">
+            <button class="btn-outline" style="height:40px;padding:0 16px;font-size:0.84rem;" onclick="speakText(document.getElementById('aq-q-text').innerText)">
+              <i class="fa-solid fa-volume-high"></i> ${listenLabel}
+            </button>
+          </div>
+
+          <div style="margin-top:36px;">
+            ${clinicalMotifSvg}
+          </div>
+
+          <div class="ms-nav" style="margin-top:40px;padding-top:18px;">
+            <button class="btn-ghost" onclick="App.prevAQ()"><i class="fa-solid fa-arrow-left"></i> ${backLabel}</button>
+            <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> ${helpLabel}</button>
+          </div>
         </div>
-        <div style="background:var(--border-color);border-radius:999px;height:6px;margin-bottom:24px;">
-          <div style="background:var(--primary);width:${(current/total)*100}%;height:6px;border-radius:999px;transition:width 0.4s ease;"></div>
-        </div>
 
-        <h2 class="kiosk-title" id="aq-q-text" style="margin-bottom:10px;">${localizedQuestion}</h2>
-        <p class="kiosk-subtitle" style="margin-bottom:24px;">${localizedSubtitle}</p>
-
-        ${optionsHtml}
-
-        <div class="step-nav-footer">
-          <button class="btn-back" onclick="App.prevAQ()"><i class="fa-solid fa-arrow-left"></i> ${backLabel}</button>
-          <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> ${helpLabel}</button>
+        <!-- RIGHT COLUMN: LARGE TOUCH TARGETS -->
+        <div class="ms-kiosk-right">
+          ${optionsHtml}
         </div>
       </div>
     `;
 
     this.showScreen(20);
-    // Speak question aloud
     setTimeout(() => speakText(localizedQuestion), 300);
   },
 
   renderBodyMapHTML(q) {
-    const selectedLabel = getLocalizedText('selected_location', 'Selected Location');
+    const selectedLabel = getLocalizedText('selected_area', 'Selected Area');
     const continueLabel = getLocalizedText('continue', 'Continue');
+
+    const primaryZones = [
+      { id: 'Head', labelKey: 'head', fallback: 'Head', icon: 'fa-brain' },
+      { id: 'Chest', labelKey: 'chest', fallback: 'Chest', icon: 'fa-heart-pulse' },
+      { id: 'Abdomen', labelKey: 'abdomen', fallback: 'Abdomen', icon: 'fa-lungs' },
+      { id: 'Arms', labelKey: 'arms', fallback: 'Arms', icon: 'fa-hand' },
+      { id: 'Legs', labelKey: 'legs', fallback: 'Legs', icon: 'fa-person-walking' },
+      { id: 'Back', labelKey: 'back', fallback: 'Back', icon: 'fa-child-reaching' }
+    ];
+
+    const abdomenSubzones = [
+      'Upper Abdomen', 'Around Navel', 'Lower Abdomen', 'Left Side', 'Right Side'
+    ];
+
+    const isStomachFlow = (this.state.symptomIntent === 'stomach_pain');
+
     return `
-      <div class="body-location-wrapper" style="margin-bottom:20px;">
+      <div class="body-location-wrapper">
         <div class="body-silhouette-card">
-          <svg width="200" height="260" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
-            <!-- Head -->
-            <ellipse cx="100" cy="38" rx="22" ry="26" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2"/>
-            <!-- Neck -->
-            <rect x="91" y="60" width="18" height="14" fill="#cbd5e1"/>
-            <!-- Torso -->
-            <path d="M62 74 L138 74 L148 150 L138 240 L62 240 L52 150 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+          <svg width="210" height="270" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
+            <!-- Head & Neck -->
+            <ellipse id="svg-zone-head" cx="100" cy="36" rx="20" ry="24" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Head')"/>
+            <rect x="92" y="58" width="16" height="12" fill="#cbd5e1"/>
+            
+            <!-- Torso Frame -->
+            <path d="M62 70 L138 70 L146 148 L138 240 L62 240 L54 148 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+
+            <!-- Chest Zone -->
+            <rect id="svg-zone-chest" x="72" y="72" width="56" height="38" rx="4" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Chest')"/>
+            
+            <!-- Abdomen Zone (or subzones) -->
+            <rect id="svg-zone-abdomen" x="74" y="114" width="52" height="46" rx="4" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Abdomen')"/>
+
             <!-- Arms -->
-            <path d="M62 80 L40 160 L48 162 L68 88" fill="#d1d5db" stroke="#94a3b8" stroke-width="1.5"/>
-            <path d="M138 80 L160 160 L152 162 L132 88" fill="#d1d5db" stroke="#94a3b8" stroke-width="1.5"/>
-            <!-- Clickable Zones -->
-            <rect id="svg-upper" x="76" y="82" width="48" height="30" rx="6" fill="#10b981" opacity="0.2" stroke="#059669" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Upper Abdomen')"/>
-            <circle id="svg-navel" cx="100" cy="140" r="17" fill="#10b981" opacity="0.2" stroke="#059669" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Around Navel')"/>
-            <rect id="svg-lower" x="76" y="165" width="48" height="28" rx="6" fill="#10b981" opacity="0.2" stroke="#059669" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Lower Abdomen')"/>
-            <rect id="svg-left" x="52" y="120" width="22" height="55" rx="5" fill="#10b981" opacity="0.2" stroke="#059669" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Left Side')"/>
-            <rect id="svg-right" x="126" y="120" width="22" height="55" rx="5" fill="#10b981" opacity="0.2" stroke="#059669" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Right Side')"/>
-            <!-- Labels -->
-            <text x="100" y="103" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">${getLocalizedText('Upper', 'Upper')}</text>
-            <text x="100" y="143" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">${getLocalizedText('Navel', 'Navel')}</text>
-            <text x="100" y="185" text-anchor="middle" font-size="9" fill="#059669" font-weight="bold">${getLocalizedText('Lower', 'Lower')}</text>
-            <text x="40" y="155" text-anchor="middle" font-size="8" fill="#059669" font-weight="bold">${getLocalizedText('Left', 'Left')}</text>
-            <text x="160" y="155" text-anchor="middle" font-size="8" fill="#059669" font-weight="bold">${getLocalizedText('Right', 'Right')}</text>
+            <path id="svg-zone-arms-l" d="M62 76 L38 150 L48 152 L70 84 Z" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Arms')"/>
+            <path id="svg-zone-arms-r" d="M138 76 L162 150 L152 152 L130 84 Z" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Arms')"/>
+
+            <!-- Legs -->
+            <rect id="svg-zone-legs-l" x="74" y="165" width="22" height="85" rx="4" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Legs')"/>
+            <rect id="svg-zone-legs-r" x="104" y="165" width="22" height="85" rx="4" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Legs')"/>
+
+            <!-- Region Labels for Clarity -->
+            <text x="100" y="38" text-anchor="middle" font-size="8.5" font-weight="700" fill="#0a3641">${getLocalizedText('head', 'Head')}</text>
+            <text x="100" y="92" text-anchor="middle" font-size="8.5" font-weight="700" fill="#0a3641">${getLocalizedText('chest', 'Chest')}</text>
+            <text x="100" y="139" text-anchor="middle" font-size="8.5" font-weight="700" fill="#0a3641">${getLocalizedText('abdomen', 'Abdomen')}</text>
+            <text x="100" y="200" text-anchor="middle" font-size="8.5" font-weight="700" fill="#0a3641">${getLocalizedText('legs', 'Legs')}</text>
           </svg>
         </div>
-        <div class="abdomen-zones-grid" style="flex:1;">
-          ${q.options.map(zone =>
-            `<button class="zone-select-btn" id="zone-btn-${zone.replace(/\s/g,'-')}" onclick="App.selectBodyZoneAQ('${zone.replace(/'/g,"\\'")}')">
-              <span>${getLocalizedText(zone, zone)}</span> <i class="fa-solid fa-chevron-right"></i>
-            </button>`
-          ).join('')}
+
+        <div>
+          <div class="body-zones-grid" style="margin-bottom:14px;">
+            ${primaryZones.map(z => `
+              <button class="zone-select-btn" id="zone-btn-${z.id}" onclick="App.selectBodyZoneAQ('${z.id}')">
+                <span><i class="fa-solid ${z.icon}" style="margin-right:8px;color:var(--teal-primary);"></i> ${getLocalizedText(z.labelKey, z.fallback)}</span>
+                <i class="fa-solid fa-chevron-right" style="font-size:0.85rem;"></i>
+              </button>
+            `).join('')}
+          </div>
+
+          ${isStomachFlow ? `
+            <div style="background:var(--bg-kiosk);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;">
+              <p style="font-size:0.85rem;font-weight:700;color:var(--teal-deep);margin-bottom:8px;">
+                Specific abdominal location:
+              </p>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                ${abdomenSubzones.map(sub => `
+                  <button class="zone-select-btn" id="zone-btn-${sub.replace(/\s+/g,'-')}" style="min-height:38px;padding:6px 12px;font-size:0.88rem;" onclick="App.selectBodyZoneAQ('${sub}')">
+                    ${getLocalizedText(sub, sub)}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <div id="zone-selected-display" style="background:var(--orange-soft);border:1.5px solid var(--orange-primary);padding:12px 18px;border-radius:var(--radius-sm);font-weight:700;display:none;align-items:center;justify-content:space-between;">
+            <div>
+              <span style="font-size:0.85rem;color:var(--text-muted);display:block;">${selectedLabel}</span>
+              <span id="zone-selected-text" style="color:var(--teal-deepest);font-size:1.15rem;font-weight:800;">—</span>
+            </div>
+            <button class="btn-kiosk-primary" onclick="App.continueAfterBodyMap()" style="min-height:44px;padding:6px 20px;font-size:1rem;">
+              ${continueLabel} <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
         </div>
-      </div>
-      <div id="zone-selected-display" style="background:var(--primary-light);padding:12px 16px;border-radius:var(--radius-md);font-weight:700;margin-bottom:20px;display:none;">
-        ✅ ${selectedLabel}: <span id="zone-selected-text" style="color:var(--primary-hover);">—</span>
-        <button class="btn-kiosk-primary" onclick="App.continueAfterBodyMap()" style="float:right;width:auto;min-height:38px;padding:4px 18px;font-size:0.9rem;">
-          ${continueLabel} <i class="fa-solid fa-arrow-right"></i>
-        </button>
       </div>
     `;
   },
@@ -918,33 +1286,53 @@ const App = {
   selectBodyZoneAQ(zoneName) {
     this.state.bodyLocation = zoneName;
     const translatedZone = getLocalizedText(zoneName, zoneName);
-    // Highlight zone buttons
+
+    // Update zone button highlights
     document.querySelectorAll('.zone-select-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.innerText.trim().startsWith(translatedZone) || btn.innerText.trim().startsWith(zoneName));
+      const match = btn.innerText.trim().includes(translatedZone) || btn.innerText.trim().includes(zoneName);
+      btn.classList.toggle('active', match);
     });
+
+    // Update display banner
     const display = document.getElementById('zone-selected-display');
     const textEl = document.getElementById('zone-selected-text');
     if (display && textEl) {
       textEl.innerText = translatedZone;
-      display.style.display = 'block';
+      display.style.display = 'flex';
     }
-    // Highlight SVG zones
-    ['svg-upper','svg-navel','svg-lower','svg-left','svg-right'].forEach(id => {
+
+    // Reset SVG opacities
+    ['svg-zone-head','svg-zone-chest','svg-zone-abdomen','svg-zone-arms-l','svg-zone-arms-r','svg-zone-legs-l','svg-zone-legs-r'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.setAttribute('opacity','0.2');
+      if (el) {
+        el.setAttribute('opacity','0.18');
+        el.setAttribute('fill','#0f4c5c');
+      }
     });
-    const svgMap = { 'Upper Abdomen':'svg-upper','Around Navel':'svg-navel','Lower Abdomen':'svg-lower','Left Side':'svg-left','Right Side':'svg-right' };
-    const svgId = svgMap[zoneName];
-    if (svgId) {
-      const el = document.getElementById(svgId);
-      if (el) el.setAttribute('opacity','0.75');
-    }
+
+    // Highlight target zone in warm orange
+    const highlightZone = (ids) => {
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.setAttribute('opacity','0.75');
+          el.setAttribute('fill','#ea580c');
+        }
+      });
+    };
+
+    if (zoneName === 'Head') highlightZone(['svg-zone-head']);
+    else if (zoneName === 'Chest') highlightZone(['svg-zone-chest']);
+    else if (zoneName === 'Abdomen' || zoneName.includes('Abdomen') || zoneName.includes('Navel') || zoneName.includes('Side')) highlightZone(['svg-zone-abdomen']);
+    else if (zoneName === 'Arms') highlightZone(['svg-zone-arms-l','svg-zone-arms-r']);
+    else if (zoneName === 'Legs') highlightZone(['svg-zone-legs-l','svg-zone-legs-r']);
+
     this.logMsg("Patient", `Pain location: ${zoneName}`);
   },
 
   continueAfterBodyMap() {
-    if (this.state.bodyLocation === "Not specified") {
-      this.showNotification("⚠️ Please select a location on the diagram.");
+    if (!this.state.bodyLocation || this.state.bodyLocation === "Not specified") {
+      this.showNotification("⚠️ " + getLocalizedText('body_map_title', 'Please select a location on the diagram.'));
       return;
     }
     this.aqAnswers['sp_location'] = this.state.bodyLocation;
@@ -955,19 +1343,26 @@ const App = {
   answerAQ(answer) {
     const q = this.aqFlow[this.aqIndex];
     this.aqAnswers[q.id] = answer;
-    this.logMsg("Patient", `${q.text} → ${answer}`);
-    const translatedAnswer = getLocalizedText(answer, answer);
+    // Change 17: Log each Q&A in the conversation log with localized texts
+    const localQ = getLocalizedText(q.text, q.text);
+    const localA = getLocalizedText(answer, answer);
+    this.logMsg('MediSarthi', localQ);
+    this.logMsg('Patient', localA);
     // Highlight selected button briefly
+    const translatedAnswer = getLocalizedText(answer, answer);
     document.querySelectorAll('.option-touch-btn').forEach(btn => {
       if (btn.innerText.trim().startsWith(translatedAnswer.substring(0,15)) || btn.innerText.trim().startsWith(answer.substring(0,15))) btn.classList.add('selected');
     });
     document.querySelectorAll('.severity-card').forEach(c => {
-      if (c.innerText.includes(translatedAnswer.split(' ')[0]) || c.innerText.includes(answer.split(' ')[0])) {
+      const h3 = c.querySelector('h3');
+      if (h3 && (h3.innerText.includes(translatedAnswer.split(' ')[0]) || h3.innerText.includes(answer.split(' ')[0]))) {
         c.classList.add('selected', answer.toLowerCase());
       }
     });
     setTimeout(() => {
       this.aqIndex++;
+      // Change 5: Skip irrelevant follow-up questions based on previous answers
+      this.skipIrrelevantQuestions();
       this.showAdaptiveQuestion();
     }, 350);
   },
@@ -999,6 +1394,54 @@ const App = {
     if (this.aqIndex === 0) { this.showScreen(6); return; }
     this.aqIndex--;
     this.showAdaptiveQuestion();
+  },
+
+  /**
+   * Change 5: Conditional/Adaptive questioning — skip irrelevant questions.
+   * Based on prior answers, advance aqIndex past questions that are not relevant.
+   */
+  skipIrrelevantQuestions() {
+    while (this.aqIndex < this.aqFlow.length) {
+      const q = this.aqFlow[this.aqIndex];
+      if (!this.shouldSkipQuestion(q)) break;
+      this.aqIndex++;
+    }
+  },
+
+  shouldSkipQuestion(q) {
+    const a = this.aqAnswers;
+    const intent = this.state.symptomIntent;
+    const secondary = this.state.secondaryIntents || [];
+
+    // 1. HEADACHE PATHWAY: Do NOT ask bowel questions or cough questions unless explicitly mentioned
+    if (intent === 'headache' && !secondary.includes('cough_cold') && !secondary.includes('stomach_pain')) {
+      if (q.id === 'sp_bowel' || q.id === 'sp_eating' || q.id === 'cc_throat' || q.id === 'cc_breathing' || q.id === 'cc_type' || q.id === 'cc_cold_contact') return true;
+    }
+
+    // 2. FEVER PATHWAY: Do NOT ask bowel questions unless stomach pain reported; skip cough details if patient said no cough
+    if (intent === 'fever') {
+      if (q.id === 'sp_bowel' && !a.fv_vomiting?.includes('Loose') && !secondary.includes('stomach_pain')) {
+        return true; // Skip bowel question for fever unless diarrhea/stomach pain mentioned
+      }
+      if (a.fv_cough && (a.fv_cough === 'No cough' || a.fv_cough.startsWith('No') || a.fv_cough.includes('नहीं') || a.fv_cough.includes('नाही'))) {
+        if (q.id === 'cc_type' || q.id === 'cc_throat' || q.id === 'cc_breathing') return true;
+      }
+    }
+
+    // 3. COUGH PATHWAY: Do NOT ask stomach pain / bowel questions
+    if (intent === 'cough_cold' && !secondary.includes('stomach_pain')) {
+      if (q.id === 'sp_bowel' || q.id === 'sp_location' || q.id === 'sp_eating') return true;
+      if (a.cc_breathing && (a.cc_breathing.includes('fine') || a.cc_breathing.includes('ठीक') || a.cc_breathing.includes('नाही'))) {
+        if (q.id === 'cc_chest_pain') return true;
+      }
+    }
+
+    // 4. STOMACH PAIN PATHWAY: Do NOT ask sore throat / cough questions
+    if (intent === 'stomach_pain' && !secondary.includes('cough_cold')) {
+      if (q.id === 'cc_throat' || q.id === 'cc_type' || q.id === 'cc_breathing') return true;
+    }
+
+    return false; // Default: show question
   },
 
   // ── AYUSH MULTI-QUESTION SURVEY ───────────────────────────────────────────
@@ -1068,31 +1511,40 @@ const App = {
     }
 
     container.innerHTML = `
-      <div class="kiosk-card">
-        <div style="font-size:2.5rem;margin-bottom:8px;">${q.icon || '🌿'}</div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <span style="font-size:0.92rem;font-weight:700;color:#059669;background:#ecfdf5;padding:4px 14px;border-radius:999px;">
-            ${ayushQLabel} ${current} ${ofLabel} ${total}
-          </span>
-          <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.88rem;width:auto;" onclick="speakText(document.getElementById('ayush-q-text').innerText)">
-            <i class="fa-solid fa-volume-high"></i> ${listenLabel}
-          </button>
+      <div class="ms-kiosk-split">
+        <div class="ms-kiosk-left">
+          <div class="ms-eyebrow">
+            <span style="color:#059669;font-weight:800;">🌿</span>
+            ${ayushQLabel.toUpperCase()} · ${current} ${ofLabel.toUpperCase()} ${total}
+          </div>
+
+          <div class="aq-progress-bar-wrap" style="margin:8px 0 20px;">
+            <div class="aq-progress-fill" style="width:${(current/total)*100}%;background:#059669;"></div>
+          </div>
+
+          <h2 class="ms-headline" id="ayush-q-text" style="font-size:clamp(1.6rem, 2.4vw, 2.2rem);line-height:1.2;margin-bottom:12px;color:var(--teal-deepest);">
+            ${localizedQuestion}
+          </h2>
+          
+          ${localizedSubtitle ? `<p class="ms-subline" style="font-size:1rem;color:var(--text-sub);margin-bottom:20px;">${localizedSubtitle}</p>` : ''}
+
+          <div style="display:flex;align-items:center;gap:14px;margin-top:16px;">
+            <button class="btn-outline" style="height:40px;padding:0 16px;font-size:0.84rem;" onclick="speakText(document.getElementById('ayush-q-text').innerText)">
+              <i class="fa-solid fa-volume-high"></i> ${listenLabel}
+            </button>
+            <button class="btn-ghost" style="font-size:0.84rem;" onclick="App.skipAyush()">
+              <i class="fa-solid fa-forward"></i> ${skipLabel}
+            </button>
+          </div>
+
+          <div class="ms-nav" style="margin-top:40px;padding-top:18px;">
+            <button class="btn-ghost" onclick="App.prevAyush()"><i class="fa-solid fa-arrow-left"></i> ${backLabel}</button>
+            <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> ${helpLabel}</button>
+          </div>
         </div>
-        <div style="background:var(--border-color);border-radius:999px;height:6px;margin-bottom:24px;">
-          <div style="background:#10b981;width:${(current/total)*100}%;height:6px;border-radius:999px;transition:width 0.4s ease;"></div>
-        </div>
 
-        <h2 class="kiosk-title" id="ayush-q-text" style="margin-bottom:8px;">${localizedQuestion}</h2>
-        <p class="kiosk-subtitle" style="margin-bottom:20px;">${localizedSubtitle}</p>
-
-        ${bodyContent}
-
-        <div class="step-nav-footer">
-          <button class="btn-back" onclick="App.prevAyush()"><i class="fa-solid fa-arrow-left"></i> ${backLabel}</button>
-          <button class="btn-kiosk-secondary" style="width:auto;min-height:38px;padding:4px 16px;border-color:var(--text-muted);color:var(--text-muted);" onclick="App.skipAyush()">
-            <i class="fa-solid fa-forward"></i> ${skipLabel}
-          </button>
-          <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> ${helpLabel}</button>
+        <div class="ms-kiosk-right">
+          ${bodyContent}
         </div>
       </div>
     `;
@@ -1191,78 +1643,197 @@ const App = {
     `;
   },
 
-  // ── SUMMARY CARD ─────────────────────────────────────────────────────────
+  /**
+   * Change 8 + 14: Build clinical summary dynamically from actual answered questions only.
+   * Returns array of {labelKey, labelFallback, value} for each answered field.
+   * Change 14: All labels and values go through getLocalizedText() so they match selected language.
+   */
+  buildDynamicSummaryRows() {
+    const rows = [];
+    const lang = this.currentLang;
+
+    // Helper: add a row only if value is truthy and not "Not provided"
+    const addRow = (labelKey, labelFallback, value) => {
+      if (!value || value === 'Not provided' || value === 'Not specified') return;
+      const localLabel = getLocalizedText(labelKey, labelFallback);
+      const localValue = getLocalizedText(value, value);
+      rows.push({ label: localLabel, value: localValue });
+    };
+
+    // Chief complaint — always shown
+    const complaintLabel = getLocalizedText('chief_complaint', 'Chief Complaint');
+    const complaintValue = getLocalizedText(this.state.chiefComplaint, this.state.chiefComplaint);
+    rows.push({ label: complaintLabel, value: complaintValue || getLocalizedText('Not provided', 'Not provided') });
+
+    // From answered adaptive questions
+    const a = this.aqAnswers;
+
+    // Duration
+    const durationVal = a.sp_duration || a.cc_duration || a.fv_duration || a.hd_duration || a.bp_duration || a.se_duration;
+    addRow('duration', 'Duration', durationVal);
+
+    // Location
+    const locationVal = this.state.bodyLocation !== 'Not specified' ? this.state.bodyLocation
+      : (a.sp_location || a.hd_location || a.bp_location);
+    addRow('location', 'Location', locationVal);
+
+    // Severity
+    const severityVal = a.sp_severity || a.cc_severity || a.fv_severity || a.hd_severity || a.bp_severity || a.se_severity;
+    addRow('severity', 'Severity', severityVal);
+
+    // Onset
+    const onsetVal = a.sp_onset || a.hd_onset || a.fv_onset;
+    addRow('onset', 'Onset', onsetVal);
+
+    // Pathway-specific fields — only if answered
+    if (a.sp_eating) addRow('aggravating_factors', 'Aggravating Factors', a.sp_eating);
+    if (a.sp_nausea) addRow('associated_symptoms', 'Associated Symptoms', a.sp_nausea);
+    if (a.sp_fever_associated) addRow('fever', 'Fever', a.sp_fever_associated);
+    if (a.sp_bowel) addRow('bowel_changes', 'Bowel Changes', a.sp_bowel);
+    if (a.sp_past_history) addRow('past_history', 'Past History', a.sp_past_history);
+
+    if (a.cc_type) addRow('cough_type', 'Cough Type', a.cc_type);
+    if (a.cc_fever) addRow('fever', 'Fever', a.cc_fever);
+    if (a.cc_breathing) addRow('breathing', 'Breathing', a.cc_breathing);
+    if (a.cc_throat) addRow('throat_nose', 'Throat / Nose', a.cc_throat);
+    if (a.cc_chest_pain) addRow('chest_pain', 'Chest Discomfort', a.cc_chest_pain);
+    if (a.cc_cold_contact) addRow('contact_history', 'Contact History', a.cc_cold_contact);
+
+    if (a.fv_chills) addRow('chills', 'Chills / Shivering', a.fv_chills);
+    if (a.fv_cough) addRow('cough_cold', 'Cough', a.fv_cough);
+    if (a.fv_body_ache) addRow('body_pain', 'Body Ache', a.fv_body_ache);
+    if (a.fv_rash) addRow('rash', 'Skin Rash', a.fv_rash);
+    if (a.fv_vomiting) addRow('nausea_vomiting', 'Nausea / Vomiting', a.fv_vomiting);
+    if (a.fv_travel) addRow('travel_history', 'Travel History', a.fv_travel);
+
+    if (a.hd_light) addRow('light_noise_sensitivity', 'Light / Noise Sensitivity', a.hd_light);
+    if (a.hd_nausea) addRow('nausea_vomiting', 'Nausea / Vomiting', a.hd_nausea);
+    if (a.hd_vision) addRow('vision_changes', 'Vision Changes', a.hd_vision);
+    if (a.hd_trigger) addRow('trigger', 'Trigger', a.hd_trigger);
+    if (a.hd_previous) addRow('past_history', 'Past History', a.hd_previous);
+
+    if (a.bp_fever) addRow('fever', 'Fever', a.bp_fever);
+    if (a.bp_swelling) addRow('swelling', 'Swelling', a.bp_swelling);
+    if (a.bp_activity) addRow('movement_effect', 'Effect of Movement', a.bp_activity);
+
+    if (a.se_problem) addRow('description', 'Description', a.se_problem);
+    if (a.se_other_symptoms) addRow('associated_symptoms', 'Associated Symptoms', a.se_other_symptoms);
+    if (a.se_history) addRow('past_history', 'Past History', a.se_history);
+
+    // Allergies (from profile step)
+    const allergies = this.state.allergies;
+    if (allergies && allergies !== 'None' && allergies.toLowerCase() !== 'no known allergies') {
+      const allergyLabel = getLocalizedText('allergies', 'Allergies');
+      const allergyVal = getLocalizedText(allergies, allergies);
+      rows.push({ label: allergyLabel, value: allergyVal });
+    } else if (allergies) {
+      const allergyLabel = getLocalizedText('allergies', 'Allergies');
+      rows.push({ label: allergyLabel, value: getLocalizedText(allergies, allergies) });
+    }
+
+    // Medical documents
+    const docsLabel = getLocalizedText('medical_documents', 'Medical Documents');
+    if (this.state.reportsUploaded && this.state.reportsUploaded.length > 0) {
+      const countText = getLocalizedText('reports_uploaded_count', `${this.state.reportsUploaded.length} report(s) uploaded`);
+      rows.push({ label: docsLabel, value: `${this.state.reportsUploaded.length} — ` + this.state.reportsUploaded.map(r => r.title).join(', ') });
+    } else {
+      rows.push({ label: docsLabel, value: getLocalizedText('no_reports_yet', 'No reports uploaded yet.') });
+    }
+
+    return rows;
+  },
+
+  // Change 8+14: Update summary card dynamically as clean Patient Story
   updateSummaryCard() {
-    const setVal = (id, val) => {
-      const el = document.getElementById(id);
-      if (el) el.innerText = getLocalizedText(val || 'Not provided', val || 'Not provided');
-    };
-    
-    // Convert arrays or delimited strings correctly for display
-    const setListVal = (id, valListStr) => {
-      const el = document.getElementById(id);
-      if (el) {
-        if (!valListStr || valListStr === 'None reported' || valListStr === 'Not provided') {
-           el.innerText = getLocalizedText(valListStr || 'Not provided', valListStr || 'Not provided');
-           return;
-        }
-        const parts = valListStr.split('; ').map(p => getLocalizedText(p, p));
-        el.innerText = parts.join('; ');
-      }
-    };
-    
-    const summary = this.buildClinicalSummary();
-    
-    setVal('sum-problem', summary.problem);
-    setVal('sum-duration', summary.duration);
-    setVal('sum-location', summary.location);
-    setVal('sum-severity', summary.severity);
-    setVal('sum-onset', summary.onset);
-    
-    setListVal('sum-associated', summary.associated);
-    setVal('sum-aggravating', summary.eatingWorse);
-    setVal('sum-history', summary.medicalHistory);
-    setVal('sum-allergies', summary.allergies);
-    setVal('sum-meds', summary.medications);
-    setVal('sum-documents', summary.documents);
-  },
+    const container = document.getElementById('dynamic-summary-container');
+    if (!container) return;
 
-  buildAssociatedSymptomsSummary() {
-    const parts = [];
-    Object.entries(this.aqAnswers).forEach(([key, val]) => {
-      if ((key.includes('nausea') || key.includes('fever') || key.includes('cough') || key.includes('rash') || key.includes('vomit') || key.includes('throat') || key.includes('chest') || key.includes('breathing') || key.includes('chills') || key.includes('body_ache') || key.includes('swelling') || key.includes('other_symptoms')) && !val.startsWith('No') && !val.startsWith('Neither')) {
-        parts.push(val); // Push stable English value
-      }
-    });
-    return parts.length ? parts.join('; ') : 'None reported';
-  },
-
-  buildClinicalSummary() {
-    const getSummaryField = (keyIncludes) => {
-      const key = Object.keys(this.aqAnswers).find(k => keyIncludes.some(s => k.includes(s)));
-      return key ? this.aqAnswers[key] : 'Not provided';
+    const a = this.aqAnswers;
+    const addField = (labelKey, fallback, val) => {
+      if (!val || val === 'Not provided' || val === 'Not specified') return '';
+      return `<div class="summary-row">
+        <div class="summary-label">${getLocalizedText(labelKey, fallback)}</div>
+        <div class="summary-val">${getLocalizedText(val, val)}</div>
+      </div>`;
     };
 
-    const locAns = getSummaryField(['location']);
-    const finalLocation = (this.state.bodyLocation !== "Not specified") ? this.state.bodyLocation : (locAns !== 'Not provided' ? locAns : 'Not specified');
+    // 1. TODAY'S VISIT
+    const visitRows = [];
+    visitRows.push(addField('main_concern', 'Main Concern', this.state.chiefComplaint));
+    const durationVal = a.sp_duration || a.cc_duration || a.fv_duration || a.hd_duration || a.bp_duration || a.se_duration;
+    visitRows.push(addField('duration', 'Duration', durationVal));
+    const locationVal = (this.state.bodyLocation !== 'Not specified' ? this.state.bodyLocation : (a.sp_location || a.hd_location || a.bp_location));
+    visitRows.push(addField('location', 'Location', locationVal));
+    const severityVal = a.sp_severity || a.cc_severity || a.fv_severity || a.hd_severity || a.bp_severity || a.se_severity;
+    visitRows.push(addField('severity', 'Severity', severityVal));
+    const onsetVal = a.sp_onset || a.hd_onset || a.fv_onset;
+    visitRows.push(addField('onset', 'Onset', onsetVal));
+    if (a.sp_eating) visitRows.push(addField('aggravating_factors', 'Aggravating Factors', a.sp_eating));
+    if (a.sp_nausea) visitRows.push(addField('associated_symptoms', 'Associated Symptoms', a.sp_nausea));
+    if (a.sp_fever_associated) visitRows.push(addField('fever', 'Fever', a.sp_fever_associated));
+    if (a.sp_bowel) visitRows.push(addField('bowel_changes', 'Bowel Changes', a.sp_bowel));
+    if (a.cc_type) visitRows.push(addField('cough_type', 'Cough Type', a.cc_type));
+    if (a.cc_breathing) visitRows.push(addField('breathing', 'Breathing', a.cc_breathing));
+    if (a.fv_chills) visitRows.push(addField('chills', 'Chills', a.fv_chills));
+    if (a.hd_light) visitRows.push(addField('light_noise_sensitivity', 'Sensitivity', a.hd_light));
+    if (a.bp_activity) visitRows.push(addField('movement_effect', 'Movement Effect', a.bp_activity));
+    if (a.se_other_symptoms) visitRows.push(addField('associated_symptoms', 'Other Symptoms', a.se_other_symptoms));
 
-    return {
-      problem: this.state.chiefComplaint,
-      duration: getSummaryField(['duration']),
-      severity: getSummaryField(['severity']),
-      location: finalLocation,
-      onset: getSummaryField(['onset']),
-      eatingWorse: getSummaryField(['eating', 'light', 'activity']),
-      nauseaVomiting: getSummaryField(['nausea', 'vomit']),
-      bowel: getSummaryField(['bowel']),
-      pastHistory: getSummaryField(['past', 'previous']),
-      associated: this.buildAssociatedSymptomsSummary(),
-      medications: this.state.medications || 'None',
-      allergies: this.state.allergies || 'Penicillin',
-      documents: this.state.reportsUploaded && this.state.reportsUploaded.length > 0 
-        ? `${this.state.reportsUploaded.length} uploaded: ` + this.state.reportsUploaded.map(r => r.title).join(', ') 
-        : 'None uploaded'
-    };
+    // 2. HEALTH HISTORY
+    const historyRows = [];
+    if (this.state.allergies) historyRows.push(addField('allergies', 'Allergies', this.state.allergies));
+    if (this.state.medications) historyRows.push(addField('current_medications', 'Current Medications', this.state.medications));
+    const pastHistoryVal = a.sp_past_history || a.hd_previous || a.se_history || this.state.medicalHistory;
+    if (pastHistoryVal) historyRows.push(addField('past_history', 'Past Medical History', pastHistoryVal));
+
+    // 3. REPORTS
+    const reportsRows = [];
+    if (this.state.reportsUploaded && this.state.reportsUploaded.length > 0) {
+      reportsRows.push(`<div class="summary-row">
+        <div class="summary-label">${getLocalizedText('medical_documents', 'Uploaded Reports')}</div>
+        <div class="summary-val">${this.state.reportsUploaded.map(r => r.title + ' (' + r.date + ')').join('<br>')}</div>
+      </div>`);
+    } else {
+      reportsRows.push(`<div class="summary-row">
+        <div class="summary-label">${getLocalizedText('medical_documents', 'Uploaded Reports')}</div>
+        <div class="summary-val" style="color:var(--text-subtle);">${getLocalizedText('no_reports_uploaded', 'No medical reports uploaded yet.')}</div>
+      </div>`);
+    }
+
+    const html = `
+      <div class="patient-story-container">
+        <div class="summary-story-section">
+          <div class="summary-story-header">
+            <i class="fa-solid fa-stethoscope"></i> ${getLocalizedText('todays_visit_title', "TODAY'S VISIT")}
+          </div>
+          <div class="summary-table-card">
+            ${visitRows.filter(Boolean).join('')}
+          </div>
+        </div>
+
+        ${historyRows.filter(Boolean).length > 0 ? `
+          <div class="summary-story-section">
+            <div class="summary-story-header">
+              <i class="fa-solid fa-notes-medical"></i> ${getLocalizedText('health_history_title', 'HEALTH HISTORY')}
+            </div>
+            <div class="summary-table-card">
+              ${historyRows.filter(Boolean).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <div class="summary-story-section">
+          <div class="summary-story-header">
+            <i class="fa-solid fa-folder-open"></i> ${getLocalizedText('reports_title_summary', 'MEDICAL REPORTS')}
+          </div>
+          <div class="summary-table-card">
+            ${reportsRows.join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = html;
   },
 
   // ── REPORTS MODULE ────────────────────────────────────────────────────────
@@ -1271,7 +1842,7 @@ const App = {
     overlay.style.display = 'flex';
     setTimeout(() => {
       overlay.style.display = 'none';
-      this.addUploadedReportItem("Photo Scan — Lab Report", new Date().toLocaleDateString('en-IN'));
+      this.addUploadedReportItem("Photo Scan — Blood Test CBC", new Date().toLocaleDateString('en-IN'));
     }, 2500);
   },
 
@@ -1284,17 +1855,29 @@ const App = {
     this.state.reportsUploaded.push({ title, date: dateStr, type: "pdf" });
     const container = document.getElementById('uploaded-reports-list-container');
     if (!container) return;
+    const noReportsMsg = document.getElementById('no-reports-msg');
+    if (noReportsMsg) noReportsMsg.style.display = 'none';
+
     const itemHtml = `<div class="uploaded-file-item">
-      <div><i class="fa-solid fa-file-medical" style="color:var(--primary);margin-right:8px;"></i>
-        <strong>${title}</strong> — <span style="color:var(--text-muted);font-size:0.85rem;">${dateStr}</span>
+      <div class="doc-file-info">
+        <div class="doc-file-icon"><i class="fa-solid fa-file-waveform"></i></div>
+        <div>
+          <strong style="color:var(--teal-deep);font-size:1.05rem;">${title}</strong>
+          <span class="doc-file-tag">${getLocalizedText('added_to_health_record', '✓ Added to health record')}</span>
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-top:2px;">${dateStr} · PDF Document</div>
+        </div>
       </div>
-      <div style="display:flex;gap:6px;">
-        <button class="btn-kiosk-secondary" style="min-height:34px;padding:4px 10px;width:auto;font-size:0.82rem;" onclick="App.previewReport('${title}')">View</button>
-        <button class="btn-kiosk-secondary" style="min-height:34px;padding:4px 10px;width:auto;font-size:0.82rem;border-color:#ef4444;color:#ef4444;" onclick="App.deleteReport(this,'${title}')">Remove</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.85rem;" onclick="App.previewReport('${title}')">
+          <i class="fa-solid fa-eye"></i> View
+        </button>
+        <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 12px;font-size:0.85rem;border-color:#ef4444;color:#dc2626;" onclick="App.deleteReport(this,'${title}')">
+          <i class="fa-solid fa-trash"></i>
+        </button>
       </div>
     </div>`;
     container.innerHTML += itemHtml;
-    this.showNotification(`✅ "${title}" added successfully.`);
+    this.showNotification(`✅ "${title}" ${getLocalizedText('added_to_health_record', 'added to health record')}`);
   },
 
   deleteReport(btn, title) {
@@ -1312,42 +1895,214 @@ const App = {
   },
 
   submitPatientFlow() {
-    const summary = this.buildClinicalSummary();
 
-    const newQueuePatient = {
-      id: this.state.patientId || ("MS" + Math.floor(1000 + Math.random() * 9000)),
-      name: this.state.fullName || "Anonymous Patient",
-      age: parseInt(this.state.age) || 0,
-      gender: this.state.gender || "Not specified",
-      time: this.nowTime(),
-      status: "Waiting",
-      chiefComplaint: this.state.chiefComplaint || "General Consultation",
-      summary: summary,
-      ayush: {
-        completed: this.state.ayushRequested,
-        sleep: this.ayushAnswers.ay_sleep || 'Not provided',
-        schedule: this.ayushAnswers.ay_schedule || 'Not provided',
-        food: this.ayushAnswers.ay_food || 'Not provided',
-        digestion: this.ayushAnswers.ay_digestion || 'Not provided',
-        activity: this.ayushAnswers.ay_activity || 'Not provided',
-        yoga: this.ayushAnswers.ay_yoga || 'Not provided',
-        answers: { ...this.ayushAnswers }
-      },
-      reports: [...this.state.reportsUploaded],
-      conversationLog: [...this.state.conversationLog],
-      prescriptions: [],
-      doctorNotes: ""
-    };
+    console.log("MediSarthi: Generating consultation token...");
 
-    const queue = this.getStoredQueue();
-    queue.unshift(newQueuePatient);
-    this.saveStoredQueue(queue);
-    DEMO_DATA.patientQueue = queue;
+    try {
 
-    if (document.getElementById('doc-queue-list')) {
-      this.renderDoctorQueue();
+        // -------------------------------------------------
+        // 1. Build the patient's actual clinical summary
+        // -------------------------------------------------
+
+        const dynamicRows = this.buildDynamicSummaryRows();
+        const summaryObj = this.buildClinicalSummaryForDoctor();
+
+
+        // -------------------------------------------------
+        // 2. Generate a REAL consultation token
+        // -------------------------------------------------
+
+        const tokenNumber =
+            'A-' + Math.floor(10 + Math.random() * 90);
+
+
+        // -------------------------------------------------
+        // 3. Create the patient record
+        // -------------------------------------------------
+
+        const newQueuePatient = {
+
+            id: this.state.patientId ||
+               ('MS' + Math.floor(1000 + Math.random() * 9000)),
+
+            name: this.state.fullName || 'Anonymous Patient',
+
+            age: parseInt(this.state.age) || 0,
+
+            gender: this.state.gender || 'Not specified',
+
+            time: this.nowTime(),
+
+            status: 'Waiting',
+
+            token: tokenNumber,
+
+            chiefComplaint:
+                this.state.chiefComplaint ||
+                'General Consultation',
+
+            summary: summaryObj,
+
+            dynamicRows: dynamicRows,
+
+            aqAnswers: {
+                ...this.aqAnswers
+            },
+
+            symptomIntent:
+                this.state.symptomIntent || '',
+
+            ayush: {
+
+                completed:
+                    this.state.ayushRequested || false,
+
+                answers: {
+                    ...(this.state.ayushAnswers || {})
+                }
+
+            },
+
+            reports: [
+                ...(this.state.reportsUploaded || [])
+            ],
+
+            conversationLog: [
+                ...(this.state.conversationLog || [])
+            ],
+
+            prescriptions: [],
+
+            doctorNotes: ''
+        };
+
+
+        // -------------------------------------------------
+        // 4. Add patient to doctor queue
+        // -------------------------------------------------
+
+        const queue = this.getStoredQueue();
+
+        queue.unshift(newQueuePatient);
+
+        this.saveStoredQueue(queue);
+
+        if (typeof DEMO_DATA !== 'undefined') {
+            DEMO_DATA.patientQueue = queue;
+        }
+
+
+        // -------------------------------------------------
+        // 5. Put generated token on the token screen
+        // -------------------------------------------------
+
+        const tokenElement =
+            document.getElementById('issued-token-number');
+
+        if (tokenElement) {
+            tokenElement.textContent = tokenNumber;
+        }
+
+
+        // -------------------------------------------------
+        // 6. Update patient information on token screen
+        // -------------------------------------------------
+
+        const tokenScreen =
+            document.getElementById('step-15');
+
+        if (tokenScreen) {
+
+            const tokenName =
+                tokenScreen.querySelector('.token-patient-name');
+
+            if (tokenName) {
+                tokenName.textContent =
+                    this.state.fullName || 'Patient';
+            }
+        }
+
+
+        // -------------------------------------------------
+        // 7. Refresh doctor queue if doctor view exists
+        // -------------------------------------------------
+
+        if (
+            document.getElementById('doc-queue-list') &&
+            typeof this.renderDoctorQueue === 'function'
+        ) {
+            this.renderDoctorQueue();
+        }
+
+
+        // -------------------------------------------------
+        // 8. FINALLY move to token screen
+        // -------------------------------------------------
+
+        console.log(
+            "MediSarthi: Consultation token generated:",
+            tokenNumber
+        );
+
+        this.showScreen(15);
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "MediSarthi: Token generation failed:",
+            error
+        );
+
+        alert(
+            "Something went wrong while generating your consultation token. Please try again."
+        );
+
     }
-    this.showScreen(15);
+},
+
+  // Change 16: Build structured summary from actual aqAnswers for the doctor
+  buildClinicalSummaryForDoctor() {
+    const a = this.aqAnswers;
+    const getSF = (keys) => {
+      const k = Object.keys(a).find(k => keys.some(s => k.includes(s)));
+      return k ? a[k] : null;
+    };
+    const locVal = (val) => val ? getLocalizedText(val, val) : null;
+
+    const durationVal = a.sp_duration || a.cc_duration || a.fv_duration || a.hd_duration || a.bp_duration || a.se_duration || null;
+    const severityVal = a.sp_severity || a.cc_severity || a.fv_severity || a.hd_severity || a.bp_severity || a.se_severity || null;
+    const onsetVal = a.sp_onset || a.hd_onset || a.fv_onset || null;
+    const locationVal = this.state.bodyLocation !== 'Not specified' ? this.state.bodyLocation : (a.sp_location || a.hd_location || a.bp_location || null);
+
+    return {
+      problem: this.state.chiefComplaint,
+      duration: durationVal,
+      severity: severityVal,
+      location: locationVal,
+      onset: onsetVal,
+      eatingWorse: a.sp_eating || a.hd_trigger || a.bp_activity || null,
+      nauseaVomiting: a.sp_nausea || a.hd_nausea || a.fv_vomiting || null,
+      bowel: a.sp_bowel || null,
+      pastHistory: a.sp_past_history || a.hd_previous || a.bp_activity || null,
+      chills: a.fv_chills || null,
+      cough: a.fv_cough || a.cc_type || null,
+      bodyAche: a.fv_body_ache || null,
+      rash: a.fv_rash || null,
+      breathing: a.cc_breathing || null,
+      throat: a.cc_throat || null,
+      medications: this.state.medications || null,
+      allergies: this.state.allergies || null,
+      medicalHistory: this.state.medicalHistory || null,
+      documents: this.state.reportsUploaded && this.state.reportsUploaded.length > 0
+        ? `${this.state.reportsUploaded.length} report(s): ` + this.state.reportsUploaded.map(r => r.title).join(', ')
+        : null
+    };
   },
 
   // ── DOCTOR PORTAL ─────────────────────────────────────────────────────────
@@ -1444,19 +2199,23 @@ const App = {
     }
 
     const s = p.summary || {};
-    const setV = (id, val) => { const e = document.getElementById(id); if(e) e.innerText = val || 'Not provided'; };
-    setV('doc-sum-complaint', s.problem);
+    const setV = (id, val) => { const e = document.getElementById(id); if(e) e.innerText = val || getLocalizedText('Not provided', 'Not provided'); };
+    setV('doc-sum-complaint', s.problem || p.chiefComplaint);
     setV('doc-sum-duration', s.duration);
     setV('doc-sum-location', s.location);
     setV('doc-sum-severity', s.severity);
     setV('doc-sum-onset', s.onset);
     setV('doc-sum-eating', s.eatingWorse);
     setV('doc-sum-nausea', s.nauseaVomiting);
-    setV('doc-sum-bowel', s.bowel);
+    setV('doc-sum-bowel', s.bowel || s.chills || null);  // Show chills if fever pathway
     setV('doc-sum-past', s.pastHistory);
-    setV('doc-sum-meds', s.medications);
-    setV('doc-sum-allergies', s.allergies || 'Penicillin');
-    setV('doc-sum-documents', s.documents);
+    setV('doc-sum-meds', s.medications || getLocalizedText('Not provided', 'Not provided'));
+    setV('doc-sum-allergies', s.allergies || getLocalizedText('Not provided', 'Not provided'));
+    // Change 16: Documents reflect actual uploaded reports
+    const docsDisplay = (p.reports && p.reports.length > 0)
+      ? `${p.reports.length} report(s): ` + p.reports.map(r => r.title).join(', ')
+      : 'No medical reports uploaded.';
+    setV('doc-sum-documents', docsDisplay);
     if (p.ayush && (p.ayush.completed || Object.keys(p.ayush.answers || {}).length > 0)) {
       const ansObj = p.ayush.answers || p.ayushAnswers || {};
       const parts = [];
@@ -1993,3 +2752,25 @@ function speakText(text) {
   
   window.speechSynthesis.speak(utterance);
 }
+
+// --- CROSS-TAB DOCTOR/PATIENT REAL-TIME SYNC ---
+window.addEventListener('storage', (e) => {
+  if (e.key === 'medisarthi_patient_queue' && e.newValue) {
+    try {
+      DEMO_DATA.patientQueue = JSON.parse(e.newValue);
+      if (typeof App !== 'undefined' && document.getElementById('doc-queue-list')) {
+        App.renderDoctorQueue();
+      }
+    } catch (err) {
+      console.error('Storage sync error:', err);
+    }
+  }
+});
+
+window.addEventListener('focus', () => {
+  if (typeof App !== 'undefined' && document.getElementById('doc-queue-list')) {
+    const queue = App.getStoredQueue();
+    DEMO_DATA.patientQueue = queue;
+    App.renderDoctorQueue();
+  }
+});
