@@ -555,7 +555,9 @@ const App = window.App = {
     localStorage.setItem('selectedLanguage', langCode);
     localStorage.setItem('medisarthi_lang', langCode);
     document.querySelectorAll('.ms-lang-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.id === `btn-lang-${langCode}`);
+      const isActive = btn.id === `btn-lang-${langCode}`;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
     VoiceController.setLanguage(langCode);
     this.updateLanguageUI();
@@ -579,9 +581,18 @@ const App = window.App = {
     const dict = TRANSLATIONS[this.currentLang] || TRANSLATIONS['en'];
     document.querySelectorAll('[data-i18n]').forEach(elem => {
       const key = elem.getAttribute('data-i18n');
-      if (dict[key]) elem.innerText = dict[key];
+      if (dict[key] !== undefined) elem.innerText = dict[key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(elem => {
+      const key = elem.getAttribute('data-i18n-placeholder');
+      if (dict[key] !== undefined) elem.placeholder = dict[key];
+    });
+    document.querySelectorAll('[data-i18n-aria-label]').forEach(elem => {
+      const key = elem.getAttribute('data-i18n-aria-label');
+      if (dict[key] !== undefined) elem.setAttribute('aria-label', dict[key]);
     });
   },
+
 
   openMoreLanguages() {
     alert("Supported Indian Languages:\nEnglish | हिंदी (Hindi) | मराठी (Marathi) | বাংলা (Bengali) | తెలుగు (Telugu)");
@@ -1064,23 +1075,24 @@ if (entities.location) {
       const verySevDesc = getLocalizedText('very_severe_desc', 'Extreme distress requiring urgent attention');
 
       optionsHtml = `<div class="severity-ratings-grid" style="margin-bottom:24px;">
-        <div class="severity-card level-mild" onclick="App.answerAQ('Mild')">
+        <div class="severity-card level-mild" tabindex="0" role="button" aria-label="${mildLabel}: ${mildDesc}" onclick="App.answerAQ('Mild')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <h3>${mildLabel}</h3>
           <p>${mildDesc}</p>
         </div>
-        <div class="severity-card level-moderate" onclick="App.answerAQ('Moderate')">
+        <div class="severity-card level-moderate" tabindex="0" role="button" aria-label="${modLabel}: ${modDesc}" onclick="App.answerAQ('Moderate')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <h3>${modLabel}</h3>
           <p>${modDesc}</p>
         </div>
-        <div class="severity-card level-severe" onclick="App.answerAQ('Severe')">
+        <div class="severity-card level-severe" tabindex="0" role="button" aria-label="${sevLabel}: ${sevDesc}" onclick="App.answerAQ('Severe')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <h3>${sevLabel}</h3>
           <p>${sevDesc}</p>
         </div>
-        <div class="severity-card level-very-severe" onclick="App.answerAQ('Very Severe')">
+        <div class="severity-card level-very-severe" tabindex="0" role="button" aria-label="${verySevLabel}: ${verySevDesc}" onclick="App.answerAQ('Very Severe')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <h3>${verySevLabel}</h3>
           <p>${verySevDesc}</p>
         </div>
       </div>`;
+
     } else if (q.type === 'text') {
       optionsHtml = `<div style="margin-bottom:24px;">
         <textarea id="aq-free-text" class="kiosk-input" style="height:110px;font-size:1.05rem;text-align:left;resize:none;" placeholder="${getLocalizedText('type_your_problem', 'Type what you are feeling...')}"></textarea>
@@ -1216,25 +1228,26 @@ if (entities.location) {
         <div class="body-silhouette-card">
           <svg width="210" height="270" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
             <!-- Head & Neck -->
-            <ellipse id="svg-zone-head" cx="100" cy="36" rx="20" ry="24" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Head')"/>
+            <ellipse id="svg-zone-head" cx="100" cy="36" rx="20" ry="24" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" tabindex="0" role="button" aria-label="Select Head" onclick="App.selectBodyZoneAQ('Head')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"/>
             <rect x="92" y="58" width="16" height="12" fill="#cbd5e1"/>
             
             <!-- Torso Frame -->
             <path d="M62 70 L138 70 L146 148 L138 240 L62 240 L54 148 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
 
             <!-- Chest Zone -->
-            <rect id="svg-zone-chest" x="72" y="72" width="56" height="38" rx="4" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Chest')"/>
+            <rect id="svg-zone-chest" x="72" y="72" width="56" height="38" rx="4" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" tabindex="0" role="button" aria-label="Select Chest" onclick="App.selectBodyZoneAQ('Chest')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"/>
             
             <!-- Abdomen Zone (or subzones) -->
-            <rect id="svg-zone-abdomen" x="74" y="114" width="52" height="46" rx="4" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Abdomen')"/>
+            <rect id="svg-zone-abdomen" x="74" y="114" width="52" height="46" rx="4" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" tabindex="0" role="button" aria-label="Select Abdomen" onclick="App.selectBodyZoneAQ('Abdomen')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"/>
 
             <!-- Arms -->
-            <path id="svg-zone-arms-l" d="M62 76 L38 150 L48 152 L70 84 Z" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Arms')"/>
-            <path id="svg-zone-arms-r" d="M138 76 L162 150 L152 152 L130 84 Z" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Arms')"/>
+            <path id="svg-zone-arms-l" d="M62 76 L38 150 L48 152 L70 84 Z" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" tabindex="0" role="button" aria-label="Select Left Arm" onclick="App.selectBodyZoneAQ('Arms')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"/>
+            <path id="svg-zone-arms-r" d="M138 76 L162 150 L152 152 L130 84 Z" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" tabindex="0" role="button" aria-label="Select Right Arm" onclick="App.selectBodyZoneAQ('Arms')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"/>
 
             <!-- Legs -->
-            <rect id="svg-zone-legs-l" x="74" y="165" width="22" height="85" rx="4" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Legs')"/>
-            <rect id="svg-zone-legs-r" x="104" y="165" width="22" height="85" rx="4" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" onclick="App.selectBodyZoneAQ('Legs')"/>
+            <rect id="svg-zone-legs-l" x="74" y="165" width="22" height="85" rx="4" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" tabindex="0" role="button" aria-label="Select Left Leg" onclick="App.selectBodyZoneAQ('Legs')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"/>
+            <rect id="svg-zone-legs-r" x="104" y="165" width="22" height="85" rx="4" fill="#0f4c5c" opacity="0.18" stroke="#0a3641" stroke-width="2" style="cursor:pointer;" tabindex="0" role="button" aria-label="Select Right Leg" onclick="App.selectBodyZoneAQ('Legs')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"/>
+
 
             <!-- Region Labels for Clarity -->
             <text x="100" y="38" text-anchor="middle" font-size="8.5" font-weight="700" fill="#0a3641">${getLocalizedText('head', 'Head')}</text>
@@ -2774,3 +2787,92 @@ window.addEventListener('focus', () => {
     App.renderDoctorQueue();
   }
 });
+
+// --- GLOBAL KEYBOARD ACCESSIBILITY & MODAL NAVIGATION LAYER ---
+window.addEventListener('keydown', (e) => {
+  // 1. ESCAPE KEY: Close active modal/overlay safely
+  if (e.key === 'Escape') {
+    const helpModal = document.getElementById('help-modal');
+    if (helpModal && helpModal.style.display !== 'none' && helpModal.style.display !== '') {
+      helpModal.style.display = 'none';
+      return;
+    }
+    const scanOverlay = document.getElementById('scan-overlay');
+    if (scanOverlay && scanOverlay.style.display !== 'none' && scanOverlay.style.display !== '') {
+      scanOverlay.style.display = 'none';
+      return;
+    }
+    const reportModal = document.getElementById('report-preview-modal');
+    if (reportModal && reportModal.style.display !== 'none' && reportModal.style.display !== '') {
+      if (typeof App !== 'undefined' && App.closeReportPreview) App.closeReportPreview();
+      else reportModal.style.display = 'none';
+      return;
+    }
+    const convModal = document.getElementById('full-conversation-modal');
+    if (convModal && convModal.style.display !== 'none' && convModal.style.display !== '') {
+      if (typeof App !== 'undefined' && App.closeFullConversationModal) App.closeFullConversationModal();
+      else convModal.style.display = 'none';
+      return;
+    }
+    const ayushModal = document.getElementById('ayush-modal');
+    if (ayushModal && ayushModal.style.display !== 'none' && ayushModal.style.display !== '') {
+      if (typeof App !== 'undefined' && App.closeAyushModal) App.closeAyushModal();
+      else ayushModal.style.display = 'none';
+      return;
+    }
+  }
+
+  // 2. ENTER / SPACE KEY: Activate focused interactive non-button cards/elements
+  const activeEl = document.activeElement;
+  if (!activeEl) return;
+
+  const isTextarea = activeEl.tagName === 'TEXTAREA';
+  const isInput = activeEl.tagName === 'INPUT';
+  const isButton = activeEl.tagName === 'BUTTON';
+
+  // Do NOT interfere with native button clicks or textarea newline creation
+  if (isTextarea) return;
+
+  if (e.key === 'Enter' || e.key === ' ') {
+    const isCustomInteractive = activeEl.classList.contains('ms-option') ||
+      activeEl.classList.contains('ms-symptom-row') ||
+      activeEl.classList.contains('ms-chip') ||
+      activeEl.classList.contains('gender-btn') ||
+      activeEl.classList.contains('kiosk-chip') ||
+      activeEl.classList.contains('severity-card') ||
+      activeEl.getAttribute('tabindex') === '0' ||
+      activeEl.getAttribute('role') === 'button';
+
+    if (isCustomInteractive && !isButton && !isInput) {
+      e.preventDefault();
+      activeEl.click();
+      return;
+    }
+  }
+
+  // 3. ENTER KEY ON FORM INPUTS: Trigger primary continue action
+  if (e.key === 'Enter' && isInput) {
+    const inputId = activeEl.id;
+    if (inputId === 'aadhaar-input') {
+      e.preventDefault();
+      if (typeof App !== 'undefined' && App.validateAadhaarAndContinue) App.validateAadhaarAndContinue();
+    } else if (inputId === 'search-patient-input') {
+      e.preventDefault();
+      if (typeof App !== 'undefined' && App.searchPatientRecord) App.searchPatientRecord();
+    } else if (inputId === 'input-full-name' || inputId === 'input-age' || inputId === 'input-mobile') {
+      e.preventDefault();
+      if (typeof App !== 'undefined' && App.confirmProfileAndProceed) App.confirmProfileAndProceed();
+    } else if (inputId === 'input-allergy') {
+      e.preventDefault();
+      if (typeof App !== 'undefined' && App.submitAllergies) App.submitAllergies();
+    }
+  }
+});
+
+// Run i18n & keyboard attribute setup on load
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof App !== 'undefined' && App.updateLanguageUI) {
+    App.updateLanguageUI();
+  }
+});
+

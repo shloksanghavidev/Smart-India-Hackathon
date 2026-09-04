@@ -82,12 +82,12 @@
 
     <div class="ms-header-controls">
       <!-- Integrated Language Control -->
-      <div class="ms-lang-row">
-        <button class="ms-lang-btn active" id="btn-lang-en" onclick="App.setLanguage('en')">EN</button>
-        <button class="ms-lang-btn" id="btn-lang-hi" onclick="App.setLanguage('hi')">हि</button>
-        <button class="ms-lang-btn" id="btn-lang-mr" onclick="App.setLanguage('mr')">म</button>
-        <button class="ms-lang-btn" id="btn-lang-bn" onclick="App.setLanguage('bn')">বা</button>
-        <button class="ms-lang-btn" id="btn-lang-te" onclick="App.setLanguage('te')">తె</button>
+      <div class="ms-lang-row" role="region" aria-label="Language selection">
+        <button class="ms-lang-btn active" id="btn-lang-en" aria-label="English" aria-pressed="true" onclick="App.setLanguage('en')">EN</button>
+        <button class="ms-lang-btn" id="btn-lang-hi" aria-label="Hindi" aria-pressed="false" onclick="App.setLanguage('hi')">हि</button>
+        <button class="ms-lang-btn" id="btn-lang-mr" aria-label="Marathi" aria-pressed="false" onclick="App.setLanguage('mr')">म</button>
+        <button class="ms-lang-btn" id="btn-lang-bn" aria-label="Bengali" aria-pressed="false" onclick="App.setLanguage('bn')">বা</button>
+        <button class="ms-lang-btn" id="btn-lang-te" aria-label="Telugu" aria-pressed="false" onclick="App.setLanguage('te')">తె</button>
       </div>
 
       <button class="ms-help-btn" onclick="App.toggleHelpModal()">
@@ -350,7 +350,7 @@
         <div class="ms-kiosk-right">
           <div style="background:#FFFFFF;border:1.5px solid var(--border);border-radius:var(--radius);padding:24px;">
             <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--teal-deep);margin-bottom:8px;">12-Digit Aadhaar Number</label>
-            <input type="text" id="aadhaar-input" class="ms-input ms-input-lg" maxlength="14" placeholder="•••• •••• ••••" oninput="App.formatAadhaarInput(this)" style="margin-bottom:12px;">
+            <input type="text" id="aadhaar-input" class="ms-input ms-input-lg" maxlength="14" placeholder="•••• •••• ••••" data-i18n-placeholder="enter_aadhaar_placeholder" oninput="App.formatAadhaarInput(this)" style="margin-bottom:12px;">
             <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:20px;">Demo auto-fill: 1234 5678 9012 or scan QR code</p>
 
             <div style="display:flex;gap:12px;">
@@ -380,7 +380,7 @@
         </div>
 
         <div class="ms-kiosk-right">
-          <div class="ms-option" style="flex-direction:column;align-items:flex-start;padding:26px 22px;" onclick="App.selectPatientType('new')">
+          <div class="ms-option" tabindex="0" role="button" aria-label="I am a New Patient" style="flex-direction:column;align-items:flex-start;padding:26px 22px;" onclick="App.selectPatientType('new')">
             <div style="width:38px;height:38px;background:var(--teal-tint);color:var(--teal-primary);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:14px;">
               <i class="fa-solid fa-user-plus"></i>
             </div>
@@ -391,6 +391,9 @@
           <div
             id="existing-patient-option"
             class="ms-option"
+            tabindex="0"
+            role="button"
+            aria-label="I am an Existing Patient"
             style="flex-direction:column;align-items:flex-start;padding:26px 22px;cursor:pointer;"
             onclick="App.selectPatientType('existing')"
           >
@@ -437,11 +440,11 @@
           <div id="new-profile-form" class="ms-form-grid" style="background:#FFFFFF;border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;">
             <div>
               <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--teal-deep);margin-bottom:6px;" data-i18n="full_name">Full Name</label>
-              <input type="text" id="input-full-name" class="ms-input" placeholder="e.g. Ramesh Kumar">
+              <input type="text" id="input-full-name" class="ms-input" placeholder="e.g. Ramesh Kumar" data-i18n-placeholder="full_name">
             </div>
             <div>
               <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--teal-deep);margin-bottom:6px;" data-i18n="age">Age</label>
-              <input type="number" id="input-age" class="ms-input" placeholder="e.g. 48">
+              <input type="number" id="input-age" class="ms-input" placeholder="e.g. 48" data-i18n-placeholder="age">
             </div>
             <div>
               <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--teal-deep);margin-bottom:6px;" data-i18n="gender">Gender</label>
@@ -537,8 +540,8 @@
 
           <!-- Text fallback -->
           <div style="display:flex;gap:8px;margin-top:14px;">
-            <input type="text" id="free-text-input" class="ms-input" placeholder="Or type your symptom here..." onkeypress="if(event.key==='Enter') App.processInputIntent()">
-            <button class="btn-primary" style="padding:0 20px;" onclick="App.processInputIntent()">
+            <input type="text" id="free-text-input" class="ms-input" placeholder="Or type your symptom here..." data-i18n-placeholder="tell_us_feeling" onkeypress="if(event.key==='Enter') App.processInputIntent()">
+            <button class="btn-primary" style="padding:0 20px;" onclick="App.processInputIntent()" aria-label="Submit symptom text">
               <i class="fa-solid fa-arrow-right"></i>
             </button>
           </div>
@@ -554,35 +557,35 @@
             Common Symptoms
           </div>
           <div class="ms-symptom-list">
-            <div class="ms-symptom-row" onclick="App.selectSymptom('stomach_pain')">
+            <div class="ms-symptom-row" tabindex="0" role="button" aria-label="Stomach Pain / पेट में दर्द" onclick="App.selectSymptom('stomach_pain')">
               <div class="ms-symptom-icon"><i class="fa-solid fa-lungs"></i></div>
               <div>
                 <div class="ms-symptom-label" data-i18n="stomach_pain">Stomach Pain / पेट में दर्द</div>
                 <div class="ms-symptom-sub">Abdominal cramps, acidity, digestive pain</div>
               </div>
             </div>
-            <div class="ms-symptom-row" onclick="App.selectSymptom('fever')">
+            <div class="ms-symptom-row" tabindex="0" role="button" aria-label="Fever / बुखार" onclick="App.selectSymptom('fever')">
               <div class="ms-symptom-icon"><i class="fa-solid fa-temperature-arrow-up"></i></div>
               <div>
                 <div class="ms-symptom-label" data-i18n="fever">Fever / बुखार</div>
                 <div class="ms-symptom-sub">High temperature, chills, sweating</div>
               </div>
             </div>
-            <div class="ms-symptom-row" onclick="App.selectSymptom('headache')">
+            <div class="ms-symptom-row" tabindex="0" role="button" aria-label="Headache / सिर दर्द" onclick="App.selectSymptom('headache')">
               <div class="ms-symptom-icon"><i class="fa-solid fa-brain"></i></div>
               <div>
                 <div class="ms-symptom-label" data-i18n="headache">Headache / सिर दर्द</div>
                 <div class="ms-symptom-sub">Throbbing pain, migraine, tension</div>
               </div>
             </div>
-            <div class="ms-symptom-row" onclick="App.selectSymptom('cough_cold')">
+            <div class="ms-symptom-row" tabindex="0" role="button" aria-label="Cough & Cold / खांसी जुकाम" onclick="App.selectSymptom('cough_cold')">
               <div class="ms-symptom-icon"><i class="fa-solid fa-head-side-cough"></i></div>
               <div>
                 <div class="ms-symptom-label" data-i18n="cough_cold">Cough & Cold / खांसी जुकाम</div>
                 <div class="ms-symptom-sub">Dry or wet cough, sore throat, runny nose</div>
               </div>
             </div>
-            <div class="ms-symptom-row" onclick="App.selectSymptom('body_pain')">
+            <div class="ms-symptom-row" tabindex="0" role="button" aria-label="Body Pain / बदन दर्द" onclick="App.selectSymptom('body_pain')">
               <div class="ms-symptom-icon"><i class="fa-solid fa-person-walking"></i></div>
               <div>
                 <div class="ms-symptom-label" data-i18n="body_pain">Body Pain / बदन दर्द</div>

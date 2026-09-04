@@ -75,13 +75,27 @@ input, button, select, textarea {
 
 /* ── Layout ───────────────────────────────────────────────── */
 .ms-layout {
-  height: 100vh;
-  max-height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--bg);
-  overflow: hidden;
 }
+
+@media (min-width: 961px) {
+  .ms-layout {
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+}
+
+/* ── Focus-visible Accessibility ──────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--teal-bright) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px rgba(45, 130, 124, 0.25) !important;
+}
+
 
 /* ── Header ───────────────────────────────────────────────── */
 .ms-header {
@@ -1733,7 +1747,7 @@ select.kiosk-input-flat {
 }
 
 /* ─────────────────────────────────────────────────────────── */
-/*  RESPONSIVE SAFETY                                          */
+/*  RESPONSIVE SAFETY & CROSS-DEVICE ADAPTATION                */
 /* ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 960px) {
@@ -1758,5 +1772,146 @@ select.kiosk-input-flat {
 
   .ms-home-topline {
     display: none;
+  }
+
+  /* Doctor Portal Grid Stack */
+  .doctor-layout-grid,
+  .doc-main-grid {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+  }
+
+  .patient-queue-panel,
+  .doc-queue-panel {
+    max-height: 300px;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+
+  .ms-kiosk-split {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+
+  .ms-kiosk-left {
+    padding-right: 0 !important;
+  }
+}
+
+@media (max-width: 840px) {
+  .doc-consult-main,
+  .doc-detail-panel {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    padding: 16px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .ms-header {
+    padding: 8px 16px !important;
+    height: auto !important;
+    min-height: 52px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .doctor-header {
+    padding: 8px 16px !important;
+    height: auto !important;
+    min-height: 54px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .option-grid,
+  .ms-cards-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .ms-lang-btn {
+    padding: 6px 12px !important;
+    font-size: 0.8rem !important;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gender-btn,
+  .ms-chip,
+  .kiosk-chip {
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 640px) {
+  .summary-grid,
+  .ms-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .doc-stats-row {
+    padding: 10px 14px !important;
+    gap: 8px !important;
+  }
+
+  .doc-stat-card {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 110px;
+  }
+
+  .ms-home-footer {
+    padding: 0 16px !important;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    height: auto;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .option-grid,
+  .ms-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ms-search-box {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ms-header-controls {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .ms-lang-row {
+    flex-wrap: wrap;
+  }
+
+  .ms-modal {
+    width: 92vw !important;
+    max-width: 520px !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    padding: 20px 16px !important;
+  }
+
+  .ms-screen-medium,
+  .ms-screen-narrow {
+    padding: 16px 12px !important;
+    width: 100% !important;
+  }
+
+  .ms-headline {
+    font-size: 1.45rem !important;
+  }
+
+  .ms-headline-xl {
+    font-size: 1.8rem !important;
   }
 }
