@@ -506,6 +506,174 @@ const App = window.App = {
     }
   },
 
+  // ── PHASE 7B: SESSION PERSISTENCE & HISTORY ENGINE ───────────────────────
+  saveSession() {
+    try {
+      const sessionData = {
+        state: this.state,
+        currentScreen: this.currentScreen,
+        patientType: this.patientType,
+        aqIndex: this.aqIndex,
+        aqAnswers: this.aqAnswers,
+        ayushIndex: this.ayushIndex,
+        ayushAnswers: this.ayushAnswers,
+        currentLang: this.currentLang
+      };
+      sessionStorage.setItem('medisarthi_patient_session', JSON.stringify(sessionData));
+    } catch (e) {
+      console.error("Error saving patient session:", e);
+    }
+  },
+
+  restoreSession() {
+    try {
+      const raw = sessionStorage.getItem('medisarthi_patient_session');
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (!data || !data.currentScreen) return false;
+
+      this.state = data.state || this.state;
+      this.currentScreen = data.currentScreen || 1;
+      this.patientType = data.patientType || 'new';
+      this.aqIndex = typeof data.aqIndex === 'number' ? data.aqIndex : 0;
+      this.aqAnswers = data.aqAnswers || {};
+      this.ayushIndex = typeof data.ayushIndex === 'number' ? data.ayushIndex : 0;
+      this.ayushAnswers = data.ayushAnswers || {};
+
+      if (data.currentLang) {
+        this.setLanguage(data.currentLang);
+      }
+
+      if (this.state.symptomIntent) {
+        this.aqFlow = this.flows[this.state.symptomIntent] || this.flows['something_else'];
+      }
+
+      this.syncDOMFromState();
+      return true;
+    } catch (e) {
+      console.error("Error restoring patient session:", e);
+      return false;
+    }
+  },
+
+  clearSession() {
+    try {
+      sessionStorage.removeItem('medisarthi_patient_session');
+    } catch (e) {
+      console.error("Error clearing patient session:", e);
+    }
+    this.state = {
+      aadhaar: "",
+      fullName: "",
+      age: "",
+      gender: "Male",
+      mobile: "",
+      patientId: "MS" + Math.floor(1000 + Math.random() * 9000),
+      chiefComplaint: "",
+      symptomIntent: "",
+      bodyLocation: "Not specified",
+      duration: "",
+      severity: "",
+      medicalHistory: "",
+      allergies: "",
+      medications: "",
+      reportsUploaded: [],
+      conversationLog: [],
+      ayushAnswers: {},
+      ayushRequested: false
+    };
+    this.aqFlow = [];
+    this.aqIndex = 0;
+    this.aqAnswers = {};
+    this.ayushIndex = 0;
+    this.ayushAnswers = {};
+    this.patientType = 'new';
+  },
+
+  syncDOMFromState() {
+    // Aadhaar
+    const aadhaarInput = document.getElementById('aadhaar-input');
+    if (aadhaarInput && this.state.aadhaar) {
+      let raw = this.state.aadhaar.replace(/\D/g, '').substring(0, 12);
+      aadhaarInput.value = raw.replace(/(\d{4})(?=\d)/g, '$1 ');
+    }
+
+    // Demographics
+    if (this.patientType === 'existing') {
+      const existingView = document.getElementById('existing-profile-view');
+      const newForm = document.getElementById('new-profile-form');
+      if (existingView) existingView.style.display = 'block';
+      if (newForm) newForm.style.display = 'none';
+
+      const setIfExists = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
+      };
+      setIfExists('retrieved-name', this.state.fullName || 'Ramesh Patil');
+      setIfExists('retrieved-full-name', this.state.fullName || 'Ramesh Patil');
+      setIfExists('retrieved-age-gender', `${this.state.age} / ${getLocalizedText(this.state.gender, this.state.gender)}`);
+      setIfExists('retrieved-id', this.state.patientId || 'MS1001');
+      setIfExists('retrieved-history', this.state.medicalHistory || '');
+      setIfExists('retrieved-allergies', this.state.allergies || '');
+    } else {
+      const existingView = document.getElementById('existing-profile-view');
+      const newForm = document.getElementById('new-profile-form');
+      if (existingView) existingView.style.display = 'none';
+      if (newForm) newForm.style.display = 'block';
+
+      const nameInput = document.getElementById('input-full-name');
+      if (nameInput) nameInput.value = this.state.fullName || '';
+      const ageInput = document.getElementById('input-age');
+      if (ageInput) ageInput.value = this.state.age || '';
+      const mobileInput = document.getElementById('input-mobile');
+      if (mobileInput) mobileInput.value = this.state.mobile || '';
+
+      document.querySelectorAll('.gender-btn').forEach(btn => {
+        const isMatch = btn.getAttribute('onclick')?.includes(`'${this.state.gender}'`);
+        btn.classList.toggle('active', !!isMatch);
+      });
+    }
+
+    // Allergies
+    const allergyInput = document.getElementById('input-allergy');
+    if (allergyInput && this.state.allergies) {
+      if (this.state.allergies !== this.t('no_known_allergies') && this.state.allergies !== 'No Known Allergies') {
+        allergyInput.value = this.state.allergies;
+      }
+    }
+
+    // Chief Complaint
+    const freeText = document.getElementById('free-text-input');
+    if (freeText && this.state.chiefComplaint) {
+      freeText.value = this.state.chiefComplaint;
+    }
+  },
+
+  _isPoppingState: false,
+
+  handlePopState(stateObj) {
+    if (!stateObj || typeof stateObj.screen !== 'number') return;
+    this._isPoppingState = true;
+    const targetScreen = stateObj.screen;
+    if (typeof stateObj.aqIndex === 'number') this.aqIndex = stateObj.aqIndex;
+    if (typeof stateObj.ayushIndex === 'number') this.ayushIndex = stateObj.ayushIndex;
+
+    this.showScreen(targetScreen, { pushState: false, isRestoring: true });
+
+    if (targetScreen === 20) {
+      this.showAdaptiveQuestion({ isRestoring: true });
+    } else if (targetScreen === 17) {
+      this.showAyushQuestion({ isRestoring: true });
+    } else if (targetScreen === 16) {
+      this.renderAyushSummary();
+    } else if (targetScreen === 12) {
+      this.updateSummaryCard();
+    }
+
+    this.syncDOMFromState();
+    this._isPoppingState = false;
+  },
+
   // ── INITIALIZATION ────────────────────────────────────────────────────────
   init() {
     console.log("Initializing MediSarthi App Engine...");
@@ -532,6 +700,7 @@ const App = window.App = {
       if (storedQueue.length > 0) {
         this.selectDoctorPatient(storedQueue[0].id);
       }
+      return;
     }
 
     const loginCard = document.getElementById('doctor-login-card');
@@ -540,11 +709,39 @@ const App = window.App = {
         window.location.href = 'doctor.html';
         return;
       }
+      return;
     }
 
     const kioskWrapper = document.getElementById('patient-kiosk-wrapper');
     if (kioskWrapper) {
       this.updateLanguageUI();
+
+      window.addEventListener('popstate', (e) => {
+        if (e.state && typeof e.state.screen === 'number') {
+          this.handlePopState(e.state);
+        }
+      });
+
+      const restored = this.restoreSession();
+      if (restored) {
+        const targetScreen = this.currentScreen || 1;
+        this.showScreen(targetScreen, { pushState: false, isRestoring: true });
+        if (targetScreen === 20) {
+          this.showAdaptiveQuestion({ isRestoring: true });
+        } else if (targetScreen === 17) {
+          this.showAyushQuestion({ isRestoring: true });
+        } else if (targetScreen === 16) {
+          this.renderAyushSummary();
+        } else if (targetScreen === 12) {
+          this.updateSummaryCard();
+        }
+      } else {
+        const initialState = { screen: 1, aqIndex: 0, ayushIndex: 0 };
+        try {
+          history.replaceState(initialState, '', '#step-1');
+        } catch (e) {}
+        this.showScreen(1, { pushState: false, isRestoring: true });
+      }
     }
   },
 
@@ -599,7 +796,7 @@ const App = window.App = {
   },
 
   // ── SCREEN ROUTING ────────────────────────────────────────────────────────
-  showScreen(screenNum) {
+  showScreen(screenNum, options = {}) {
     this.currentScreen = screenNum;
     
     // Hide all step sections
@@ -613,13 +810,33 @@ const App = window.App = {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    if (screenNum === 6) {
-      const text = this.t('what_brings_you');
-      setTimeout(() => { speakText(text); }, 400);
-    } else if (screenNum === 7) {
-      const text = this.t('allergy_question');
-      setTimeout(() => { speakText(text); }, 400);
+    if (!options.isRestoring && !options.suppressSpeech) {
+      if (screenNum === 6) {
+        const text = this.t('what_brings_you');
+        setTimeout(() => { speakText(text); }, 400);
+      } else if (screenNum === 7) {
+        const text = this.t('allergy_question');
+        setTimeout(() => { speakText(text); }, 400);
+      }
     }
+
+    if (options.pushState !== false && !options.isRestoring && !this._isPoppingState) {
+      const newState = {
+        screen: screenNum,
+        aqIndex: this.aqIndex || 0,
+        ayushIndex: this.ayushIndex || 0
+      };
+      const curState = history.state;
+      if (!curState || curState.screen !== newState.screen || curState.aqIndex !== newState.aqIndex || curState.ayushIndex !== newState.ayushIndex) {
+        try {
+          history.pushState(newState, '', `#step-${screenNum}`);
+        } catch (e) {
+          console.error("Error pushing history state:", e);
+        }
+      }
+    }
+
+    this.saveSession();
   },
 
   switchMode(targetMode) {
@@ -717,27 +934,9 @@ const App = window.App = {
     } else {
       existingView.style.display = 'none';
       newForm.style.display = 'block';
-      // Change 9: Clean state for new patient
-      this.state = {
-        aadhaar: this.state.aadhaar || '',
-        fullName: '',
-        age: '',
-        gender: 'Male',
-        mobile: '',
-        patientId: 'MS' + Math.floor(1000 + Math.random() * 9000),
-        chiefComplaint: '',
-        symptomIntent: '',
-        bodyLocation: 'Not specified',
-        duration: '',
-        severity: '',
-        medicalHistory: '',
-        allergies: '',
-        medications: '',
-        reportsUploaded: [],          // Change 10: no pre-filled reports
-        conversationLog: [],
-        ayushAnswers: {},
-        ayushRequested: false
-      };
+      const preservedAadhaar = this.state.aadhaar || '';
+      this.clearSession();
+      this.state.aadhaar = preservedAadhaar;
       // Reset report UI
       const reportContainer = document.getElementById('uploaded-reports-list-container');
       if (reportContainer) {
@@ -1046,11 +1245,11 @@ if (entities.location) {
     this.showAdaptiveQuestion();
   },
 
-  showAdaptiveQuestion() {
+  showAdaptiveQuestion(options = {}) {
     if (this.aqIndex >= this.aqFlow.length) {
       // All questions answered — show summary
       this.updateSummaryCard();
-      this.showScreen(12);
+      this.showScreen(12, options);
       return;
     }
     const q = this.aqFlow[this.aqIndex];
@@ -1200,8 +1399,10 @@ if (entities.location) {
       </div>
     `;
 
-    this.showScreen(20);
-    setTimeout(() => speakText(localizedQuestion), 300);
+    this.showScreen(20, options);
+    if (!options.isRestoring && !options.suppressSpeech) {
+      setTimeout(() => speakText(localizedQuestion), 300);
+    }
   },
 
   renderBodyMapHTML(q) {
@@ -1404,9 +1605,16 @@ if (entities.location) {
   },
 
   prevAQ() {
-    if (this.aqIndex === 0) { this.showScreen(6); return; }
-    this.aqIndex--;
-    this.showAdaptiveQuestion();
+    if (this.aqIndex === 0) {
+      this.showScreen(6);
+      return;
+    }
+    if (typeof history !== 'undefined' && history.state && history.state.screen === 20 && history.length > 1) {
+      history.back();
+    } else {
+      this.aqIndex--;
+      this.showAdaptiveQuestion();
+    }
   },
 
   /**
@@ -1470,12 +1678,12 @@ if (entities.location) {
     this.showAyushQuestion();
   },
 
-  showAyushQuestion() {
+  showAyushQuestion(options = {}) {
     if (this.ayushIndex >= this.ayushQuestions.length) {
       // AYUSH complete
       this.state.ayushAnswers = { ...this.ayushAnswers };
       this.renderAyushSummary();
-      this.showScreen(16); // Navigate to AYUSH Summary Screen (step-16)
+      this.showScreen(16, options); // Navigate to AYUSH Summary Screen (step-16)
       return;
     }
     const q = this.ayushQuestions[this.ayushIndex];
@@ -1562,8 +1770,10 @@ if (entities.location) {
       </div>
     `;
 
-    this.showScreen(17);
-    setTimeout(() => speakText(localizedQuestion), 300);
+    this.showScreen(17, options);
+    if (!options.isRestoring && !options.suppressSpeech) {
+      setTimeout(() => speakText(localizedQuestion), 300);
+    }
   },
 
   skipAyush() {
@@ -1608,9 +1818,16 @@ if (entities.location) {
   },
 
   prevAyush() {
-    if (this.ayushIndex === 0) { this.showScreen(13); return; }
-    this.ayushIndex--;
-    this.showAyushQuestion();
+    if (this.ayushIndex === 0) {
+      this.showScreen(13);
+      return;
+    }
+    if (typeof history !== 'undefined' && history.state && history.state.screen === 17 && history.length > 1) {
+      history.back();
+    } else {
+      this.ayushIndex--;
+      this.showAyushQuestion();
+    }
   },
 
   renderAyushSummary() {
@@ -2692,6 +2909,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (completeBtn) {
     completeBtn.addEventListener('click', (e) => {
       e.preventDefault();
+      if (typeof App !== 'undefined' && typeof App.clearSession === 'function') {
+        App.clearSession();
+      }
+      try {
+        history.replaceState({ screen: 1, aqIndex: 0, ayushIndex: 0 }, '', '#step-1');
+      } catch (err) {}
       // Hard reset the browser to clear all patient data for the next user
       window.location.reload(); 
     });
