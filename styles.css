@@ -1689,54 +1689,38 @@ body:has(#step-2:not([style*="none"])) .ms-header {
   height: 100%;
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   overflow: visible;
 }
 
-.ms-visual-bg {
-  display: none;
-}
-
+.ms-visual-bg,
 .ms-bg-arcs {
   display: none;
 }
 
 .ms-medical-hero-image {
   position: absolute;
-  right: clamp(0px, 2vw, 32px);
-  top: 50%;
-  transform: translateY(-50%);
-  bottom: auto;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: auto;
   height: auto;
-  max-height: min(90%, 75vh);
+  max-height: min(100%, 84vh);
   max-width: 100%;
   object-fit: contain;
-  object-position: center right;
+  object-position: bottom center;
   z-index: 5;
   border: none;
   background: transparent;
+  box-shadow: none;
 }
 
 /* Gradient edge fades */
-.ms-visual-fade-l {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 120px;
-  z-index: 6;
-  pointer-events: none;
-  background: linear-gradient(to right, var(--bg) 0%, rgba(247,244,238,0) 100%);
-}
-
-.ms-visual-fade-b {
-  display: none;
-}
-
+.ms-visual-fade-l,
+.ms-visual-fade-b,
 .ms-visual-fade-t {
-  display: none;
+  display: none !important;
 }
 
 .ms-home-trust {
@@ -1858,8 +1842,7 @@ body:has(#step-2:not([style*="none"])) .ms-header {
     max-width: 520px;
     margin: 16px auto 0;
     position: relative;
-    overflow: hidden;
-    border-radius: var(--radius-lg);
+    overflow: visible;
   }
 
   .ms-medical-hero-image {
