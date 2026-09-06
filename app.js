@@ -107,294 +107,276 @@ const App = window.App = {
   flows: {
     stomach_pain: [
       {
-        id: 'sp_location', text: 'Where does it hurt?',
-        subtitle: 'Tap on the body diagram or select below.',
+        id: 'sp_location', text: 'Where is your abdominal pain located?',
+        subtitle: 'Tap on the body diagram or select the area below.',
         type: 'body_map',
         options: ['Upper Abdomen','Around Navel','Lower Abdomen','Left Side','Right Side','All Over']
       },
       {
-        id: 'sp_duration', text: 'How long have you had this pain?',
-        subtitle: 'Select how many days you have had this symptom.',
+        id: 'sp_duration', text: 'How long have you had this stomach pain?',
+        subtitle: 'Select how many days or hours you have experienced this.',
         type: 'options',
-        options: ['Less than 1 day','1 – 3 days','4 – 7 days','More than 7 days']
+        options: ['Less than 24 hours','1 – 3 days','4 – 7 days','More than 1 week']
       },
       {
-        id: 'sp_severity', text: 'How severe is the pain?',
-        subtitle: 'Choose the level of discomfort you feel right now.',
+        id: 'sp_severity', text: 'How severe is the stomach pain right now?',
+        subtitle: 'Choose the option that describes your pain intensity.',
         type: 'severity',
         options: ['Mild','Moderate','Severe']
       },
       {
-        id: 'sp_onset', text: 'Did the pain come on suddenly or gradually?',
-        subtitle: 'Choose how the pain started.',
+        id: 'sp_onset', text: 'How did the abdominal pain start?',
+        subtitle: 'Select the onset pattern of your discomfort.',
         type: 'options',
-        options: ['Sudden (came out of nowhere)','Gradually (got worse over time)','Comes and goes']
+        options: ['Sudden & sharp (came out of nowhere)','Gradually (building up over time)','Cramping (comes and goes in waves)']
       },
       {
-        id: 'sp_eating', text: 'Does eating make the pain worse?',
-        subtitle: 'Think about whether food or drink affects the pain.',
+        id: 'sp_eating', text: 'Does eating or drinking affect the pain?',
+        subtitle: 'Think about whether meals trigger or relieve your discomfort.',
+        type: 'options',
+        options: ['Worse after eating','Worse on empty stomach / before meals','Relieved after eating or vomiting','No relation to food']
+      },
+      {
+        id: 'sp_nausea', text: 'Have you experienced nausea or vomiting?',
+        subtitle: 'Select any associated digestive discomfort.',
+        type: 'options',
+        options: ['No nausea or vomiting','Nausea only (feeling sick)','Occasional vomiting','Frequent vomiting (cannot keep liquids down)']
+      },
+      {
+        id: 'sp_fever_associated', text: 'Do you have fever along with the stomach pain?',
+        subtitle: 'Check if you have experienced chills or high temperature.',
         type: 'yesno',
-        options: ['Yes – worse after eating','Yes – worse before eating','No difference','Not sure']
+        options: ['No fever','Low-grade fever','High fever with chills']
       },
       {
-        id: 'sp_nausea', text: 'Do you have nausea or vomiting?',
-        subtitle: 'Select what you have experienced.',
+        id: 'sp_bowel', text: 'Have you noticed any change in your bowel movements?',
+        subtitle: 'Select if you have diarrhea, constipation, or abnormal stool.',
         type: 'options',
-        options: ['Nausea only (no vomiting)','Vomiting occurred','Both nausea and vomiting','No – neither']
+        options: ['Normal motions','Loose stools / Diarrhea','Constipation (no motion)','Black stool or blood in stool','Pain or burning during urination']
       },
       {
-        id: 'sp_fever_associated', text: 'Do you also have fever?',
-        subtitle: '',
-        type: 'yesno',
-        options: ['Yes','No','Slight warmth but not sure']
-      },
-      {
-        id: 'sp_bowel', text: 'Any change in your bowel movements (motions)?',
-        subtitle: 'This helps the doctor understand what is happening.',
+        id: 'sp_past_history', text: 'Have you had similar stomach pain episodes before?',
+        subtitle: 'Tell us if this is a recurring or known condition.',
         type: 'options',
-        options: ['Loose stools / Diarrhea','Constipation (no motion)','Normal','Blood in stool','Not sure']
-      },
-      {
-        id: 'sp_past_history', text: 'Have you had this pain before?',
-        subtitle: 'Tell us if this is a recurring problem.',
-        type: 'options',
-        options: ['First time ever','Yes – happened before, goes away on its own','Yes – ongoing problem','Yes – diagnosed condition (e.g. Gastritis, IBS)']
+        options: ['First time ever','Occasional past acidity / cramps','Known condition (e.g. Gastritis, Ulcer, IBS, Gallstones)']
       }
     ],
 
     cough_cold: [
       {
         id: 'cc_duration', text: 'How long have you been coughing?',
-        subtitle: 'Select the number of days.',
+        subtitle: 'Select the duration of your cough.',
         type: 'options',
-        options: ['Less than 2 days','3 – 5 days','5 – 7 days','More than 7 days']
+        options: ['Less than 3 days','4 – 7 days','1 – 3 weeks','More than 3 weeks (chronic)']
       },
       {
-        id: 'cc_type', text: 'What kind of cough do you have?',
-        subtitle: 'Select the option that best describes your cough.',
+        id: 'cc_type', text: 'What type of cough do you have?',
+        subtitle: 'Select the character of your cough and sputum.',
         type: 'options',
-        options: ['Dry cough (no mucus)','Wet cough with white/clear mucus','Yellow or green mucus (phlegm)','Blood in mucus (streaks)']
+        options: ['Dry cough (no sputum/mucus)','Wet cough with clear/white mucus','Wet cough with yellow/green phlegm','Blood-streaked cough / phlegm']
       },
       {
-        id: 'cc_severity', text: 'How much is the cough disturbing you?',
-        subtitle: 'Rate the impact on your daily routine.',
+        id: 'cc_severity', text: 'How severely is the cough impacting you?',
+        subtitle: 'Rate the disruption to your sleep and daily activity.',
         type: 'severity',
         options: ['Mild','Moderate','Severe']
       },
       {
-        id: 'cc_fever', text: 'Do you have fever along with the cough?',
-        subtitle: '',
-        type: 'yesno',
-        options: ['Yes – high fever','Yes – mild fever','No fever']
+        id: 'cc_breathing', text: 'Are you having any difficulty breathing?',
+        subtitle: 'This is crucial for determining respiratory stability.',
+        type: 'options',
+        options: ['Breathing is normal','Stuffy nose / throat obstruction only','Mild breathlessness on climbing stairs','Shortness of breath at rest','Pain or tightness in chest when breathing']
       },
       {
-        id: 'cc_breathing', text: 'Do you have any difficulty breathing?',
-        subtitle: 'This is important for the doctor to know.',
-        type: 'options',
-        options: ['Shortness of breath at rest','Shortness of breath on walking','Mild breathlessness','No – breathing is fine']
+        id: 'cc_fever', text: 'Do you have a fever accompanying your cough?',
+        subtitle: 'Select your temperature status.',
+        type: 'yesno',
+        options: ['No fever','Low-grade fever (feeling warm)','High fever with body chills']
       },
       {
         id: 'cc_throat', text: 'Do you have a sore throat or runny nose?',
-        subtitle: '',
+        subtitle: 'Check upper airway involvement.',
         type: 'options',
-        options: ['Sore throat only','Runny nose only','Both sore throat and runny nose','Neither']
+        options: ['Neither','Sore throat / pain when swallowing','Runny or blocked nose','Both sore throat and runny nose']
       },
       {
-        id: 'cc_cold_contact', text: 'Have you been around someone who was sick recently?',
-        subtitle: 'For example, family member or colleague with similar symptoms.',
-        type: 'yesno',
-        options: ['Yes','No','Not sure']
-      },
-      {
-        id: 'cc_chest_pain', text: 'Do you feel any chest pain or tightness with the cough?',
-        subtitle: '',
-        type: 'yesno',
-        options: ['Yes – chest pain','Yes – just tightness','No']
+        id: 'cc_cold_contact', text: 'Have you been exposed to anyone with flu or allergy history?',
+        subtitle: 'Select any known exposure or personal medical history.',
+        type: 'options',
+        options: ['No known contact','Family or workplace contact with cold/flu','History of asthma or environmental allergies']
       }
     ],
 
     fever: [
       {
         id: 'fv_duration', text: 'How long have you had the fever?',
-        subtitle: 'Select how many days you have had the fever.',
+        subtitle: 'Select the duration of elevated temperature.',
         type: 'options',
-        options: ['Less than 1 day','1 – 3 days','4 – 7 days','More than 7 days']
+        options: ['Started today (< 24 hrs)','1 – 3 days','4 – 7 days','More than 7 days (prolonged fever)']
       },
       {
-        id: 'fv_severity', text: 'How high is the fever?',
-        subtitle: 'Approximate temperature if known.',
+        id: 'fv_severity', text: 'How high is your body temperature?',
+        subtitle: 'Select approximate temperature range if measured.',
         type: 'options',
-        options: ['Mild (99 – 100°F / 37.2 – 37.8°C)','Moderate (100 – 102°F / 37.8 – 38.9°C)','High (above 102°F / 38.9°C)','I have not measured it']
+        options: ['Mild (< 100°F / 37.8°C)','Moderate (100 – 102°F / 37.8 – 38.9°C)','High (above 102°F / 38.9°C)','Not measured (body feels very hot)']
       },
       {
-        id: 'fv_chills', text: 'Do you have chills or shivering?',
-        subtitle: 'Some infections cause the body to feel very cold despite high temperature.',
+        id: 'fv_chills', text: 'Are you experiencing shivering or chills?',
+        subtitle: 'Select if you feel cold despite fever.',
         type: 'yesno',
-        options: ['Yes – severe chills','Yes – mild chills','No chills']
+        options: ['No chills','Feeling cold / mild shivering','Severe shivering & teeth chattering']
       },
       {
-        id: 'fv_onset', text: 'How did the fever start?',
-        subtitle: '',
+        id: 'fv_onset', text: 'What is the pattern of your fever?',
+        subtitle: 'Select how the fever progresses during the day.',
         type: 'options',
-        options: ['Sudden – very quickly','Gradually over a day','Comes and goes (intermittent)']
+        options: ['Sudden high fever','Gradual rise over a day','Comes and goes (intermittent / spikes at night)']
       },
       {
-        id: 'fv_cough', text: 'Do you also have a cough?',
-        subtitle: '',
-        type: 'yesno',
-        options: ['Yes – dry cough','Yes – cough with phlegm','No cough']
-      },
-      {
-        id: 'fv_body_ache', text: 'Do you have body ache or joint pain with the fever?',
-        subtitle: '',
-        type: 'yesno',
-        options: ['Yes – severe body ache','Yes – mild ache','No']
-      },
-      {
-        id: 'fv_rash', text: 'Have you noticed any skin rash or red spots?',
-        subtitle: 'This can help identify certain conditions.',
-        type: 'yesno',
-        options: ['Yes – rash appeared','No rash']
-      },
-      {
-        id: 'fv_vomiting', text: 'Do you have vomiting or loose stools with the fever?',
-        subtitle: '',
+        id: 'fv_associated_redflags', text: 'Do you have any of these associated warning signs?',
+        subtitle: 'Select any significant red flag symptoms present.',
         type: 'options',
-        options: ['Vomiting only','Loose stools only','Both','Neither']
+        options: ['No major associated symptoms','Severe headache with stiff neck','Red skin rash or petechiae','Bleeding from nose/gums','Extreme dizziness or confusion']
       },
       {
-        id: 'fv_travel', text: 'Have you recently travelled outside your city?',
-        subtitle: 'Travel history is sometimes relevant for infections.',
+        id: 'fv_cough', text: 'Do you have a cough with the fever?',
+        subtitle: 'Check respiratory involvement.',
         type: 'yesno',
-        options: ['Yes – in last 2 weeks','No']
+        options: ['No cough','Dry cough','Cough with phlegm']
+      },
+      {
+        id: 'fv_vomiting', text: 'Do you have digestive symptoms like vomiting or diarrhea?',
+        subtitle: 'Select any stomach upset accompanying fever.',
+        type: 'options',
+        options: ['Neither','Vomiting only','Loose stools / Diarrhea','Both vomiting & diarrhea']
+      },
+      {
+        id: 'fv_travel', text: 'Have you recently traveled or been exposed to mosquitoes?',
+        subtitle: 'Helps evaluate regional infection risk.',
+        type: 'yesno',
+        options: ['No recent travel','Traveled to another region in last 2 weeks','Mosquito bite prone area / rainy season exposure']
       }
     ],
 
     headache: [
       {
         id: 'hd_duration', text: 'How long have you had this headache?',
-        subtitle: '',
+        subtitle: 'Select how long the head pain has lasted.',
         type: 'options',
-        options: ['Started today (less than 24 hrs)','1 – 3 days','3 – 7 days','Recurring for weeks/months']
+        options: ['Started today (< 24 hrs)','1 – 3 days','3 – 7 days','Recurring for weeks/months']
       },
       {
-        id: 'hd_location', text: 'Where is the headache located?',
-        subtitle: 'Select the area that hurts most.',
+        id: 'hd_location', text: 'Where on your head is the pain localized?',
+        subtitle: 'Select the primary location of discomfort.',
         type: 'options',
-        options: ['Forehead / Front','Temples (sides of head)','Back of head','Top of head','One side only (Left or Right)','Entire head']
+        options: ['Forehead / Front','Temples (one or both sides)','Back of head and neck','Behind eyes','Entire head']
       },
       {
-        id: 'hd_severity', text: 'How severe is the headache?',
-        subtitle: '',
+        id: 'hd_severity', text: 'How severe is your headache right now?',
+        subtitle: 'Rate how much the pain restricts your focus.',
         type: 'severity',
         options: ['Mild','Moderate','Severe']
       },
       {
-        id: 'hd_onset', text: 'How did the headache start?',
-        subtitle: '',
+        id: 'hd_onset', text: 'What is the pain quality and onset?',
+        subtitle: 'Select the character of your headache.',
         type: 'options',
-        options: ['Sudden – very intense immediately','Gradually got worse','Throbbing / pulsating','Constant pressure / dull ache']
+        options: ['Gradual pressure / tension','Throbbing or pulsating in waves','Sudden severe onset','Constant dull heaviness']
       },
       {
-        id: 'hd_light', text: 'Does light or noise bother you when you have the headache?',
-        subtitle: 'This can help the doctor understand the type of headache.',
+        id: 'hd_light', text: 'Are you sensitive to bright light or loud noise?',
+        subtitle: 'Select any sensory sensitivity felt during headache.',
         type: 'options',
-        options: ['Yes – both light and noise','Yes – light only','Yes – noise only','No – neither bothers me']
+        options: ['No sensitivity','Sensitive to bright light (Photophobia)','Sensitive to loud noise (Phonophobia)','Sensitive to both light and noise']
       },
       {
-        id: 'hd_nausea', text: 'Do you have nausea or vomiting along with the headache?',
-        subtitle: '',
+        id: 'hd_vision', text: 'Have you noticed any visual disturbances or aura?',
+        subtitle: 'Check for neurological visual symptoms.',
+        type: 'options',
+        options: ['No vision changes','Blurred vision or eye strain','Seeing zigzag lines or flashes (Aura)','Double vision or drooping eyelid']
+      },
+      {
+        id: 'hd_nausea', text: 'Do you feel nauseous with the headache?',
+        subtitle: 'Check associated nausea or vomiting.',
         type: 'yesno',
-        options: ['Yes – nausea','Yes – vomiting too','No']
-      },
-      {
-        id: 'hd_vision', text: 'Any changes in vision before or during the headache?',
-        subtitle: 'For example: blurring, flashes of light, seeing patterns.',
-        type: 'options',
-        options: ['Yes – blurred vision','Yes – flashes or patterns (aura)','Yes – double vision','No vision changes']
-      },
-      {
-        id: 'hd_trigger', text: 'What seems to trigger the headache?',
-        subtitle: 'Select all that apply (most significant).',
-        type: 'options',
-        options: ['Stress or tension','Lack of sleep','Dehydration (not enough water)','Screen time (phone/computer)','No clear trigger']
+        options: ['No nausea','Nausea only','Nausea with vomiting']
       },
       {
         id: 'hd_previous', text: 'Have you had similar headaches before?',
-        subtitle: '',
+        subtitle: 'Tell us about your past headache history.',
         type: 'options',
-        options: ['Yes – diagnosed as Migraine','Yes – recurring but not diagnosed','First time this severe','Occasional mild headaches']
+        options: ['First time ever having this pain','Occasional tension headaches','Known Migraine diagnosis','History of high blood pressure']
       }
     ],
 
     body_pain: [
       {
-        id: 'bp_location', text: 'Where is the pain most in your body?',
-        subtitle: 'Select the area most affected.',
+        id: 'bp_location', text: 'Where is the pain located in your body?',
+        subtitle: 'Select the body region most affected.',
         type: 'options',
-        options: ['Whole body (generalised)','Back only','Legs / Knees','Shoulders / Arms','Joints (multiple)','Muscles only']
+        options: ['Generalized whole-body ache','Back / Spine pain','Knees / Leg joints','Shoulders / Neck stiffness','Multiple small joints (hands/feet)','Muscle soreness after strain']
       },
       {
-        id: 'bp_duration', text: 'How long have you had this pain?',
-        subtitle: '',
+        id: 'bp_duration', text: 'How long have you had this body pain?',
+        subtitle: 'Select how long the soreness has persisted.',
         type: 'options',
-        options: ['Today only','1 – 3 days','4 – 7 days','More than 7 days']
+        options: ['1 – 3 days','4 – 7 days','1 – 4 weeks','More than 1 month (chronic pain)']
       },
       {
-        id: 'bp_severity', text: 'How severe is the pain?',
-        subtitle: '',
+        id: 'bp_severity', text: 'How severe is the body pain?',
+        subtitle: 'Rate the restriction on movement and walking.',
         type: 'severity',
         options: ['Mild','Moderate','Severe']
       },
       {
-        id: 'bp_fever', text: 'Is the body pain accompanied by fever?',
-        subtitle: '',
+        id: 'bp_fever', text: 'Is your body pain accompanied by fever?',
+        subtitle: 'Check if fever is present with body pain.',
         type: 'yesno',
-        options: ['Yes – high fever','Yes – mild fever','No fever']
+        options: ['No fever','Low-grade fever','High fever with body weakness']
       },
       {
-        id: 'bp_swelling', text: 'Do you notice any swelling around the painful area?',
-        subtitle: '',
+        id: 'bp_swelling', text: 'Do you notice any joint swelling or redness?',
+        subtitle: 'Select if inflammatory joint signs exist.',
         type: 'yesno',
-        options: ['Yes – visible swelling','Yes – slight swelling','No swelling']
+        options: ['No joint swelling','Slight swelling / warmth','Visible joint swelling & redness']
       },
       {
-        id: 'bp_activity', text: 'Does movement make the pain worse?',
-        subtitle: '',
+        id: 'bp_activity', text: 'How does movement or rest affect the pain?',
+        subtitle: 'Select the positional or movement response.',
         type: 'options',
-        options: ['Yes – worse on movement','No – constant even at rest','Worse after activity','Better after light movement']
+        options: ['Worse with movement / exercise','Worse after rest / morning stiffness','Constant pain regardless of posture','Better after mild movement']
       }
     ],
 
     something_else: [
       {
-        id: 'se_problem', text: 'Can you describe what you are feeling?',
-        subtitle: 'Type in the box below or use the microphone to speak.',
+        id: 'se_problem', text: 'Please describe your health concern in detail.',
+        subtitle: 'Type in the box or tap microphone to speak.',
         type: 'text'
       },
       {
-        id: 'se_duration', text: 'How long have you had this problem?',
-        subtitle: '',
+        id: 'se_duration', text: 'How long have you experienced this issue?',
+        subtitle: 'Select the duration.',
         type: 'options',
-        options: ['Today / Just started','1 – 3 days','4 – 7 days','More than 1 week']
+        options: ['Just started today','1 – 3 days','4 – 7 days','More than 1 week']
       },
       {
-        id: 'se_severity', text: 'How much is it bothering you?',
-        subtitle: '',
+        id: 'se_severity', text: 'How severely is this impacting your daily routine?',
+        subtitle: 'Rate the overall severity.',
         type: 'severity',
         options: ['Mild','Moderate','Severe']
       },
       {
-        id: 'se_other_symptoms', text: 'Do you have any other symptoms along with this?',
-        subtitle: 'Select what else you are experiencing.',
+        id: 'se_other_symptoms', text: 'Are there any associated symptoms?',
+        subtitle: 'Select any accompanying issues.',
         type: 'options',
-        options: ['Fever','Nausea / Vomiting','Weakness / Fatigue','Difficulty breathing','No other symptoms']
+        options: ['No other symptoms','Fever or chills','Nausea, vomiting, or stomach upset','Dizziness or extreme weakness','Breathing discomfort']
       },
       {
-        id: 'se_history', text: 'Have you had this problem before?',
-        subtitle: '',
+        id: 'se_history', text: 'Have you had this health concern before?',
+        subtitle: 'Select medical history context.',
         type: 'options',
-        options: ['First time','Happened before – resolved on its own','Ongoing recurring problem','Diagnosed condition']
+        options: ['First time experiencing this','Occasional past episodes','Ongoing diagnosed condition']
       }
     ]
   },
@@ -1261,6 +1243,8 @@ if (entities.location) {
     if (!container) return;
 
     let optionsHtml = '';
+    const currentAnswer = this.aqAnswers[q.id];
+
     if (q.type === 'body_map') {
       optionsHtml = this.renderBodyMapHTML(q);
     } else if (q.type === 'severity') {
@@ -1273,28 +1257,34 @@ if (entities.location) {
       const sevDesc = getLocalizedText('severe_desc', 'Significant discomfort, difficult to work');
       const verySevDesc = getLocalizedText('very_severe_desc', 'Extreme distress requiring urgent attention');
 
+      const isMild = currentAnswer === 'Mild' ? ' selected mild' : '';
+      const isMod = currentAnswer === 'Moderate' ? ' selected moderate' : '';
+      const isSev = currentAnswer === 'Severe' ? ' selected severe' : '';
+      const isVerySev = currentAnswer === 'Very Severe' ? ' selected very-severe' : '';
+
       optionsHtml = `<div class="severity-ratings-grid" style="margin-bottom:24px;">
-        <div class="severity-card level-mild" tabindex="0" role="button" aria-label="${mildLabel}: ${mildDesc}" onclick="App.answerAQ('Mild')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+        <div class="severity-card level-mild${isMild}" tabindex="0" role="button" aria-label="${mildLabel}: ${mildDesc}" onclick="App.answerAQ('Mild')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <h3>${mildLabel}</h3>
           <p>${mildDesc}</p>
         </div>
-        <div class="severity-card level-moderate" tabindex="0" role="button" aria-label="${modLabel}: ${modDesc}" onclick="App.answerAQ('Moderate')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+        <div class="severity-card level-moderate${isMod}" tabindex="0" role="button" aria-label="${modLabel}: ${modDesc}" onclick="App.answerAQ('Moderate')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <h3>${modLabel}</h3>
           <p>${modDesc}</p>
         </div>
-        <div class="severity-card level-severe" tabindex="0" role="button" aria-label="${sevLabel}: ${sevDesc}" onclick="App.answerAQ('Severe')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+        <div class="severity-card level-severe${isSev}" tabindex="0" role="button" aria-label="${sevLabel}: ${sevDesc}" onclick="App.answerAQ('Severe')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <h3>${sevLabel}</h3>
           <p>${sevDesc}</p>
         </div>
-        <div class="severity-card level-very-severe" tabindex="0" role="button" aria-label="${verySevLabel}: ${verySevDesc}" onclick="App.answerAQ('Very Severe')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+        <div class="severity-card level-very-severe${isVerySev}" tabindex="0" role="button" aria-label="${verySevLabel}: ${verySevDesc}" onclick="App.answerAQ('Very Severe')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
           <h3>${verySevLabel}</h3>
           <p>${verySevDesc}</p>
         </div>
       </div>`;
 
     } else if (q.type === 'text') {
+      const textVal = currentAnswer || '';
       optionsHtml = `<div style="margin-bottom:24px;">
-        <textarea id="aq-free-text" class="kiosk-input" style="height:110px;font-size:1.05rem;text-align:left;resize:none;" placeholder="${getLocalizedText('type_your_problem', 'Type what you are feeling...')}"></textarea>
+        <textarea id="aq-free-text" class="kiosk-input" style="height:110px;font-size:1.05rem;text-align:left;resize:none;" placeholder="${getLocalizedText('type_your_problem', 'Type what you are feeling...')}">${textVal}</textarea>
         <div style="display:flex;gap:10px;margin-top:12px;">
           <button class="btn-kiosk-secondary" onclick="App.triggerAQVoice()" style="width:50%;">
             <i class="fa-solid fa-microphone"></i> ${getLocalizedText('speak', 'Speak')}
@@ -1307,11 +1297,12 @@ if (entities.location) {
     } else {
       // options or yesno
       optionsHtml = `<div class="options-vertical-list">` +
-        q.options.map(opt =>
-          `<button class="option-touch-btn" onclick="App.answerAQ('${opt.replace(/'/g,"\\'")}')">
+        q.options.map(opt => {
+          const isSel = (currentAnswer === opt) ? ' selected' : '';
+          return `<button class="option-touch-btn${isSel}" onclick="App.answerAQ('${opt.replace(/'/g,"\\'")}')">
             <span>${getLocalizedText(opt, opt)}</span> <i class="fa-solid fa-chevron-right"></i>
-          </button>`
-        ).join('') +
+          </button>`;
+        }).join('') +
         `</div>`;
     }
 
@@ -1570,16 +1561,28 @@ if (entities.location) {
   },
 
   prevAQ() {
-    if (this.aqIndex === 0) {
+    if (this.aqIndex <= 0) {
+      this.aqIndex = 0;
       this.showScreen(6);
       return;
     }
-    if (typeof history !== 'undefined' && history.state && history.state.screen === 20 && history.length > 1) {
-      history.back();
-    } else {
+    this.aqIndex--;
+    while (this.aqIndex > 0 && this.shouldSkipQuestion(this.aqFlow[this.aqIndex])) {
       this.aqIndex--;
-      this.showAdaptiveQuestion();
     }
+    this.showAdaptiveQuestion();
+  },
+
+  prevAQFromSummary() {
+    if (!this.aqFlow || this.aqFlow.length === 0) {
+      this.showScreen(6);
+      return;
+    }
+    this.aqIndex = this.aqFlow.length - 1;
+    while (this.aqIndex > 0 && this.shouldSkipQuestion(this.aqFlow[this.aqIndex])) {
+      this.aqIndex--;
+    }
+    this.showAdaptiveQuestion();
   },
 
   /**
@@ -1669,13 +1672,15 @@ if (entities.location) {
     const localizedSubtitle = getLocalizedText(q.subtitle || '', q.subtitle || '');
 
     let bodyContent = '';
+    const currentAyushAns = this.ayushAnswers[q.id];
     if (q.type === 'options') {
       bodyContent = `<div class="options-vertical-list">
-        ${q.options.map(opt =>
-          `<button class="option-touch-btn" onclick="App.answerAyush('${opt.replace(/'/g,"\\'")}')">
+        ${q.options.map(opt => {
+          const isSel = (currentAyushAns === opt) ? ' selected' : '';
+          return `<button class="option-touch-btn${isSel}" onclick="App.answerAyush('${opt.replace(/'/g,"\\'")}')">
             <span>${getLocalizedText(opt, opt)}</span> <i class="fa-solid fa-chevron-right"></i>
-          </button>`
-        ).join('')}
+          </button>`;
+        }).join('')}
       </div>`;
     } else {
       const placeholderText = getLocalizedText('Type any lifestyle habit or concern...', 'Type any lifestyle habit or concern...');
@@ -1783,15 +1788,29 @@ if (entities.location) {
   },
 
   prevAyush() {
-    if (this.ayushIndex === 0) {
+    if (this.ayushIndex <= 0) {
+      this.ayushIndex = 0;
       this.showScreen(13);
       return;
     }
-    if (typeof history !== 'undefined' && history.state && history.state.screen === 17 && history.length > 1) {
-      history.back();
+    this.ayushIndex--;
+    this.showAyushQuestion();
+  },
+
+  prevAyushFromSummary() {
+    if (!this.ayushQuestions || this.ayushQuestions.length === 0) {
+      this.showScreen(13);
+      return;
+    }
+    this.ayushIndex = this.ayushQuestions.length - 1;
+    this.showAyushQuestion();
+  },
+
+  prevFromReports() {
+    if (this.state.ayushRequested) {
+      this.showScreen(16);
     } else {
-      this.ayushIndex--;
-      this.showAyushQuestion();
+      this.showScreen(13);
     }
   },
 
@@ -1818,22 +1837,12 @@ if (entities.location) {
     }
 
     const disclaimerText = getLocalizedText('This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.', 'This AYUSH wellness context is for holistic care reference only. It does not constitute medical diagnosis or treatment advice.');
-    const continueBtnText = getLocalizedText('Continue to Medical Reports', 'Continue to Medical Reports');
-    const backBtnText = getLocalizedText('back', 'Back');
-    const helpBtnText = getLocalizedText('need_help', 'Need Help?');
 
     container.innerHTML = `
       ${rowsHtml}
       <div class="ai-safety-alert" style="margin-bottom:20px;">
         <i class="fa-solid fa-leaf" style="font-size:1.3rem;color:#059669;"></i>
         ${disclaimerText}
-      </div>
-      <button class="btn-kiosk-primary" onclick="App.showScreen(14)">
-        ${continueBtnText} <i class="fa-solid fa-arrow-right"></i>
-      </button>
-      <div class="step-nav-footer">
-        <button class="btn-back" onclick="App.ayushIndex=App.ayushQuestions.length-1;App.showAyushQuestion()"><i class="fa-solid fa-arrow-left"></i> ${backBtnText}</button>
-        <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> ${helpBtnText}</button>
       </div>
     `;
   },
