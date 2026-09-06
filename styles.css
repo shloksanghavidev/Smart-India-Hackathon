@@ -1351,9 +1351,11 @@ select.kiosk-input-flat {
   padding: 0 !important;
 }
 
-/* Hide top white navigation header bar ONLY when viewing Homepage (Screen 1 / #step-1) */
+/* Hide top white navigation header bar on Screen 1 (Homepage) and Screen 2 (Language Selection) */
 .ms-layout:has(#step-1:not([style*="display: none"])) .ms-header,
-body:has(#step-1:not([style*="display: none"])) .ms-header {
+body:has(#step-1:not([style*="display: none"])) .ms-header,
+.ms-layout:has(#step-2:not([style*="display: none"])) .ms-header,
+body:has(#step-2:not([style*="display: none"])) .ms-header {
   display: none !important;
 }
 
