@@ -1737,7 +1737,7 @@ if (entities.location) {
     document.querySelectorAll('.severity-card').forEach(c => {
       const h3 = c.querySelector('h3');
       if (h3 && (h3.innerText.includes(translatedAnswer.split(' ')[0]) || h3.innerText.includes(answer.split(' ')[0]))) {
-        c.classList.add('selected', answer.toLowerCase());
+        c.classList.add('selected', answer.toLowerCase().replace(/\s+/g, '-'));
       }
     });
     setTimeout(() => {
