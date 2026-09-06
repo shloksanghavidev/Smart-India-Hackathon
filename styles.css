@@ -1705,7 +1705,92 @@ select.kiosk-input-flat {
   display: none;
 }
 
-/* ---------- BOTTOM PRIVACY / SECURITY STRIP ---------- */
+/* ---------- DOCTOR HERO IMAGE & BACKGROUND ARCS ---------- */
+.ms-medical-visual {
+  position: relative;
+  overflow: hidden;
+}
+
+.ms-visual-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ms-bg-arcs {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ms-medical-hero-image {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: 95%;
+  max-height: 100%;
+  object-fit: contain;
+  z-index: 5;
+  border: none;
+  background: transparent;
+}
+
+/* Gradient edge fades */
+.ms-visual-fade-l {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 120px;
+  z-index: 6;
+  pointer-events: none;
+  background: linear-gradient(to right, var(--bg-canvas) 0%, rgba(247,244,238,0) 100%);
+}
+
+.ms-visual-fade-b {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 45px;
+  z-index: 6;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(247,244,238,0.6), rgba(247,244,238,0));
+}
+
+.ms-visual-fade-t {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 40px;
+  z-index: 6;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(247,244,238,0.3), rgba(247,244,238,0));
+}
+
+.ms-home-trust {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--teal-deep);
+  opacity: 0.75;
+}
+
+.ms-trust-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--teal-primary);
+}
+
+/* ---------- BOTTOM BENEFIT STRIP ---------- */
 .ms-home-footer {
   position: absolute;
   left: 0;
@@ -1716,34 +1801,29 @@ select.kiosk-input-flat {
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 48px;
+  justify-content: space-around;
+  padding: 0 32px;
   background: var(--bg-white);
   z-index: 20;
 }
 
-.ms-home-footer-left,
-.ms-home-footer-right {
+.ms-benefit {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: baseline;
+  gap: 7px;
+  white-space: nowrap;
+}
+.ms-benefit strong {
+  font-family: inherit;
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--teal-deep);
+}
+.ms-benefit span {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
   color: var(--text-sub);
-}
-
-.ms-home-footer-left i {
-  font-size: 14px;
-  color: var(--teal-primary);
-}
-
-.ms-home-footer-right {
-  gap: 10px;
-  letter-spacing: 0.04em;
-}
-
-.ms-home-footer-right b {
-  color: var(--teal-primary);
 }
 
 /* ─────────────────────────────────────────────────────────── */
