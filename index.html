@@ -279,21 +279,12 @@
     </section>
 
     <!-- ── SCREEN 3: AADHAAR IDENTIFICATION ── -->
-    <section id="step-3" class="kiosk-screen-block ms-screen-medium">
+    <section id="step-3" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div class="ms-kiosk-split">
         <div class="ms-kiosk-left">
           <div class="ms-eyebrow"><i class="fa-solid fa-id-card"></i> Instant Verification</div>
-          <h2 class="ms-headline" data-i18n="identification_title" style="font-size:clamp(1.7rem, 2.6vw, 2.3rem);margin-bottom:12px;">Enter or Scan Aadhaar</h2>
+          <h2 class="ms-headline" data-i18n="identification_title">Enter or Scan Aadhaar</h2>
           <p class="ms-subline" data-i18n="identification_sub">Quickly loads your records and consultation history if you visited before.</p>
-
-          <div style="margin-top:32px;opacity:0.35;">
-            <svg width="120" height="60" viewBox="0 0 120 60" fill="none">
-              <rect x="20" y="10" width="80" height="40" rx="4" stroke="#1F5E5A" stroke-width="2"/>
-              <line x1="30" y1="22" x2="60" y2="22" stroke="#D96C2F" stroke-width="2"/>
-              <line x1="30" y1="32" x2="80" y2="32" stroke="#7FA6A0" stroke-width="1.5"/>
-              <line x1="30" y1="38" x2="70" y2="38" stroke="#7FA6A0" stroke-width="1.5"/>
-            </svg>
-          </div>
 
           <div class="ms-nav" style="margin-top:40px;">
             <button class="btn-ghost" onclick="App.showScreen(1)"><i class="fa-solid fa-arrow-left"></i> <span data-i18n="back">Back</span></button>
@@ -321,11 +312,11 @@
     </section>
 
     <!-- ── SCREEN 4: PATIENT TYPE ── -->
-    <section id="step-4" class="kiosk-screen-block ms-screen-medium">
+    <section id="step-4" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div class="ms-kiosk-split">
         <div class="ms-kiosk-left">
           <div class="ms-eyebrow"><i class="fa-solid fa-user-check"></i> Patient Status</div>
-          <h2 class="ms-headline" data-i18n="welcome_question" style="font-size:clamp(1.7rem, 2.6vw, 2.3rem);margin-bottom:12px;">Have you visited this hospital before?</h2>
+          <h2 class="ms-headline" data-i18n="welcome_question">Have you visited this hospital before?</h2>
           <p class="ms-subline">Select your visit status to load existing records or start a new intake.</p>
 
           <div class="ms-nav" style="margin-top:40px;">
@@ -362,11 +353,11 @@
     </section>
 
     <!-- ── SCREEN 5: PROFILE ── -->
-    <section id="step-5" class="kiosk-screen-block ms-screen-medium">
+    <section id="step-5" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div class="ms-kiosk-split">
         <div class="ms-kiosk-left">
           <div class="ms-eyebrow"><i class="fa-solid fa-address-card"></i> Patient Record</div>
-          <h2 class="ms-headline" data-i18n="create_profile" style="font-size:clamp(1.7rem, 2.6vw, 2.3rem);margin-bottom:12px;">Confirm Patient Details</h2>
+          <h2 class="ms-headline" data-i18n="create_profile">Confirm Patient Details</h2>
           <p class="ms-subline">Details for the doctor's outpatient consultation record.</p>
 
           <div class="ms-nav" style="margin-top:40px;">
@@ -418,11 +409,11 @@
     </section>
 
     <!-- ── SCREEN 7: ALLERGIES & MEDS ── -->
-    <section id="step-7" class="kiosk-screen-block ms-screen-medium">
+    <section id="step-7" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div class="ms-kiosk-split">
         <div class="ms-kiosk-left">
           <div class="ms-eyebrow"><i class="fa-solid fa-shield-virus"></i> Clinical Safety Pre-Check</div>
-          <h2 class="ms-headline" data-i18n="allergy_question" style="font-size:clamp(1.7rem, 2.6vw, 2.3rem);margin-bottom:12px;">Do you have any known allergies?</h2>
+          <h2 class="ms-headline" data-i18n="allergy_question">Do you have any known allergies?</h2>
           <p class="ms-subline" data-i18n="allergy_subtitle">This helps ensure safe prescriptions and contraindication warnings for your doctor.</p>
 
           <div class="ms-nav" style="margin-top:40px;">
@@ -452,12 +443,12 @@
     </section>
 
     <!-- ── SCREEN 6: DIGITAL CLINICAL INTAKE (VOICE + TAP + TYPE) ── -->
-    <section id="step-6" class="kiosk-screen-block ms-screen-medium">
+    <section id="step-6" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div class="ms-kiosk-split">
         <!-- LEFT: INTAKE CONTEXT & VOICE / TYPE ENTRY -->
         <div class="ms-kiosk-left">
           <div class="ms-eyebrow"><i class="fa-solid fa-stethoscope"></i> Clinical Intake</div>
-          <h2 class="ms-headline" data-i18n="what_brings_you" style="font-size:clamp(1.7rem, 2.6vw, 2.3rem);margin-bottom:12px;">What is bothering you today?</h2>
+          <h2 class="ms-headline" data-i18n="what_brings_you">What is bothering you today?</h2>
           <p class="ms-subline" data-i18n="speak_type_choose">Speak in your mother tongue, type your symptom, or tap an option from the list.</p>
 
           <!-- Voice Area -->
@@ -552,28 +543,21 @@
     </section>
 
     <!-- ── SCREEN 20: ADAPTIVE CLINICAL QUESTIONS (DYNAMIC) ── -->
-    <section id="step-20" class="kiosk-screen-block ms-screen-medium">
+    <section id="step-20" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div id="aq-container">
         <!-- Rendered dynamically by App.showAdaptiveQuestion() -->
       </div>
     </section>
 
     <!-- ── SCREEN 13: AYUSH INTRO / PROMPT ── -->
-    <section id="step-13" class="kiosk-screen-block ms-screen-medium">
+    <section id="step-13" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div class="ms-kiosk-split">
         <div class="ms-kiosk-left">
           <div class="ms-eyebrow"><i class="fa-solid fa-leaf" style="color:#059669;"></i> Holistic Wellness</div>
-          <h2 class="ms-headline" data-i18n="ayush_title" style="font-size:clamp(1.7rem, 2.6vw, 2.3rem);margin-bottom:12px;">Would you like an AYUSH Wellness Check?</h2>
+          <h2 class="ms-headline" data-i18n="ayush_title">Would you like an AYUSH Wellness Check?</h2>
           <p class="ms-subline" data-i18n="ayush_desc">
             A short 3-question survey about sleep, diet, and lifestyle to support holistic treatment.
           </p>
-
-          <div style="margin-top:32px;opacity:0.35;">
-            <svg width="120" height="60" viewBox="0 0 120 60" fill="none">
-              <path d="M60 10 C 40 30, 40 50, 60 50 C 80 50, 80 30, 60 10 Z" stroke="#059669" stroke-width="2" fill="none"/>
-              <line x1="60" y1="15" x2="60" y2="48" stroke="#059669" stroke-width="1.5"/>
-            </svg>
-          </div>
 
           <div class="ms-nav" style="margin-top:40px;">
             <button class="btn-ghost" onclick="App.showScreen(12)"><i class="fa-solid fa-arrow-left"></i> <span data-i18n="back">Back</span></button>
@@ -601,14 +585,14 @@
     </section>
 
     <!-- ── SCREEN 17: AYUSH QUESTION ENGINE (DYNAMIC) ── -->
-    <section id="step-17" class="kiosk-screen-block ms-screen-medium">
+    <section id="step-17" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div id="ayush-container">
         <!-- Rendered dynamically by App.showAyushQuestion() -->
       </div>
     </section>
 
     <!-- ── SCREEN 16: AYUSH SUMMARY (DYNAMIC) ── -->
-    <section id="step-16" class="kiosk-screen-block ms-screen-medium">
+    <section id="step-16" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div class="ms-eyebrow"><i class="fa-solid fa-leaf" style="color:#059669;"></i> AYUSH Context</div>
       <h2 class="ms-headline" data-i18n="ayush_summary_title">Wellness Summary</h2>
       <p class="ms-subline">Recorded for holistic physician reference.</p>
@@ -622,11 +606,11 @@
     </section>
 
     <!-- ── SCREEN 14: MEDICAL REPORTS ── -->
-    <section id="step-14" class="kiosk-screen-block ms-screen-medium">
+    <section id="step-14" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div class="ms-kiosk-split">
         <div class="ms-kiosk-left">
           <div class="ms-eyebrow"><i class="fa-solid fa-folder-open"></i> Medical Documents</div>
-          <h2 class="ms-headline" data-i18n="medical_documents" style="font-size:clamp(1.7rem, 2.6vw, 2.3rem);margin-bottom:12px;">Do you have existing reports or prescriptions?</h2>
+          <h2 class="ms-headline" data-i18n="medical_documents">Do you have existing reports or prescriptions?</h2>
           <p class="ms-subline" data-i18n="documents_sub">Upload or scan previous lab reports, blood tests, or doctor slips for consultation reference.</p>
 
           <div class="ms-nav" style="margin-top:40px;">
@@ -654,7 +638,7 @@
     </section>
 
     <!-- ── SCREEN 12: CLINICAL STORY SUMMARY ── -->
-    <section id="step-12" class="kiosk-screen-block ms-screen-medium">
+    <section id="step-12" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div class="ms-eyebrow"><i class="fa-solid fa-clipboard-check"></i> Patient Summary</div>
       <h2 class="ms-headline" data-i18n="patient_story_title">Clinical Summary</h2>
       <p class="ms-subline" data-i18n="patient_story_subtitle">Review the information collected before final placement in the doctor queue.</p>
@@ -668,7 +652,7 @@
     </section>
 
     <!-- ── SCREEN 15: TOKEN CONFIRMATION ── -->
-    <section id="step-15" class="kiosk-screen-block ms-screen-narrow">
+    <section id="step-15" class="kiosk-screen-block ms-screen-narrow ms-questionnaire-screen">
       <div class="ms-token-box">
         <div class="ms-token-label" data-i18n="opd_token_issued">OPD Token Issued</div>
         <div class="ms-token-number" id="issued-token-number">--</div>

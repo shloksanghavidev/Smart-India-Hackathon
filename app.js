@@ -1326,40 +1326,9 @@ if (entities.location) {
     const currentIntent = this.state.symptomIntent || 'general';
     const localizedIntent = getLocalizedText(currentIntent, this.state.chiefComplaint || 'Clinical Intake');
 
-    // Abstract subtle clinical motif based on intent
-    let clinicalMotifSvg = '';
-    if (currentIntent === 'stomach_pain') {
-      clinicalMotifSvg = `<svg width="120" height="70" viewBox="0 0 120 70" fill="none" opacity="0.35">
-        <path d="M20 35 Q 40 10, 60 35 T 100 35" stroke="#1F5E5A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <circle cx="60" cy="35" r="5" fill="#D96C2F"/>
-        <line x1="10" y1="55" x2="110" y2="55" stroke="#7FA6A0" stroke-width="1" stroke-dasharray="3 3"/>
-      </svg>`;
-    } else if (currentIntent === 'fever') {
-      clinicalMotifSvg = `<svg width="120" height="70" viewBox="0 0 120 70" fill="none" opacity="0.35">
-        <path d="M15 45 L 35 45 L 45 15 L 55 55 L 65 30 L 75 45 L 105 45" stroke="#D96C2F" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="45" cy="15" r="4" fill="#D96C2F"/>
-      </svg>`;
-    } else if (currentIntent === 'headache') {
-      clinicalMotifSvg = `<svg width="120" height="70" viewBox="0 0 120 70" fill="none" opacity="0.35">
-        <circle cx="60" cy="35" r="24" stroke="#1F5E5A" stroke-width="2" fill="none"/>
-        <path d="M45 35 Q 60 20, 75 35" stroke="#D96C2F" stroke-width="2" fill="none"/>
-      </svg>`;
-    } else if (currentIntent === 'cough_cold') {
-      clinicalMotifSvg = `<svg width="120" height="70" viewBox="0 0 120 70" fill="none" opacity="0.35">
-        <path d="M35 25 C 35 45, 55 55, 55 55 C 55 55, 75 45, 75 25" stroke="#1F5E5A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <line x1="55" y1="15" x2="55" y2="55" stroke="#7FA6A0" stroke-width="2"/>
-      </svg>`;
-    } else {
-      clinicalMotifSvg = `<svg width="120" height="70" viewBox="0 0 120 70" fill="none" opacity="0.35">
-        <rect x="35" y="20" width="50" height="30" rx="4" stroke="#1F5E5A" stroke-width="2" fill="none"/>
-        <line x1="60" y1="20" x2="60" y2="50" stroke="#D96C2F" stroke-width="2"/>
-        <line x1="35" y1="35" x2="85" y2="35" stroke="#D96C2F" stroke-width="2"/>
-      </svg>`;
-    }
-
     container.innerHTML = `
       <div class="ms-kiosk-split">
-        <!-- LEFT COLUMN: CONTEXT, HEADLINE, PROGRESS & MOTIF -->
+        <!-- LEFT COLUMN: CONTEXT, HEADLINE, PROGRESS -->
         <div class="ms-kiosk-left">
           <div class="ms-eyebrow">
             <span style="color:var(--orange);font-weight:800;">●</span>
@@ -1370,20 +1339,16 @@ if (entities.location) {
             <div class="aq-progress-fill" style="width:${(current/total)*100}%;"></div>
           </div>
 
-          <h2 class="ms-headline" id="aq-q-text" style="font-size:clamp(1.6rem, 2.4vw, 2.2rem);line-height:1.2;margin-bottom:12px;color:var(--teal-deepest);">
+          <h2 class="ms-headline" id="aq-q-text">
             ${localizedQuestion}
           </h2>
           
-          ${localizedSubtitle ? `<p class="ms-subline" style="font-size:1rem;color:var(--text-sub);margin-bottom:24px;">${localizedSubtitle}</p>` : ''}
+          ${localizedSubtitle ? `<p class="ms-subline">${localizedSubtitle}</p>` : ''}
 
           <div style="display:flex;align-items:center;gap:14px;margin-top:16px;">
             <button class="btn-outline" style="height:40px;padding:0 16px;font-size:0.84rem;" onclick="speakText(document.getElementById('aq-q-text').innerText)">
               <i class="fa-solid fa-volume-high"></i> ${listenLabel}
             </button>
-          </div>
-
-          <div style="margin-top:36px;">
-            ${clinicalMotifSvg}
           </div>
 
           <div class="ms-nav" style="margin-top:40px;padding-top:18px;">
@@ -1743,11 +1708,11 @@ if (entities.location) {
             <div class="aq-progress-fill" style="width:${(current/total)*100}%;background:#059669;"></div>
           </div>
 
-          <h2 class="ms-headline" id="ayush-q-text" style="font-size:clamp(1.6rem, 2.4vw, 2.2rem);line-height:1.2;margin-bottom:12px;color:var(--teal-deepest);">
+          <h2 class="ms-headline" id="ayush-q-text">
             ${localizedQuestion}
           </h2>
           
-          ${localizedSubtitle ? `<p class="ms-subline" style="font-size:1rem;color:var(--text-sub);margin-bottom:20px;">${localizedSubtitle}</p>` : ''}
+          ${localizedSubtitle ? `<p class="ms-subline">${localizedSubtitle}</p>` : ''}
 
           <div style="display:flex;align-items:center;gap:14px;margin-top:16px;">
             <button class="btn-outline" style="height:40px;padding:0 16px;font-size:0.84rem;" onclick="speakText(document.getElementById('ayush-q-text').innerText)">
