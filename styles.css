@@ -10,23 +10,33 @@
   --bg-subtle:    #EFECE5;
   --bg-kiosk:     #F7F4EE;
 
-  --teal-deepest: #123B42;
-  --teal-deep:    #123B42;
-  --teal-primary: #1F5E5A;
-  --teal-mid:     #1F5E5A;
-  --teal-light:   #7FA6A0;
-  --teal-tint:    #E9F2F0;
-  --teal-bright:  #2D827C;
+  /* Indigo Blue Palette */
+  --indigo-deepest:#1B2A4A;
+  --indigo-deep:   #1B2A4A;
+  --indigo-primary:#253B5E;
+  --indigo-mid:    #2B436B;
+  --indigo-light:  #64748B;
+  --indigo-tint:   #EFF4F9;
+  --indigo-bright: #253B5E;
+
+  /* Aliased for full backward compatibility across all modules */
+  --teal-deepest: #1B2A4A;
+  --teal-deep:    #1B2A4A;
+  --teal-primary: #253B5E;
+  --teal-mid:     #2B436B;
+  --teal-light:   #64748B;
+  --teal-tint:    #EFF4F9;
+  --teal-bright:  #253B5E;
 
   --orange:       #D96C2F;
   --orange-primary: #D96C2F;
   --orange-hover: #C45A20;
   --orange-soft:  #FDF2EA;
 
-  --charcoal:     #1D2A2E;
-  --text:         #1D2A2E;
-  --text-sub:     #4A5A5E;
-  --text-muted:   #6C7E82;
+  --charcoal:     #1B2A4A;
+  --text:         #1B2A4A;
+  --text-sub:     #475569;
+  --text-muted:   #64748B;
 
   --border:       #E2D9D0;
   --border-light: #EEE9E3;
@@ -1450,8 +1460,8 @@ body:has(#step-1:not([style*="display: none"])) .ms-home {
   right: 0;
   width: min(1200px, calc(100% - 96px));
   margin: 0 auto;
-  top: 90px;
-  bottom: 0;
+  top: 80px;
+  bottom: 65px;
   transform: none;
 
   display: grid;
@@ -1728,8 +1738,8 @@ body:has(#step-1:not([style*="display: none"])) .ms-home {
   height: 100%;
   width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: flex-end;
   overflow: visible;
 }
 
@@ -1748,11 +1758,11 @@ body:has(#step-1:not([style*="display: none"])) .ms-home {
 
 .ms-medical-hero-image {
   position: absolute;
-  right: clamp(16px, 4.5%, 48px);
+  right: clamp(0px, 2vw, 32px);
   bottom: 0;
   width: auto;
   height: auto;
-  max-height: 95%;
+  max-height: 100%;
   max-width: 100%;
   object-fit: contain;
   object-position: bottom right;
