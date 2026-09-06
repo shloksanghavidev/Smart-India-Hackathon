@@ -650,6 +650,16 @@ const App = window.App = {
       this.renderAyushSummary();
     } else if (targetScreen === 12) {
       this.updateSummaryCard();
+    } else if (targetScreen === 21) {
+      if (this.state.aadhaar) {
+        const patient = this.findExistingPatient(this.state.aadhaar);
+        if (patient) this.loadExistingPatientData(patient);
+      }
+    } else if (targetScreen === 22) {
+      const displayEl = document.getElementById('not-found-aadhaar-display');
+      if (displayEl && this.state.aadhaar) {
+        displayEl.innerText = this.state.aadhaar.replace(/(\d{4})(?=\d)/g, '$1 ');
+      }
     }
 
     this.syncDOMFromState();
@@ -716,6 +726,16 @@ const App = window.App = {
           this.renderAyushSummary();
         } else if (targetScreen === 12) {
           this.updateSummaryCard();
+        } else if (targetScreen === 21) {
+          if (this.state.aadhaar) {
+            const patient = this.findExistingPatient(this.state.aadhaar);
+            if (patient) this.loadExistingPatientData(patient);
+          }
+        } else if (targetScreen === 22) {
+          const displayEl = document.getElementById('not-found-aadhaar-display');
+          if (displayEl && this.state.aadhaar) {
+            displayEl.innerText = this.state.aadhaar.replace(/(\d{4})(?=\d)/g, '$1 ');
+          }
         }
       } else {
         const initialState = { screen: 1, aqIndex: 0, ayushIndex: 0 };
@@ -749,7 +769,7 @@ const App = window.App = {
 
   selectLanguageAndContinue(langCode) {
     this.setLanguage(langCode);
-    this.showScreen(3);
+    this.showScreen(4);
   },
 
   startFlowDirect() {
@@ -771,7 +791,6 @@ const App = window.App = {
       if (dict[key] !== undefined) elem.setAttribute('aria-label', dict[key]);
     });
   },
-
 
   openMoreLanguages() {
     alert("Supported Indian Languages:\nEnglish | हिंदी (Hindi) | मराठी (Marathi) | বাংলা (Bengali) | తెలుగు (Telugu)");
@@ -836,21 +855,27 @@ const App = window.App = {
     }
   },
 
-
   toggleHelpModal() {
     document.getElementById('help-modal').classList.toggle('active');
   },
 
-  // ── PATIENT KIOSK STEPS ───────────────────────────────────────────────────
+  // ── PATIENT KIOSK STEPS & RECORD LOOKUP ─────────────────────────────────
+  selectPatientType(type) {
+    this.patientType = type;
+    this.saveSession();
+    this.showScreen(3);
+  },
+
   simulateScanAadhaar() {
     const overlay = document.getElementById('scan-overlay');
-    overlay.style.display = 'flex';
+    if (overlay) overlay.style.display = 'flex';
     setTimeout(() => {
-      overlay.style.display = 'none';
-      document.getElementById('aadhaar-input').value = "9876 5432 1098";
+      if (overlay) overlay.style.display = 'none';
+      const input = document.getElementById('aadhaar-input');
+      if (input) input.value = "9876 5432 1098";
       this.state.aadhaar = "987654321098";
       this.showNotification("✅ Aadhaar QR scanned successfully!");
-      setTimeout(() => this.showScreen(4), 700);
+      setTimeout(() => this.validateAadhaarAndContinue(), 700);
     }, 2500);
   },
 
@@ -860,27 +885,75 @@ const App = window.App = {
     input.value = formatted;
   },
 
-  validateAadhaarAndContinue() {
-    const input = document.getElementById('aadhaar-input');
-    const raw = input.value.replace(/\D/g, '');
-    if (raw.length !== 12) {
-      this.showNotification("⚠️ Please enter exactly 12 digits.");
-      return;
+  getStoredExistingPatients() {
+    try {
+      const stored = localStorage.getItem('medisarthi_existing_patients');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error("Error reading stored existing patients:", e);
     }
-    this.state.aadhaar = raw;
-    this.showScreen(4);
+    const defaultList = (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.existingPatients) ? DEMO_DATA.existingPatients : [
+      {
+        id: "MS1001",
+        aadhaar: "987654321098",
+        name: "Ramesh Patel",
+        age: 45,
+        gender: "Male",
+        mobile: "+91 98201 54321",
+        lastVisit: "12 Jul 2026",
+        medicalHistory: "Mild Hypertension (on Amlodipine 5mg)",
+        allergies: "Penicillin",
+        medications: "Amlodipine 5mg OD"
+      }
+    ];
+    this.saveStoredExistingPatients(defaultList);
+    return defaultList;
   },
 
-  selectPatientType(type) {
-    this.patientType = type;
-    const existingView = document.getElementById('existing-profile-view');
-    const newForm = document.getElementById('new-profile-form');
-    if (type === 'existing') {
-      if (existingView) existingView.style.display = 'block';
-      if (newForm) newForm.style.display = 'none';
-      const p = (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.existingPatients && DEMO_DATA.existingPatients[0]) ? DEMO_DATA.existingPatients[0] : {
+  saveStoredExistingPatients(list) {
+    try {
+      localStorage.setItem('medisarthi_existing_patients', JSON.stringify(list));
+    } catch (e) {
+      console.error("Error saving existing patients to localStorage:", e);
+    }
+  },
+
+  findExistingPatient(aadhaar) {
+    if (!aadhaar) return null;
+    const cleanAadhaar = aadhaar.replace(/\D/g, '');
+
+    // 1. Search in stored existing patients list
+    const existingList = this.getStoredExistingPatients();
+    let match = existingList.find(p => p.aadhaar && p.aadhaar.replace(/\D/g, '') === cleanAadhaar);
+    if (match) return match;
+
+    // 2. Search in patient queue (for previous visits with this aadhaar or ID)
+    const queue = this.getStoredQueue();
+    const queueMatch = queue.find(p => p.aadhaar && p.aadhaar.replace(/\D/g, '') === cleanAadhaar);
+    if (queueMatch) {
+      return {
+        id: queueMatch.id || 'MS1001',
+        aadhaar: cleanAadhaar,
+        name: queueMatch.name || 'Ramesh Patel',
+        age: queueMatch.age || 45,
+        gender: queueMatch.gender || 'Male',
+        mobile: queueMatch.mobile || '+91 98201 54321',
+        lastVisit: queueMatch.time || 'Recent',
+        medicalHistory: queueMatch.summary?.medicalHistory || queueMatch.medicalHistory || 'Mild Hypertension (on Amlodipine 5mg)',
+        allergies: queueMatch.summary?.allergies || queueMatch.allergies || 'Penicillin',
+        medications: queueMatch.summary?.medications || queueMatch.medications || 'Amlodipine 5mg OD'
+      };
+    }
+
+    // 3. Fallback for Ramesh Patel demo Aadhaar (987654321098)
+    if (cleanAadhaar === '987654321098') {
+      return {
         id: "MS1001",
-        name: "Ramesh Patil",
+        aadhaar: "987654321098",
+        name: "Ramesh Patel",
         age: 45,
         gender: "Male",
         mobile: "+91 98201 54321",
@@ -889,43 +962,189 @@ const App = window.App = {
         allergies: "Penicillin",
         medications: "Amlodipine 5mg OD"
       };
+    }
 
-      const setIfExists = (id, text) => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = text;
-      };
+    return null;
+  },
 
-      setIfExists('retrieved-name', p.name);
-      setIfExists('retrieved-full-name', p.name);
-      setIfExists('retrieved-age-gender', `${p.age} / ${getLocalizedText(p.gender, p.gender)}`);
-      setIfExists('retrieved-id', p.id);
-      setIfExists('retrieved-last-visit', p.lastVisit);
-      setIfExists('retrieved-history', p.medicalHistory);
-      setIfExists('retrieved-allergies', p.allergies);
+  validateAadhaarAndContinue() {
+    const input = document.getElementById('aadhaar-input');
+    const raw = input ? input.value.replace(/\D/g, '') : (this.state.aadhaar || '');
+    if (raw.length !== 12) {
+      this.showNotification("⚠️ Please enter exactly 12 digits.");
+      return;
+    }
+    this.state.aadhaar = raw;
 
-      this.state = {
-        ...this.state,
-        fullName: p.name,
-        age: String(p.age),
-        gender: p.gender,
-        patientId: p.id,
-        medicalHistory: p.medicalHistory,
-        allergies: p.allergies,
-        medications: p.medications
-      };
+    if (this.patientType === 'existing') {
+      const patient = this.findExistingPatient(raw);
+      if (patient) {
+        this.loadExistingPatientData(patient);
+        this.showScreen(21);
+      } else {
+        const displayEl = document.getElementById('not-found-aadhaar-display');
+        if (displayEl) {
+          displayEl.innerText = raw.replace(/(\d{4})(?=\d)/g, '$1 ');
+        }
+        this.showScreen(22);
+      }
     } else {
-      existingView.style.display = 'none';
-      newForm.style.display = 'block';
-      const preservedAadhaar = this.state.aadhaar || '';
-      this.clearSession();
-      this.state.aadhaar = preservedAadhaar;
-      // Reset report UI
-      const reportContainer = document.getElementById('uploaded-reports-list-container');
-      if (reportContainer) {
-        reportContainer.innerHTML = '<p id="no-reports-msg" style="color:var(--text-muted);font-size:0.9rem;padding:12px 0;">No reports uploaded yet.</p>';
+      // New patient path
+      const existingView = document.getElementById('existing-profile-view');
+      const newForm = document.getElementById('new-profile-form');
+      if (existingView) existingView.style.display = 'none';
+      if (newForm) newForm.style.display = 'block';
+      this.showScreen(5);
+    }
+  },
+
+  loadExistingPatientData(p) {
+    this.state = {
+      ...this.state,
+      fullName: p.name || p.fullName || 'Ramesh Patel',
+      age: String(p.age || '45'),
+      gender: p.gender || 'Male',
+      mobile: p.mobile || '+91 98201 54321',
+      patientId: p.id || 'MS1001',
+      medicalHistory: p.medicalHistory || 'Mild Hypertension (on Amlodipine 5mg)',
+      allergies: p.allergies || 'Penicillin',
+      medications: p.medications || 'Amlodipine 5mg OD',
+      aadhaar: p.aadhaar || this.state.aadhaar || '987654321098'
+    };
+
+    const nameEl = document.getElementById('welcome-patient-name');
+    if (nameEl) nameEl.textContent = this.state.fullName;
+
+    const exName = document.getElementById('ex-history-name');
+    if (exName) exName.textContent = this.state.fullName;
+
+    const exDemo = document.getElementById('ex-history-demographics');
+    if (exDemo) exDemo.textContent = `${this.state.age} / ${getLocalizedText(this.state.gender, this.state.gender)} · ID: ${this.state.patientId}`;
+
+    const exVisit = document.getElementById('ex-history-last-visit');
+    if (exVisit) exVisit.textContent = p.lastVisit || '12 Jul 2026';
+
+    const exMobile = document.getElementById('ex-history-mobile');
+    if (exMobile) exMobile.textContent = this.state.mobile || 'Not provided';
+
+    const exMed = document.getElementById('ex-history-medical');
+    if (exMed) exMed.textContent = this.state.medicalHistory || 'None';
+
+    const exAllergies = document.getElementById('ex-history-allergies');
+    if (exAllergies) exAllergies.textContent = this.state.allergies || 'None';
+
+    const exMeds = document.getElementById('ex-history-meds');
+    if (exMeds) exMeds.textContent = this.state.medications || 'None';
+
+    // Populate previous consultations history list
+    const listContainer = document.getElementById('previous-consultations-list');
+    if (listContainer) {
+      const queue = this.getStoredQueue();
+      const pastConsultations = queue.filter(item =>
+        (item.id && item.id === this.state.patientId) ||
+        (item.aadhaar && item.aadhaar.replace(/\D/g, '') === this.state.aadhaar.replace(/\D/g, ''))
+      );
+
+      if (pastConsultations.length > 0) {
+        listContainer.innerHTML = pastConsultations.map(c => `
+          <div style="background:var(--sand-light);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <strong style="color:var(--teal-deepest);font-size:0.92rem;">${c.chiefComplaint || 'General Consultation'}</strong>
+              <span style="font-size:0.75rem;color:var(--text-muted);">${c.time || '12 Jul 2026'}</span>
+            </div>
+            <p style="font-size:0.82rem;color:var(--text-sub);margin:0;">
+              ${c.summary ? (c.summary.problem ? 'Problem: ' + c.summary.problem + ' · ' : '') + (c.summary.duration ? 'Duration: ' + c.summary.duration : '') : 'Previous OPD consultation record'}
+            </p>
+            ${c.doctorNotes ? `<p style="font-size:0.78rem;color:var(--teal-deep);margin-top:4px;font-style:italic;">Doctor note: ${c.doctorNotes}</p>` : ''}
+          </div>
+        `).join('');
+      } else {
+        listContainer.innerHTML = `
+          <div style="background:var(--sand-light);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <strong style="color:var(--teal-deepest);font-size:0.92rem;">Stomach Pain (Abdominal Cramps)</strong>
+              <span style="font-size:0.75rem;color:var(--text-muted);">12 Jul 2026</span>
+            </div>
+            <p style="font-size:0.82rem;color:var(--text-sub);margin:0;">
+              Duration: 1 – 3 days · Severity: Moderate · Location: Around Navel
+            </p>
+            <p style="font-size:0.78rem;color:var(--teal-deep);margin-top:4px;font-style:italic;">Doctor note: Suspected acute gastritis. Prescribed Pantoprazole & Drotin.</p>
+          </div>
+        `;
       }
     }
+  },
+
+  startNewConsultationForExisting() {
+    const preserved = {
+      patientId: this.state.patientId || 'MS1001',
+      aadhaar: this.state.aadhaar || '987654321098',
+      fullName: this.state.fullName || 'Ramesh Patel',
+      age: this.state.age || '45',
+      gender: this.state.gender || 'Male',
+      mobile: this.state.mobile || '+91 98201 54321',
+      medicalHistory: this.state.medicalHistory || 'Mild Hypertension (on Amlodipine 5mg)',
+      allergies: this.state.allergies || 'Penicillin',
+      medications: this.state.medications || 'Amlodipine 5mg OD'
+    };
+
+    // Reset current consultation fields while retaining patient identity & past history
+    this.state = {
+      ...this.state,
+      ...preserved,
+      chiefComplaint: '',
+      symptomIntent: '',
+      bodyLocation: 'Not specified',
+      duration: '',
+      severity: '',
+      reportsUploaded: [],
+      conversationLog: [],
+      ayushAnswers: {},
+      ayushRequested: false
+    };
+
+    this.aqFlow = [];
+    this.aqIndex = 0;
+    this.aqAnswers = {};
+    this.ayushIndex = 0;
+    this.ayushAnswers = {};
+    this.patientType = 'existing';
+
+    const allergyInput = document.getElementById('input-allergy');
+    if (allergyInput && preserved.allergies && preserved.allergies.toLowerCase() !== 'none') {
+      allergyInput.value = preserved.allergies;
+    }
+
+    this.showScreen(7);
+  },
+
+  retryAadhaar() {
+    const input = document.getElementById('aadhaar-input');
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+    this.showScreen(3);
+  },
+
+  registerAsNewFromNotFound() {
+    const preservedAadhaar = this.state.aadhaar || '';
+    this.clearSession();
+    this.state.aadhaar = preservedAadhaar;
+    this.patientType = 'new';
+    const existingView = document.getElementById('existing-profile-view');
+    const newForm = document.getElementById('new-profile-form');
+    if (existingView) existingView.style.display = 'none';
+    if (newForm) newForm.style.display = 'block';
     this.showScreen(5);
+  },
+
+  handleAllergiesBack() {
+    if (this.patientType === 'existing') {
+      this.showScreen(21);
+    } else {
+      this.showScreen(5);
+    }
   },
 
   setGender(btnElem, genderVal) {
@@ -2129,11 +2348,15 @@ if (entities.location) {
             id: this.state.patientId ||
                ('MS' + Math.floor(1000 + Math.random() * 9000)),
 
+            aadhaar: this.state.aadhaar || '',
+
             name: this.state.fullName || 'Anonymous Patient',
 
             age: parseInt(this.state.age) || 0,
 
             gender: this.state.gender || 'Not specified',
+
+            mobile: this.state.mobile || '',
 
             time: this.nowTime(),
 
@@ -2182,12 +2405,37 @@ if (entities.location) {
 
 
         // -------------------------------------------------
-        // 4. Add patient to doctor queue
+        // 4. Add patient to doctor queue & update existing patients list
         // -------------------------------------------------
 
         const queue = this.getStoredQueue();
 
         queue.unshift(newQueuePatient);
+
+        // Update/Sync stored existing patients record
+        if (this.state.aadhaar) {
+          const existingList = this.getStoredExistingPatients();
+          const cleanAadhaar = this.state.aadhaar.replace(/\D/g, '');
+          const existingIdx = existingList.findIndex(p => p.aadhaar && p.aadhaar.replace(/\D/g, '') === cleanAadhaar);
+          const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+          if (existingIdx >= 0) {
+            existingList[existingIdx].lastVisit = todayStr;
+          } else {
+            existingList.push({
+              id: newQueuePatient.id,
+              aadhaar: cleanAadhaar,
+              name: newQueuePatient.name,
+              age: newQueuePatient.age,
+              gender: newQueuePatient.gender,
+              mobile: newQueuePatient.mobile,
+              lastVisit: todayStr,
+              medicalHistory: this.state.medicalHistory || 'None known',
+              allergies: this.state.allergies || 'None',
+              medications: this.state.medications || 'None'
+            });
+          }
+          this.saveStoredExistingPatients(existingList);
+        }
 
         this.saveStoredQueue(queue);
 
