@@ -1351,17 +1351,23 @@ select.kiosk-input-flat {
   padding: 0 !important;
 }
 
-/* Hide top header language selector ONLY when viewing Homepage (Screen 1 / #step-1) */
-.ms-layout:has(#step-1:not([style*="display: none"])) .ms-lang-row,
-body:has(#step-1:not([style*="display: none"])) .ms-lang-row {
+/* Hide top white navigation header bar ONLY when viewing Homepage (Screen 1 / #step-1) */
+.ms-layout:has(#step-1:not([style*="display: none"])) .ms-header,
+body:has(#step-1:not([style*="display: none"])) .ms-header {
   display: none !important;
+}
+
+.ms-layout:has(#step-1:not([style*="display: none"])) .ms-home,
+body:has(#step-1:not([style*="display: none"])) .ms-home {
+  height: 100vh;
+  max-height: 100vh;
 }
 
 .ms-home {
   position: relative;
   width: 100%;
-  height: calc(100vh - 52px);
-  max-height: calc(100vh - 52px);
+  height: 100vh;
+  max-height: 100vh;
   overflow: hidden;
 
   /* Human-designed: Solid warm ivory background with subtle architectural feel */
@@ -1851,7 +1857,7 @@ body:has(#step-1:not([style*="display: none"])) .ms-lang-row {
 @media (max-width: 960px) {
   .ms-home {
     height: auto;
-    min-height: calc(100vh - 52px);
+    min-height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
   }
@@ -1987,7 +1993,7 @@ body:has(#step-1:not([style*="display: none"])) .ms-lang-row {
 @media (max-width: 640px) {
   .ms-home {
     height: auto;
-    min-height: calc(100vh - 52px);
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
