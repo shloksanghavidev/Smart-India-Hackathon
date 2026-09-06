@@ -1450,8 +1450,9 @@ body:has(#step-1:not([style*="display: none"])) .ms-home {
   right: 0;
   width: min(1200px, calc(100% - 96px));
   margin: 0 auto;
-  top: calc(50% - 14px);
-  transform: translateY(-50%);
+  top: 90px;
+  bottom: 0;
+  transform: none;
 
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1496,7 +1497,7 @@ body:has(#step-1:not([style*="display: none"])) .ms-home {
 }
 
 .ms-home-copy h1 span {
-  color: var(--teal-deepest);
+  color: var(--orange);
 }
 
 .ms-home-copy p {
@@ -1724,12 +1725,12 @@ body:has(#step-1:not([style*="display: none"])) .ms-home {
 /* ---------- DOCTOR HERO IMAGE & BACKGROUND ARCS ---------- */
 .ms-medical-visual {
   position: relative;
-  height: clamp(380px, 48vh, 460px);
+  height: 100%;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .ms-visual-bg {
@@ -1750,10 +1751,11 @@ body:has(#step-1:not([style*="display: none"])) .ms-home {
   right: clamp(16px, 4.5%, 48px);
   bottom: 0;
   width: auto;
-  height: 96%;
-  max-height: 100%;
-  max-width: 90%;
+  height: auto;
+  max-height: 95%;
+  max-width: 100%;
   object-fit: contain;
+  object-position: bottom right;
   z-index: 5;
   border: none;
   background: transparent;

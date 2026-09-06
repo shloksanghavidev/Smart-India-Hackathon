@@ -1525,11 +1525,8 @@ if (entities.location) {
         `</div>`;
     }
 
-    const qLabel = getLocalizedText('Question', 'Question');
-    const ofLabel = getLocalizedText('of', 'of');
     const listenLabel = getLocalizedText('listen', 'Listen');
     const backLabel = getLocalizedText('back', 'Back');
-    const helpLabel = getLocalizedText('need_help', 'Need Help?');
     
     const localizedQuestion = getLocalizedText(q.text, q.text);
     const localizedSubtitle = getLocalizedText(q.subtitle || '', q.subtitle || '');
@@ -1538,15 +1535,11 @@ if (entities.location) {
 
     container.innerHTML = `
       <div class="ms-kiosk-split">
-        <!-- LEFT COLUMN: CONTEXT, HEADLINE, PROGRESS -->
+        <!-- LEFT COLUMN: CONTEXT & HEADLINE -->
         <div class="ms-kiosk-left">
           <div class="ms-eyebrow">
             <span style="color:var(--orange);font-weight:800;">●</span>
-            ${localizedIntent.toUpperCase()} · ${qLabel.toUpperCase()} ${current} ${ofLabel.toUpperCase()} ${total}
-          </div>
-          
-          <div class="aq-progress-bar-wrap" style="margin:8px 0 20px;">
-            <div class="aq-progress-fill" style="width:${(current/total)*100}%;"></div>
+            ${localizedIntent.toUpperCase()}
           </div>
 
           <h2 class="ms-headline" id="aq-q-text">
@@ -1563,7 +1556,6 @@ if (entities.location) {
 
           <div class="ms-nav" style="margin-top:40px;padding-top:18px;">
             <button class="btn-ghost" onclick="App.prevAQ()"><i class="fa-solid fa-arrow-left"></i> ${backLabel}</button>
-            <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> ${helpLabel}</button>
           </div>
         </div>
 
@@ -1880,12 +1872,10 @@ if (entities.location) {
     const container = document.getElementById('ayush-container');
     if (!container) return;
 
-    const ayushQLabel = getLocalizedText('AYUSH Question', 'AYUSH Question');
-    const ofLabel = getLocalizedText('of', 'of');
+    const ayushAssessmentLabel = getLocalizedText('AYUSH Assessment', 'AYUSH Assessment');
     const listenLabel = getLocalizedText('listen', 'Listen');
     const backLabel = getLocalizedText('back', 'Back');
     const skipLabel = getLocalizedText('Skip for now', 'Skip for now');
-    const helpLabel = getLocalizedText('need_help', 'Need Help?');
     
     const localizedQuestion = getLocalizedText(q.text, q.text);
     const localizedSubtitle = getLocalizedText(q.subtitle || '', q.subtitle || '');
@@ -1925,11 +1915,7 @@ if (entities.location) {
         <div class="ms-kiosk-left">
           <div class="ms-eyebrow">
             <span style="color:#059669;font-weight:800;">🌿</span>
-            ${ayushQLabel.toUpperCase()} · ${current} ${ofLabel.toUpperCase()} ${total}
-          </div>
-
-          <div class="aq-progress-bar-wrap" style="margin:8px 0 20px;">
-            <div class="aq-progress-fill" style="width:${(current/total)*100}%;background:#059669;"></div>
+            ${ayushAssessmentLabel.toUpperCase()}
           </div>
 
           <h2 class="ms-headline" id="ayush-q-text">
@@ -1949,7 +1935,6 @@ if (entities.location) {
 
           <div class="ms-nav" style="margin-top:40px;padding-top:18px;">
             <button class="btn-ghost" onclick="App.prevAyush()"><i class="fa-solid fa-arrow-left"></i> ${backLabel}</button>
-            <button class="btn-help-link" onclick="App.toggleHelpModal()"><i class="fa-solid fa-circle-question"></i> ${helpLabel}</button>
           </div>
         </div>
 
