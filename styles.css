@@ -1416,7 +1416,7 @@ body:has(#step-2:not([style*="none"])) .ms-header {
     width: min(1200px, calc(100% - clamp(48px, 6vw, 96px)));
     margin: 0 auto;
     top: clamp(64px, 9vh, 88px);
-    bottom: 0;
+    bottom: clamp(60px, 8vh, 76px);
     transform: none;
 
     display: grid;
@@ -1792,6 +1792,7 @@ body:has(#step-2:not([style*="none"])) .ms-header {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: space-between;
     overflow-y: auto;
     overflow-x: hidden;
@@ -1801,18 +1802,24 @@ body:has(#step-2:not([style*="none"])) .ms-header {
     position: relative;
     top: auto;
     left: auto;
-    padding: clamp(14px, 3vh, 20px) clamp(16px, 4vw, 32px) 0;
+    padding: clamp(16px, 3vh, 24px) clamp(16px, 4vw, 32px) 0;
     width: 100%;
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
+    text-align: center;
     gap: 12px;
     z-index: 10;
   }
 
+  .ms-home-brand-name,
+  .ms-home-brand-sub {
+    text-align: center;
+  }
+
   .ms-home-topline {
-    display: none;
+    display: none !important;
   }
 
   .ms-home-content {
@@ -1820,39 +1827,117 @@ body:has(#step-2:not([style*="none"])) .ms-header {
     top: auto;
     bottom: auto;
     transform: none;
-    width: calc(100% - 64px);
-    max-width: 640px;
-    margin: 20px auto 0;
+    width: calc(100% - 48px);
+    max-width: 540px;
+    margin: 16px auto 0;
     left: 0;
     right: 0;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
     padding: 0;
-    gap: 24px;
+    gap: 18px;
     flex: 1;
+    box-sizing: border-box;
   }
 
   .ms-home-copy {
-    align-self: auto;
-    margin-bottom: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+  }
+
+  .ms-home-kicker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0 auto 10px;
+    text-align: center;
+  }
+
+  .ms-home-kicker::before {
+    display: inline-block;
+  }
+
+  .ms-home-copy h1 {
+    text-align: center;
+    font-size: clamp(30px, 6.5vw, 44px);
+    line-height: 1.08;
+    margin: 0 auto;
+    width: 100%;
+    word-break: break-word;
+  }
+
+  .ms-home-copy p {
+    text-align: center;
+    margin: 12px auto 0;
+    font-size: clamp(14px, 3.5vw, 16px);
+    max-width: 440px;
+    line-height: 1.45;
+  }
+
+  .ms-home-start {
+    margin: 20px auto 0;
+    width: 100%;
+    max-width: 290px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    box-sizing: border-box;
+  }
+
+  .ms-home-inputs {
+    margin: 16px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .ms-home-trust {
+    margin: 16px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    flex-wrap: wrap;
   }
 
   .ms-medical-visual {
-    height: clamp(260px, 40vh, 380px);
+    height: clamp(240px, 36vh, 340px);
     width: 100%;
-    max-width: 520px;
-    margin: 16px auto 0;
+    max-width: 480px;
+    margin: 14px auto 0;
     position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
     overflow: visible;
   }
 
   .ms-medical-hero-image {
-    right: auto;
-    left: 50%;
-    top: auto;
-    transform: translateX(-50%);
+    position: absolute;
     bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    top: auto;
+    right: auto;
     height: 100%;
-    max-width: 92%;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: bottom center;
   }
 
   .ms-home-footer {
@@ -1861,16 +1946,25 @@ body:has(#step-2:not([style*="none"])) .ms-header {
     left: 0;
     right: 0;
     height: auto;
-    width: calc(100% - 64px);
-    max-width: 640px;
-    margin: 28px auto 20px;
+    width: calc(100% - 48px);
+    max-width: 580px;
+    margin: 22px auto 16px;
     padding: 0;
-    background: transparent;
-    border: none;
+    background: transparent !important;
+    border: none !important;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px 24px;
+    gap: 12px 16px;
     box-sizing: border-box;
+  }
+
+  .ms-benefit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+    white-space: normal;
   }
 
   /* Doctor Portal Grid Stack */
@@ -1944,6 +2038,7 @@ body:has(#step-2:not([style*="none"])) .ms-header {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    align-items: center;
     overflow-x: hidden;
   }
 
@@ -1951,12 +2046,13 @@ body:has(#step-2:not([style*="none"])) .ms-header {
     position: relative;
     top: auto;
     left: auto;
-    padding: 16px 20px 0;
+    padding: 14px 16px 0;
     width: 100%;
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
+    text-align: center;
     gap: 10px;
   }
 
@@ -1971,10 +2067,12 @@ body:has(#step-2:not([style*="none"])) .ms-header {
 
   .ms-home-brand-name {
     font-size: 20px;
+    text-align: center;
   }
 
   .ms-home-brand-sub {
     font-size: 9px;
+    text-align: center;
   }
 
   .ms-home-content {
@@ -1984,37 +2082,59 @@ body:has(#step-2:not([style*="none"])) .ms-header {
     width: calc(100% - 32px);
     max-width: 100%;
     padding: 0;
-    margin: 16px auto 0;
+    margin: 12px auto 0;
     left: 0;
     right: 0;
-    grid-template-columns: 1fr;
-    gap: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
     box-sizing: border-box;
   }
 
+  .ms-home-copy {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ms-home-kicker {
+    justify-content: center;
+    margin-bottom: 6px;
+  }
+
   .ms-home-copy h1 {
-    font-size: clamp(28px, 7.5vw, 40px);
-    line-height: 1.05;
+    font-size: clamp(26px, 7.5vw, 36px);
+    line-height: 1.06;
+    text-align: center;
   }
 
   .ms-home-copy p {
-    font-size: 14px;
-    margin-top: 10px;
-    line-height: 1.45;
+    font-size: 13.5px;
+    margin-top: 8px;
+    line-height: 1.4;
+    text-align: center;
   }
 
   .ms-home-start {
     width: 100%;
-    max-width: 320px;
+    max-width: 280px;
     height: 48px;
     font-size: 14px;
-    margin-top: 18px;
+    margin: 16px auto 0;
+    justify-content: center;
+    align-self: center;
+    box-sizing: border-box;
   }
 
   .ms-home-inputs {
-    margin-top: 16px;
+    margin-top: 12px;
     gap: 8px 12px;
-    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
   }
 
   .ms-home-inputs > div:not(.ms-home-divider) {
@@ -2022,16 +2142,20 @@ body:has(#step-2:not([style*="none"])) .ms-header {
   }
 
   .ms-home-trust {
-    margin-top: 16px;
+    margin-top: 12px;
     gap: 6px 10px;
     font-size: 10px;
-    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
   }
 
   .ms-medical-visual {
-    height: clamp(240px, 35vh, 310px);
+    height: clamp(210px, 32vh, 280px);
     width: 100%;
-    margin-top: 12px;
+    margin-top: 10px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
   }
 
   .ms-medical-hero-image {
@@ -2064,32 +2188,36 @@ body:has(#step-2:not([style*="none"])) .ms-header {
     left: 0;
     right: 0;
     height: auto;
-    margin-top: 24px;
+    margin-top: 18px;
+    margin-bottom: 14px;
     padding: 0;
     width: calc(100% - 32px);
     background: transparent !important;
     border: none !important;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px 14px;
+    gap: 10px 12px;
     box-sizing: border-box;
   }
 
   .ms-benefit {
     white-space: normal;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
     gap: 2px;
   }
 
   .ms-benefit strong {
     font-size: 11px;
     line-height: 1.2;
+    text-align: center;
   }
 
   .ms-benefit span {
     font-size: 10px;
     line-height: 1.2;
+    text-align: center;
   }
 }
 
