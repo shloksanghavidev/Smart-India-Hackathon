@@ -765,6 +765,7 @@ const App = window.App = {
     else if (this.currentScreen === 17) this.showAyushQuestion();
     else if (this.currentScreen === 16) this.renderAyushSummary();
     else if (this.currentScreen === 12) this.updateSummaryCard();
+    else if (this.currentScreen === 21 && this.lastLoadedPatient) this.loadExistingPatientData(this.lastLoadedPatient);
   },
 
   selectLanguageAndContinue(langCode) {
@@ -999,6 +1000,7 @@ const App = window.App = {
   },
 
   loadExistingPatientData(p) {
+    this.lastLoadedPatient = p;
     this.state = {
       ...this.state,
       fullName: p.name || p.fullName || 'Ramesh Patel',
@@ -1022,19 +1024,19 @@ const App = window.App = {
     if (exDemo) exDemo.textContent = `${this.state.age} / ${getLocalizedText(this.state.gender, this.state.gender)} · ID: ${this.state.patientId}`;
 
     const exVisit = document.getElementById('ex-history-last-visit');
-    if (exVisit) exVisit.textContent = p.lastVisit || '12 Jul 2026';
+    if (exVisit) exVisit.textContent = p.lastVisit ? getLocalizedText(p.lastVisit, p.lastVisit) : '12 Jul 2026';
 
     const exMobile = document.getElementById('ex-history-mobile');
-    if (exMobile) exMobile.textContent = this.state.mobile || 'Not provided';
+    if (exMobile) exMobile.textContent = this.state.mobile || getLocalizedText('Not provided', 'Not provided');
 
     const exMed = document.getElementById('ex-history-medical');
-    if (exMed) exMed.textContent = this.state.medicalHistory || 'None';
+    if (exMed) exMed.textContent = getLocalizedText(this.state.medicalHistory, this.state.medicalHistory || 'None');
 
     const exAllergies = document.getElementById('ex-history-allergies');
-    if (exAllergies) exAllergies.textContent = this.state.allergies || 'None';
+    if (exAllergies) exAllergies.textContent = getLocalizedText(this.state.allergies, this.state.allergies || 'None');
 
     const exMeds = document.getElementById('ex-history-meds');
-    if (exMeds) exMeds.textContent = this.state.medications || 'None';
+    if (exMeds) exMeds.textContent = getLocalizedText(this.state.medications, this.state.medications || 'None');
 
     // Populate previous consultations history list
     const listContainer = document.getElementById('previous-consultations-list');
@@ -1049,26 +1051,26 @@ const App = window.App = {
         listContainer.innerHTML = pastConsultations.map(c => `
           <div style="background:var(--sand-light);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-              <strong style="color:var(--teal-deepest);font-size:0.92rem;">${c.chiefComplaint || 'General Consultation'}</strong>
+              <strong style="color:var(--teal-deepest);font-size:0.92rem;">${getLocalizedText(c.chiefComplaint, c.chiefComplaint || 'General Consultation')}</strong>
               <span style="font-size:0.75rem;color:var(--text-muted);">${c.time || '12 Jul 2026'}</span>
             </div>
             <p style="font-size:0.82rem;color:var(--text-sub);margin:0;">
-              ${c.summary ? (c.summary.problem ? 'Problem: ' + c.summary.problem + ' · ' : '') + (c.summary.duration ? 'Duration: ' + c.summary.duration : '') : 'Previous OPD consultation record'}
+              ${c.summary ? (c.summary.problem ? getLocalizedText('Problem', 'Problem') + ': ' + getLocalizedText(c.summary.problem, c.summary.problem) + ' · ' : '') + (c.summary.duration ? getLocalizedText('Duration', 'Duration') + ': ' + getLocalizedText(c.summary.duration, c.summary.duration) : '') : getLocalizedText('Previous OPD consultation record', 'Previous OPD consultation record')}
             </p>
-            ${c.doctorNotes ? `<p style="font-size:0.78rem;color:var(--teal-deep);margin-top:4px;font-style:italic;">Doctor note: ${c.doctorNotes}</p>` : ''}
+            ${c.doctorNotes ? `<p style="font-size:0.78rem;color:var(--teal-deep);margin-top:4px;font-style:italic;">${getLocalizedText('Doctor note', 'Doctor note')}: ${getLocalizedText(c.doctorNotes, c.doctorNotes)}</p>` : ''}
           </div>
         `).join('');
       } else {
         listContainer.innerHTML = `
           <div style="background:var(--sand-light);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-              <strong style="color:var(--teal-deepest);font-size:0.92rem;">Stomach Pain (Abdominal Cramps)</strong>
+              <strong style="color:var(--teal-deepest);font-size:0.92rem;">${getLocalizedText('Stomach Pain (Abdominal Cramps)', 'Stomach Pain (Abdominal Cramps)')}</strong>
               <span style="font-size:0.75rem;color:var(--text-muted);">12 Jul 2026</span>
             </div>
             <p style="font-size:0.82rem;color:var(--text-sub);margin:0;">
-              Duration: 1 – 3 days · Severity: Moderate · Location: Around Navel
+              ${getLocalizedText('Duration', 'Duration')}: ${getLocalizedText('1 – 3 days', '1 – 3 days')} · ${getLocalizedText('Severity', 'Severity')}: ${getLocalizedText('Moderate', 'Moderate')} · ${getLocalizedText('Location', 'Location')}: ${getLocalizedText('Around Navel', 'Around Navel')}
             </p>
-            <p style="font-size:0.78rem;color:var(--teal-deep);margin-top:4px;font-style:italic;">Doctor note: Suspected acute gastritis. Prescribed Pantoprazole & Drotin.</p>
+            <p style="font-size:0.78rem;color:var(--teal-deep);margin-top:4px;font-style:italic;">${getLocalizedText('Doctor note', 'Doctor note')}: ${getLocalizedText('Suspected acute gastritis. Prescribed Pantoprazole & Drotin.', 'Suspected acute gastritis. Prescribed Pantoprazole & Drotin.')}</p>
           </div>
         `;
       }
