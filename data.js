@@ -20,30 +20,6 @@ const DEMO_DATA = {
         { date: "12 Jul 2026", summary: "Hypertension follow-up. BP 135/88. Prescribed Amlodipine." },
         { date: "02 Apr 2026", summary: "Seasonal fever. Paracetamol prescribed. Resolved." }
       ]
-    },
-    {
-      id: "MS1002",
-      aadhaar: "123456789012",
-      name: "Sita Devi",
-      age: 32,
-      gender: "Female",
-      mobile: "+91 94123 87654",
-      lastVisit: "02 Jun 2026",
-      medicalHistory: "Thyroid Hypothyroidism",
-      allergies: "Dust / Pollen",
-      medications: "Thyronorm 50mcg"
-    },
-    {
-      id: "MS1003",
-      aadhaar: "555566667777",
-      name: "Arjun Singh",
-      age: 28,
-      gender: "Male",
-      mobile: "+91 91234 56789",
-      lastVisit: "18 May 2026",
-      medicalHistory: "None known",
-      allergies: "None",
-      medications: "None"
     }
   ],
 
@@ -95,84 +71,6 @@ const DEMO_DATA = {
         { name: "Tab Drotin 80mg", dosage: "1 Tab", frequency: "1-0-1", duration: "3 days", instructions: "After food if pain occurs" }
       ],
       doctorNotes: "Patient presents with epigastric/umbilical tenderness for 2 days. Suspected acute gastritis. Recommended mild dietary modifications."
-    },
-    {
-      id: "MS1002",
-      name: "Sita Devi",
-      age: 32,
-      gender: "Female",
-      time: "09:30 AM",
-      status: "Waiting",
-      chiefComplaint: "Cough / Cold",
-      summary: {
-        problem: "Cough & Cold",
-        duration: "4 – 7 days",
-        severity: "Mild",
-        location: "Chest / Throat",
-        coughType: "Dry Cough",
-        breathingDifficulty: "No",
-        medicalHistory: "Hypothyroidism",
-        medications: "Thyronorm 50mcg",
-        allergies: "Dust / Pollen"
-      },
-      ayush: { completed: false },
-      reports: [],
-      conversationLog: [
-        { sender: "MediSarthi", text: "How long have you had this cough?", time: "09:31 AM" },
-        { sender: "Patient", text: "Khansi 5 din se hai.", time: "09:31 AM" }
-      ],
-      prescriptions: [],
-      doctorNotes: ""
-    },
-    {
-      id: "MS1003",
-      name: "Arjun Singh",
-      age: 28,
-      gender: "Male",
-      time: "09:45 AM",
-      status: "In Consultation",
-      chiefComplaint: "Fever & Chills",
-      summary: {
-        problem: "Fever & Chills",
-        duration: "1 – 3 days",
-        severity: "Severe",
-        location: "Whole Body",
-        temp: "101.2 °F",
-        chills: "Yes",
-        medicalHistory: "None known",
-        medications: "None",
-        allergies: "None"
-      },
-      ayush: { completed: true, sleep: "Disturbed", diet: "Non-Vegetarian", routine: "Night shifts" },
-      reports: [{ title: "CBC & Dengue NS1", date: "01 Sep 2026", type: "pdf", fileUrl: "#" }],
-      conversationLog: [],
-      prescriptions: [
-        { name: "Tab Paracetamol 650mg", dosage: "1 Tab", frequency: "1-1-1", duration: "3 days", instructions: "After food" }
-      ],
-      doctorNotes: "Viral pyrexia. Hydration recommended."
-    },
-    {
-      id: "MS1004",
-      name: "Meena Kumari",
-      age: 54,
-      gender: "Female",
-      time: "08:50 AM",
-      status: "Completed",
-      chiefComplaint: "Headache",
-      summary: {
-        problem: "Frontal Headache",
-        duration: "Less than 1 day",
-        severity: "Moderate",
-        location: "Forehead / Front",
-        medicalHistory: "Diabetes Type 2",
-        medications: "Metformin 500mg",
-        allergies: "Sulfa drugs"
-      },
-      ayush: { completed: false },
-      reports: [],
-      conversationLog: [],
-      prescriptions: [],
-      doctorNotes: "Tension headache secondary to fatigue."
     }
   ]
 };

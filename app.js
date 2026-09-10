@@ -461,24 +461,50 @@ const App = window.App = {
 
   // ── LOCAL STORAGE PATIENT QUEUE PERSISTENCE ─────────────────────────────
   getStoredQueue() {
+    const LEGACY_IDS = ['MS1002', 'MS1003', 'MS1004'];
+    const LEGACY_AADHAARS = ['123456789012', '555566667777'];
+
     try {
       const stored = localStorage.getItem('medisarthi_patient_queue');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          parsed.forEach(p => {
-            if (p.id === 'MS1001' || p.aadhaar === '987654321098' || p.name === 'Ramesh Patil') {
-              p.aadhaar = '123456789101';
-              p.name = 'Ramesh Patel';
-            }
-          });
-          return parsed;
+      let parsed = stored ? JSON.parse(stored) : null;
+
+      if (Array.isArray(parsed)) {
+        // Filter out legacy demo records strictly by ID and legacy Aadhaars
+        parsed = parsed.filter(p => {
+          if (!p) return false;
+          const cleanAadhaar = (p.aadhaar || '').replace(/\D/g, '');
+          if (LEGACY_IDS.includes(p.id)) return false;
+          if (cleanAadhaar && LEGACY_AADHAARS.includes(cleanAadhaar)) return false;
+          return true;
+        });
+
+        // Ensure Ramesh Patel is present & intact without altering his existing consultation status
+        let ramesh = parsed.find(p => p.id === 'MS1001' || (p.aadhaar && p.aadhaar.replace(/\D/g, '') === '123456789101'));
+        if (!ramesh) {
+          if (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.patientQueue && DEMO_DATA.patientQueue[0]) {
+            ramesh = JSON.parse(JSON.stringify(DEMO_DATA.patientQueue[0]));
+            parsed.unshift(ramesh);
+          }
+        } else {
+          ramesh.id = 'MS1001';
+          ramesh.aadhaar = '123456789101';
+          ramesh.name = 'Ramesh Patel';
         }
+
+        // Migrate any non-Ramesh legacy 'Pending' status to 'Waiting'
+        parsed.forEach(p => {
+          if (p.id !== 'MS1001' && p.status === 'Pending') {
+            p.status = 'Waiting';
+          }
+        });
+
+        this.saveStoredQueue(parsed);
+        return parsed;
       }
     } catch (e) {
       console.error("Error reading stored patient queue:", e);
     }
-    // Seed with DEMO_DATA.patientQueue if localStorage key does not exist
+
     if (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.patientQueue) {
       this.saveStoredQueue(DEMO_DATA.patientQueue);
       return DEMO_DATA.patientQueue;
@@ -893,45 +919,47 @@ const App = window.App = {
   },
 
   getStoredExistingPatients() {
+    const LEGACY_IDS = ['MS1002', 'MS1003', 'MS1004'];
+    const LEGACY_AADHAARS = ['123456789012', '555566667777'];
+
     try {
       const stored = localStorage.getItem('medisarthi_existing_patients');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          parsed.forEach(p => {
-            if (p.id === 'MS1001' || p.aadhaar === '987654321098' || p.name === 'Ramesh Patil') {
-              p.aadhaar = '123456789101';
-              p.name = 'Ramesh Patel';
-              p.previousVisits = p.previousVisits || [
-                { date: "12 Jul 2026", summary: "Hypertension follow-up. BP 135/88. Prescribed Amlodipine." },
-                { date: "02 Apr 2026", summary: "Seasonal fever. Paracetamol prescribed. Resolved." }
-              ];
-            }
-          });
-          return parsed;
+      let parsed = stored ? JSON.parse(stored) : null;
+
+      if (Array.isArray(parsed)) {
+        // Filter out legacy demo records strictly by ID and legacy Aadhaars
+        parsed = parsed.filter(p => {
+          if (!p) return false;
+          const cleanAadhaar = (p.aadhaar || '').replace(/\D/g, '');
+          if (LEGACY_IDS.includes(p.id)) return false;
+          if (cleanAadhaar && LEGACY_AADHAARS.includes(cleanAadhaar)) return false;
+          return true;
+        });
+
+        // Ensure Ramesh Patel is present & intact
+        let ramesh = parsed.find(p => p.id === 'MS1001' || (p.aadhaar && p.aadhaar.replace(/\D/g, '') === '123456789101'));
+        if (ramesh) {
+          ramesh.id = 'MS1001';
+          ramesh.aadhaar = '123456789101';
+          ramesh.name = 'Ramesh Patel';
+          ramesh.previousVisits = ramesh.previousVisits || [
+            { date: "12 Jul 2026", summary: "Hypertension follow-up. BP 135/88. Prescribed Amlodipine." },
+            { date: "02 Apr 2026", summary: "Seasonal fever. Paracetamol prescribed. Resolved." }
+          ];
+        } else {
+          if (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.existingPatients && DEMO_DATA.existingPatients[0]) {
+            parsed.unshift(JSON.parse(JSON.stringify(DEMO_DATA.existingPatients[0])));
+          }
         }
+
+        this.saveStoredExistingPatients(parsed);
+        return parsed;
       }
     } catch (e) {
       console.error("Error reading stored existing patients:", e);
     }
-    const defaultList = (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.existingPatients) ? DEMO_DATA.existingPatients : [
-      {
-        id: "MS1001",
-        aadhaar: "123456789101",
-        name: "Ramesh Patel",
-        age: 45,
-        gender: "Male",
-        mobile: "+91 98201 54321",
-        lastVisit: "12 Jul 2026",
-        medicalHistory: "Mild Hypertension (on Amlodipine 5mg)",
-        allergies: "Penicillin",
-        medications: "Amlodipine 5mg OD",
-        previousVisits: [
-          { date: "12 Jul 2026", summary: "Hypertension follow-up. BP 135/88. Prescribed Amlodipine." },
-          { date: "02 Apr 2026", summary: "Seasonal fever. Paracetamol prescribed. Resolved." }
-        ]
-      }
-    ];
+
+    const defaultList = (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.existingPatients) ? DEMO_DATA.existingPatients : [];
     this.saveStoredExistingPatients(defaultList);
     return defaultList;
   },
@@ -958,12 +986,12 @@ const App = window.App = {
     const queueMatch = queue.find(p => p.aadhaar && p.aadhaar.replace(/\D/g, '') === cleanAadhaar);
     if (queueMatch) {
       return {
-        id: queueMatch.id || 'MS1001',
+        id: queueMatch.id,
         aadhaar: cleanAadhaar,
-        name: queueMatch.name || 'Ramesh Patel',
-        age: queueMatch.age || 45,
-        gender: queueMatch.gender || 'Male',
-        mobile: queueMatch.mobile || '+91 98201 54321',
+        name: queueMatch.name || 'Patient',
+        age: queueMatch.age || 0,
+        gender: queueMatch.gender || 'Not specified',
+        mobile: queueMatch.mobile || '',
         lastVisit: queueMatch.time || 'Recent',
         medicalHistory: queueMatch.summary?.medicalHistory || queueMatch.medicalHistory || 'None known',
         allergies: queueMatch.summary?.allergies || queueMatch.allergies || 'None',
@@ -974,22 +1002,24 @@ const App = window.App = {
 
     // 3. Fallback for Ramesh Patel demo Aadhaar (123456789101)
     if (cleanAadhaar === '123456789101') {
-      return {
-        id: "MS1001",
-        aadhaar: "123456789101",
-        name: "Ramesh Patel",
-        age: 45,
-        gender: "Male",
-        mobile: "+91 98201 54321",
-        lastVisit: "12 Jul 2026",
-        medicalHistory: "Mild Hypertension (on Amlodipine 5mg)",
-        allergies: "Penicillin",
-        medications: "Amlodipine 5mg OD",
-        previousVisits: [
-          { date: "12 Jul 2026", summary: "Hypertension follow-up. BP 135/88. Prescribed Amlodipine." },
-          { date: "02 Apr 2026", summary: "Seasonal fever. Paracetamol prescribed. Resolved." }
-        ]
-      };
+      return (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.existingPatients && DEMO_DATA.existingPatients[0])
+        ? DEMO_DATA.existingPatients[0]
+        : {
+            id: "MS1001",
+            aadhaar: "123456789101",
+            name: "Ramesh Patel",
+            age: 45,
+            gender: "Male",
+            mobile: "+91 98201 54321",
+            lastVisit: "12 Jul 2026",
+            medicalHistory: "Mild Hypertension (on Amlodipine 5mg)",
+            allergies: "Penicillin",
+            medications: "Amlodipine 5mg OD",
+            previousVisits: [
+              { date: "12 Jul 2026", summary: "Hypertension follow-up. BP 135/88. Prescribed Amlodipine." },
+              { date: "02 Apr 2026", summary: "Seasonal fever. Paracetamol prescribed. Resolved." }
+            ]
+          };
     }
 
     return null;
@@ -2358,10 +2388,13 @@ if (entities.location) {
         // 3. Create the patient record
         // -------------------------------------------------
 
+        const generatedId = (this.state.patientId && this.state.patientId !== 'MS1001')
+          ? this.state.patientId
+          : ('MS' + Math.floor(1002 + Math.random() * 8998));
+
         const newQueuePatient = {
 
-            id: this.state.patientId ||
-               ('MS' + Math.floor(1000 + Math.random() * 9000)),
+            id: generatedId,
 
             aadhaar: this.state.aadhaar || '',
 
@@ -2375,7 +2408,7 @@ if (entities.location) {
 
             time: this.nowTime(),
 
-            status: 'Pending',
+            status: 'Waiting',
 
             token: tokenNumber,
 
@@ -2415,7 +2448,9 @@ if (entities.location) {
 
             prescriptions: [],
 
-            doctorNotes: ''
+            doctorNotes: '',
+
+            previousVisits: []
         };
 
 
@@ -2610,25 +2645,28 @@ if (entities.location) {
   renderDoctorQueue() {
     const queueList = document.getElementById('doc-queue-list');
     if (!queueList) return;
+    const queue = this.getStoredQueue();
+    if (typeof DEMO_DATA !== 'undefined') {
+      DEMO_DATA.patientQueue = queue;
+    }
     const statusColor = { 'Completed':'#10b981','In Consultation':'#0284c7','Waiting':'#f59e0b','Pending':'#f59e0b' };
-    queueList.innerHTML = DEMO_DATA.patientQueue.map(p => `
+    queueList.innerHTML = queue.map(p => `
       <div class="queue-patient-card ${this.activeDoctorPatient?.id === p.id ? 'active' : ''}" onclick="App.selectDoctorPatient('${p.id}')">
         <div style="display:flex;justify-content:space-between;font-weight:700;">
           <span>${p.name}</span>
           <span style="font-size:0.75rem;background:${statusColor[p.status]||'#94a3b8'};color:white;padding:2px 8px;border-radius:99px;">${p.status}</span>
         </div>
         <div style="font-size:0.83rem;color:var(--text-muted);margin-top:4px;">
-          ${p.age}y ${p.gender[0]} · ${p.chiefComplaint} · ${p.time}
+          ${p.age}y ${(p.gender || 'M')[0]} · ${p.chiefComplaint || 'Consultation'} · ${p.time || ''}
         </div>
       </div>
     `).join('');
     // Update stat cards
-    const q = DEMO_DATA.patientQueue;
     const setStatEl = (id, val) => { const e = document.getElementById(id); if(e) e.innerText = val; };
-    setStatEl('stat-total', q.length);
-    setStatEl('stat-waiting', q.filter(p=>p.status==='Waiting' || p.status==='Pending').length);
-    setStatEl('stat-consulting', q.filter(p=>p.status==='In Consultation').length);
-    setStatEl('stat-completed', q.filter(p=>p.status==='Completed').length);
+    setStatEl('stat-total', queue.length);
+    setStatEl('stat-waiting', queue.filter(p=>p.status==='Waiting'||p.status==='Pending').length);
+    setStatEl('stat-consulting', queue.filter(p=>p.status==='In Consultation').length);
+    setStatEl('stat-completed', queue.filter(p=>p.status==='Completed').length);
   },
 
   filterPatientQueue(q) {
@@ -2639,12 +2677,16 @@ if (entities.location) {
   },
 
   selectDoctorPatient(patientId) {
-    const p = DEMO_DATA.patientQueue.find(item => item.id === patientId) || DEMO_DATA.patientQueue[0];
+    const queue = this.getStoredQueue();
+    const p = queue.find(item => item.id === patientId) || queue[0];
     if (!p) return;
 
     if (p.status === 'Waiting') {
       p.status = 'In Consultation';
-      this.saveStoredQueue(DEMO_DATA.patientQueue);
+      this.saveStoredQueue(queue);
+      if (typeof DEMO_DATA !== 'undefined') {
+        DEMO_DATA.patientQueue = queue;
+      }
     }
 
     this.activeDoctorPatient = p;
@@ -2663,16 +2705,19 @@ if (entities.location) {
     // Render Previous Hospital Visits dynamically from patient record data or queue history
     const prevVisitsBox = document.getElementById('doc-previous-visits-list');
     if (prevVisitsBox) {
-      const storedPatients = this.getStoredExistingPatients();
-      const cleanAadhaar = (p.aadhaar || '').replace(/\D/g, '');
-      const existingRecord = storedPatients.find(item =>
-        (item.id && item.id === p.id) ||
-        (item.aadhaar && cleanAadhaar && item.aadhaar.replace(/\D/g, '') === cleanAadhaar)
-      );
+      let visits = p.previousVisits;
+      if (!visits) {
+        // Look up only if this patient matches an existing record in stored patients
+        const storedPatients = this.getStoredExistingPatients();
+        const cleanAadhaar = (p.aadhaar || '').replace(/\D/g, '');
+        const existingRecord = storedPatients.find(item =>
+          (item.id && item.id === p.id) ||
+          (item.aadhaar && cleanAadhaar && item.aadhaar.replace(/\D/g, '') === cleanAadhaar)
+        );
+        visits = existingRecord?.previousVisits || [];
+      }
 
-      const visits = p.previousVisits || existingRecord?.previousVisits || [];
-
-      if (visits.length > 0) {
+      if (visits && visits.length > 0) {
         prevVisitsBox.innerHTML = visits.map(v => `
           <div style="border-left:3px solid var(--teal-primary);padding:6px 10px;margin-bottom:6px;background:var(--bg-kiosk);border-radius:0 var(--radius-xs) var(--radius-xs) 0;">
             <strong style="color:var(--teal-deep);">${v.date}</strong> — ${v.summary}
@@ -2796,7 +2841,15 @@ if (entities.location) {
     ['rx-name','rx-dosage','rx-freq','rx-duration','rx-instructions'].forEach(id => {
       const el = document.getElementById(id); if(el) el.value = '';
     });
-    this.saveStoredQueue(DEMO_DATA.patientQueue);
+    const queue = this.getStoredQueue();
+    const matchIdx = queue.findIndex(item => item.id === this.activeDoctorPatient.id);
+    if (matchIdx >= 0) {
+      queue[matchIdx] = this.activeDoctorPatient;
+    }
+    this.saveStoredQueue(queue);
+    if (typeof DEMO_DATA !== 'undefined') {
+      DEMO_DATA.patientQueue = queue;
+    }
     this.renderPrescriptionsList();
     this.showNotification(`✅ "${name}" added to prescription.`);
   },
@@ -2807,7 +2860,15 @@ if (entities.location) {
       this.activeDoctorPatient.status = "Completed";
       const notesEl = document.getElementById('doc-notes-textarea');
       if (notesEl) this.activeDoctorPatient.doctorNotes = notesEl.value;
-      this.saveStoredQueue(DEMO_DATA.patientQueue);
+      const queue = this.getStoredQueue();
+      const matchIdx = queue.findIndex(item => item.id === this.activeDoctorPatient.id);
+      if (matchIdx >= 0) {
+        queue[matchIdx] = this.activeDoctorPatient;
+      }
+      this.saveStoredQueue(queue);
+      if (typeof DEMO_DATA !== 'undefined') {
+        DEMO_DATA.patientQueue = queue;
+      }
       this.renderDoctorQueue();
       this.selectDoctorPatient(this.activeDoctorPatient.id);
       this.showNotification(`✅ Consultation for ${this.activeDoctorPatient.name} marked as Completed.`);
