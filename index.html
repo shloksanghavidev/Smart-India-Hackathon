@@ -275,8 +275,7 @@
         <div class="ms-kiosk-right">
           <div style="background:#FFFFFF;border:1.5px solid var(--border);border-radius:var(--radius);padding:24px;">
             <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--teal-deep);margin-bottom:8px;">12-Digit Aadhaar Number</label>
-            <input type="text" id="aadhaar-input" class="ms-input ms-input-lg" maxlength="14" placeholder="•••• •••• ••••" data-i18n-placeholder="enter_aadhaar_placeholder" oninput="App.formatAadhaarInput(this)" style="margin-bottom:12px;">
-            <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:20px;">Demo auto-fill: 9876 5432 1098 (Ramesh Patel) or scan QR code</p>
+            <input type="text" id="aadhaar-input" class="ms-input ms-input-lg" maxlength="14" placeholder="•••• •••• ••••" data-i18n-placeholder="enter_aadhaar_placeholder" oninput="App.formatAadhaarInput(this)" style="margin-bottom:20px;">
 
             <div style="display:flex;gap:12px;">
               <button class="btn-primary" style="flex:1;" onclick="App.validateAadhaarAndContinue()">

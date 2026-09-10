@@ -466,6 +466,12 @@ const App = window.App = {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
+          parsed.forEach(p => {
+            if (p.id === 'MS1001' || p.aadhaar === '987654321098' || p.name === 'Ramesh Patil') {
+              p.aadhaar = '123456789101';
+              p.name = 'Ramesh Patel';
+            }
+          });
           return parsed;
         }
       }
@@ -873,8 +879,8 @@ const App = window.App = {
     setTimeout(() => {
       if (overlay) overlay.style.display = 'none';
       const input = document.getElementById('aadhaar-input');
-      if (input) input.value = "9876 5432 1098";
-      this.state.aadhaar = "987654321098";
+      if (input) input.value = "1234 5678 9101";
+      this.state.aadhaar = "123456789101";
       this.showNotification("✅ Aadhaar QR scanned successfully!");
       setTimeout(() => this.validateAadhaarAndContinue(), 700);
     }, 2500);
@@ -891,7 +897,19 @@ const App = window.App = {
       const stored = localStorage.getItem('medisarthi_existing_patients');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          parsed.forEach(p => {
+            if (p.id === 'MS1001' || p.aadhaar === '987654321098' || p.name === 'Ramesh Patil') {
+              p.aadhaar = '123456789101';
+              p.name = 'Ramesh Patel';
+              p.previousVisits = p.previousVisits || [
+                { date: "12 Jul 2026", summary: "Hypertension follow-up. BP 135/88. Prescribed Amlodipine." },
+                { date: "02 Apr 2026", summary: "Seasonal fever. Paracetamol prescribed. Resolved." }
+              ];
+            }
+          });
+          return parsed;
+        }
       }
     } catch (e) {
       console.error("Error reading stored existing patients:", e);
@@ -899,7 +917,7 @@ const App = window.App = {
     const defaultList = (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.existingPatients) ? DEMO_DATA.existingPatients : [
       {
         id: "MS1001",
-        aadhaar: "987654321098",
+        aadhaar: "123456789101",
         name: "Ramesh Patel",
         age: 45,
         gender: "Male",
@@ -907,7 +925,11 @@ const App = window.App = {
         lastVisit: "12 Jul 2026",
         medicalHistory: "Mild Hypertension (on Amlodipine 5mg)",
         allergies: "Penicillin",
-        medications: "Amlodipine 5mg OD"
+        medications: "Amlodipine 5mg OD",
+        previousVisits: [
+          { date: "12 Jul 2026", summary: "Hypertension follow-up. BP 135/88. Prescribed Amlodipine." },
+          { date: "02 Apr 2026", summary: "Seasonal fever. Paracetamol prescribed. Resolved." }
+        ]
       }
     ];
     this.saveStoredExistingPatients(defaultList);
@@ -943,17 +965,18 @@ const App = window.App = {
         gender: queueMatch.gender || 'Male',
         mobile: queueMatch.mobile || '+91 98201 54321',
         lastVisit: queueMatch.time || 'Recent',
-        medicalHistory: queueMatch.summary?.medicalHistory || queueMatch.medicalHistory || 'Mild Hypertension (on Amlodipine 5mg)',
-        allergies: queueMatch.summary?.allergies || queueMatch.allergies || 'Penicillin',
-        medications: queueMatch.summary?.medications || queueMatch.medications || 'Amlodipine 5mg OD'
+        medicalHistory: queueMatch.summary?.medicalHistory || queueMatch.medicalHistory || 'None known',
+        allergies: queueMatch.summary?.allergies || queueMatch.allergies || 'None',
+        medications: queueMatch.summary?.medications || queueMatch.medications || 'None',
+        previousVisits: queueMatch.previousVisits || []
       };
     }
 
-    // 3. Fallback for Ramesh Patel demo Aadhaar (987654321098)
-    if (cleanAadhaar === '987654321098') {
+    // 3. Fallback for Ramesh Patel demo Aadhaar (123456789101)
+    if (cleanAadhaar === '123456789101') {
       return {
         id: "MS1001",
-        aadhaar: "987654321098",
+        aadhaar: "123456789101",
         name: "Ramesh Patel",
         age: 45,
         gender: "Male",
@@ -961,7 +984,11 @@ const App = window.App = {
         lastVisit: "12 Jul 2026",
         medicalHistory: "Mild Hypertension (on Amlodipine 5mg)",
         allergies: "Penicillin",
-        medications: "Amlodipine 5mg OD"
+        medications: "Amlodipine 5mg OD",
+        previousVisits: [
+          { date: "12 Jul 2026", summary: "Hypertension follow-up. BP 135/88. Prescribed Amlodipine." },
+          { date: "02 Apr 2026", summary: "Seasonal fever. Paracetamol prescribed. Resolved." }
+        ]
       };
     }
 
@@ -1011,7 +1038,7 @@ const App = window.App = {
       medicalHistory: p.medicalHistory || 'Mild Hypertension (on Amlodipine 5mg)',
       allergies: p.allergies || 'Penicillin',
       medications: p.medications || 'Amlodipine 5mg OD',
-      aadhaar: p.aadhaar || this.state.aadhaar || '987654321098'
+      aadhaar: p.aadhaar || this.state.aadhaar || '123456789101'
     };
 
     const nameEl = document.getElementById('welcome-patient-name');
@@ -1041,15 +1068,25 @@ const App = window.App = {
     // Populate previous consultations history list
     const listContainer = document.getElementById('previous-consultations-list');
     if (listContainer) {
+      const visits = p.previousVisits || [];
       const queue = this.getStoredQueue();
       const pastConsultations = queue.filter(item =>
         (item.id && item.id === this.state.patientId) ||
         (item.aadhaar && item.aadhaar.replace(/\D/g, '') === this.state.aadhaar.replace(/\D/g, ''))
       );
 
-      if (pastConsultations.length > 0) {
+      if (visits.length > 0) {
+        listContainer.innerHTML = visits.map(v => `
+          <div style="background:var(--sand-light);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <strong style="color:var(--teal-deepest);font-size:0.92rem;">${v.summary}</strong>
+              <span style="font-size:0.75rem;color:var(--text-muted);">${v.date}</span>
+            </div>
+          </div>
+        `).join('');
+      } else if (pastConsultations.length > 0) {
         listContainer.innerHTML = pastConsultations.map(c => `
-          <div style="background:var(--sand-light);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+          <div style="background:var(--sand-light);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
               <strong style="color:var(--teal-deepest);font-size:0.92rem;">${getLocalizedText(c.chiefComplaint, c.chiefComplaint || 'General Consultation')}</strong>
               <span style="font-size:0.75rem;color:var(--text-muted);">${c.time || '12 Jul 2026'}</span>
@@ -1062,16 +1099,7 @@ const App = window.App = {
         `).join('');
       } else {
         listContainer.innerHTML = `
-          <div style="background:var(--sand-light);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-              <strong style="color:var(--teal-deepest);font-size:0.92rem;">${getLocalizedText('Stomach Pain (Abdominal Cramps)', 'Stomach Pain (Abdominal Cramps)')}</strong>
-              <span style="font-size:0.75rem;color:var(--text-muted);">12 Jul 2026</span>
-            </div>
-            <p style="font-size:0.82rem;color:var(--text-sub);margin:0;">
-              ${getLocalizedText('Duration', 'Duration')}: ${getLocalizedText('1 – 3 days', '1 – 3 days')} · ${getLocalizedText('Severity', 'Severity')}: ${getLocalizedText('Moderate', 'Moderate')} · ${getLocalizedText('Location', 'Location')}: ${getLocalizedText('Around Navel', 'Around Navel')}
-            </p>
-            <p style="font-size:0.78rem;color:var(--teal-deep);margin-top:4px;font-style:italic;">${getLocalizedText('Doctor note', 'Doctor note')}: ${getLocalizedText('Suspected acute gastritis. Prescribed Pantoprazole & Drotin.', 'Suspected acute gastritis. Prescribed Pantoprazole & Drotin.')}</p>
-          </div>
+          <p style="font-size:0.85rem;color:var(--text-muted);margin:0;">No previous consultation history found.</p>
         `;
       }
     }
@@ -1080,7 +1108,7 @@ const App = window.App = {
   startNewConsultationForExisting() {
     const preserved = {
       patientId: this.state.patientId || 'MS1001',
-      aadhaar: this.state.aadhaar || '987654321098',
+      aadhaar: this.state.aadhaar || '123456789101',
       fullName: this.state.fullName || 'Ramesh Patel',
       age: this.state.age || '45',
       gender: this.state.gender || 'Male',
@@ -2347,7 +2375,7 @@ if (entities.location) {
 
             time: this.nowTime(),
 
-            status: 'Waiting',
+            status: 'Pending',
 
             token: tokenNumber,
 
@@ -2582,7 +2610,7 @@ if (entities.location) {
   renderDoctorQueue() {
     const queueList = document.getElementById('doc-queue-list');
     if (!queueList) return;
-    const statusColor = { 'Completed':'#10b981','In Consultation':'#0284c7','Waiting':'#f59e0b' };
+    const statusColor = { 'Completed':'#10b981','In Consultation':'#0284c7','Waiting':'#f59e0b','Pending':'#f59e0b' };
     queueList.innerHTML = DEMO_DATA.patientQueue.map(p => `
       <div class="queue-patient-card ${this.activeDoctorPatient?.id === p.id ? 'active' : ''}" onclick="App.selectDoctorPatient('${p.id}')">
         <div style="display:flex;justify-content:space-between;font-weight:700;">
@@ -2598,7 +2626,7 @@ if (entities.location) {
     const q = DEMO_DATA.patientQueue;
     const setStatEl = (id, val) => { const e = document.getElementById(id); if(e) e.innerText = val; };
     setStatEl('stat-total', q.length);
-    setStatEl('stat-waiting', q.filter(p=>p.status==='Waiting').length);
+    setStatEl('stat-waiting', q.filter(p=>p.status==='Waiting' || p.status==='Pending').length);
     setStatEl('stat-consulting', q.filter(p=>p.status==='In Consultation').length);
     setStatEl('stat-completed', q.filter(p=>p.status==='Completed').length);
   },
@@ -2628,8 +2656,35 @@ if (entities.location) {
 
     const statusEl = document.getElementById('doc-patient-status');
     if (statusEl) {
-      statusEl.style.background = { Waiting:'#fef3c7', 'In Consultation':'#dbeafe', Completed:'#dcfce7' }[p.status] || '#f3f4f6';
-      statusEl.style.color = { Waiting:'#92400e', 'In Consultation':'#1e40af', Completed:'#166534' }[p.status] || '#374151';
+      statusEl.style.background = { Waiting:'#fef3c7', Pending:'#fef3c7', 'In Consultation':'#dbeafe', Completed:'#dcfce7' }[p.status] || '#f3f4f6';
+      statusEl.style.color = { Waiting:'#92400e', Pending:'#92400e', 'In Consultation':'#1e40af', Completed:'#166534' }[p.status] || '#374151';
+    }
+
+    // Render Previous Hospital Visits dynamically from patient record data or queue history
+    const prevVisitsBox = document.getElementById('doc-previous-visits-list');
+    if (prevVisitsBox) {
+      const storedPatients = this.getStoredExistingPatients();
+      const cleanAadhaar = (p.aadhaar || '').replace(/\D/g, '');
+      const existingRecord = storedPatients.find(item =>
+        (item.id && item.id === p.id) ||
+        (item.aadhaar && cleanAadhaar && item.aadhaar.replace(/\D/g, '') === cleanAadhaar)
+      );
+
+      const visits = p.previousVisits || existingRecord?.previousVisits || [];
+
+      if (visits.length > 0) {
+        prevVisitsBox.innerHTML = visits.map(v => `
+          <div style="border-left:3px solid var(--teal-primary);padding:6px 10px;margin-bottom:6px;background:var(--bg-kiosk);border-radius:0 var(--radius-xs) var(--radius-xs) 0;">
+            <strong style="color:var(--teal-deep);">${v.date}</strong> — ${v.summary}
+          </div>
+        `).join('');
+      } else {
+        prevVisitsBox.innerHTML = `
+          <p style="color:var(--text-muted);font-size:0.85rem;margin:0;">
+            <i class="fa-solid fa-folder-open" style="margin-right:6px;"></i> No previous hospital visits recorded.
+          </p>
+        `;
+      }
     }
 
     const banner = document.getElementById('completion-banner');

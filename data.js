@@ -7,15 +7,19 @@ const DEMO_DATA = {
   existingPatients: [
     {
       id: "MS1001",
-      aadhaar: "987654321098",
-      name: "Ramesh Patil",
+      aadhaar: "123456789101",
+      name: "Ramesh Patel",
       age: 45,
       gender: "Male",
       mobile: "+91 98201 54321",
       lastVisit: "12 Jul 2026",
       medicalHistory: "Mild Hypertension (on Amlodipine 5mg)",
       allergies: "Penicillin",
-      medications: "Amlodipine 5mg OD"
+      medications: "Amlodipine 5mg OD",
+      previousVisits: [
+        { date: "12 Jul 2026", summary: "Hypertension follow-up. BP 135/88. Prescribed Amlodipine." },
+        { date: "02 Apr 2026", summary: "Seasonal fever. Paracetamol prescribed. Resolved." }
+      ]
     },
     {
       id: "MS1002",
@@ -47,7 +51,8 @@ const DEMO_DATA = {
   patientQueue: [
     {
       id: "MS1001",
-      name: "Ramesh Patil",
+      aadhaar: "123456789101",
+      name: "Ramesh Patel",
       age: 45,
       gender: "Male",
       time: "09:15 AM",
