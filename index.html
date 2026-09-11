@@ -20,11 +20,11 @@
   <div class="ms-scan-inner">
     <i class="fa-solid fa-qrcode" style="font-size:2.4rem;color:var(--teal-primary);margin-bottom:12px;"></i>
     <h3 style="font-size:1.15rem;font-weight:700;color:var(--teal-deepest);margin-bottom:6px;" data-i18n="scanning_aadhaar">Scanning Aadhaar QR Code...</h3>
-    <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:18px;">Hold the QR code steady in front of the camera</p>
+    <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:18px;" data-i18n="camera_scan_instructions">Hold the document or QR code steady in front of the camera</p>
     <div style="width:180px;height:180px;border:2px dashed var(--teal-light);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:var(--bg);">
       <div style="width:100%;height:3px;background:var(--orange);box-shadow:0 0 8px var(--orange);animation:laserSweep 1.5s infinite alternate;"></div>
     </div>
-    <button class="btn-outline" onclick="document.getElementById('scan-overlay').style.display='none'">Cancel</button>
+    <button class="btn-outline" onclick="document.getElementById('scan-overlay').style.display='none'" data-i18n="cancel">Cancel</button>
   </div>
 </div>
 
@@ -55,7 +55,7 @@
     </div>
     <div style="background:var(--bg-subtle);border-radius:var(--radius);padding:40px 20px;text-align:center;color:var(--text-muted);font-size:0.9rem;margin-bottom:20px;">
       <i class="fa-solid fa-file-pdf" style="font-size:2.8rem;color:var(--teal-primary);margin-bottom:10px;display:block;"></i>
-      Document Verified & Attached to Consultation Slip
+      <span data-i18n="doc_verified_msg">Document Verified & Attached to Consultation Slip</span>
     </div>
     <button class="btn-primary" style="width:100%;" onclick="App.closeReportPreview()" data-i18n="close">Close</button>
   </div>
@@ -612,7 +612,7 @@
     <section id="step-13" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div class="ms-kiosk-split">
         <div class="ms-kiosk-left">
-          <div class="ms-eyebrow"><i class="fa-solid fa-leaf" style="color:#059669;"></i> Holistic Wellness</div>
+          <div class="ms-eyebrow"><i class="fa-solid fa-leaf" style="color:#059669;"></i> <span data-i18n="holistic_wellness_eyebrow">Holistic Wellness</span></div>
           <h2 class="ms-headline" data-i18n="ayush_title">Would you like an AYUSH Wellness Check?</h2>
           <p class="ms-subline" data-i18n="ayush_desc">
             A short 3-question survey about sleep, diet, and lifestyle to support holistic treatment.
@@ -629,7 +629,7 @@
               <i class="fa-solid fa-leaf"></i>
             </div>
             <strong class="ms-option-label" data-i18n="yes_ayush">Yes, include wellness</strong>
-            <span class="ms-option-sub">Takes 30 seconds</span>
+            <span class="ms-option-sub" data-i18n="takes_30_seconds">Takes 30 seconds</span>
           </div>
 
           <div class="ms-option" style="flex-direction:column;align-items:flex-start;padding:26px 20px;" onclick="App.setAyushOption(false)">
@@ -637,7 +637,7 @@
               <i class="fa-solid fa-forward"></i>
             </div>
             <strong class="ms-option-label" data-i18n="skip_ayush">Skip for now</strong>
-            <span class="ms-option-sub">Continue directly to reports</span>
+            <span class="ms-option-sub" data-i18n="continue_to_reports">Continue directly to reports</span>
           </div>
         </div>
       </div>
@@ -668,7 +668,7 @@
     <section id="step-14" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
       <div class="ms-kiosk-split">
         <div class="ms-kiosk-left">
-          <div class="ms-eyebrow"><i class="fa-solid fa-folder-open"></i> Medical Documents</div>
+          <div class="ms-eyebrow"><i class="fa-solid fa-folder-open"></i> <span data-i18n="medical_documents_eyebrow">Medical Documents</span></div>
           <h2 class="ms-headline" data-i18n="medical_documents">Do you have existing reports or prescriptions?</h2>
           <p class="ms-subline" data-i18n="documents_sub">Upload or scan previous lab reports, blood tests, or doctor slips for consultation reference.</p>
 
@@ -681,7 +681,7 @@
         <div class="ms-kiosk-right">
           <div class="ms-upload-actions">
             <button class="btn-outline" style="flex:1;" onclick="App.simulateCameraScan()">
-              <i class="fa-solid fa-camera"></i> <span data-i18n="scan_with_camera">Scan Document</span>
+              <i class="fa-solid fa-camera"></i> <span data-i18n="scan_document">Scan Document</span>
             </button>
             <label class="btn-outline" style="flex:1;cursor:pointer;">
               <i class="fa-solid fa-arrow-up-from-bracket"></i> <span data-i18n="upload_file">Upload PDF / Image</span>
@@ -698,7 +698,7 @@
 
     <!-- ── SCREEN 12: CLINICAL STORY SUMMARY ── -->
     <section id="step-12" class="kiosk-screen-block ms-screen-medium ms-questionnaire-screen">
-      <div class="ms-eyebrow"><i class="fa-solid fa-clipboard-check"></i> Patient Summary</div>
+      <div class="ms-eyebrow"><i class="fa-solid fa-clipboard-check"></i> <span data-i18n="patient_summary_eyebrow">Patient Summary</span></div>
       <h2 class="ms-headline" data-i18n="patient_story_title">Clinical Summary</h2>
       <p class="ms-subline" data-i18n="patient_story_subtitle">Review the information collected before final placement in the doctor queue.</p>
 

@@ -10,16 +10,42 @@ function getActiveLanguage() {
 }
 
 function getLocalizedText(key, fallbackText) {
-  if (!key) return '';
+  if (key === undefined || key === null || key === '') return '';
   const lang = getActiveLanguage();
   const dict = (typeof TRANSLATIONS !== 'undefined' ? TRANSLATIONS : (window.TRANSLATIONS || {}));
-  if (dict[lang] && dict[lang][key] !== undefined) {
-    return dict[lang][key];
+  const langDict = dict[lang] || {};
+  const enDict = dict['en'] || {};
+
+  // 1. Direct match
+  if (langDict[key] !== undefined) return langDict[key];
+
+  // 2. Trimmed match
+  const trimmed = String(key).trim();
+  if (langDict[trimmed] !== undefined) return langDict[trimmed];
+
+  // 3. Lowercase match
+  const lower = trimmed.toLowerCase();
+  if (langDict[lower] !== undefined) return langDict[lower];
+
+  // 4. Comma-separated list match (e.g. "No Known Allergies, Penicillin")
+  if (typeof key === 'string' && key.includes(',')) {
+    const parts = key.split(',').map(p => p.trim());
+    let translatedAny = false;
+    const translatedParts = parts.map(p => {
+      const res = getLocalizedText(p, p);
+      if (res !== p) translatedAny = true;
+      return res;
+    });
+    if (translatedAny) return translatedParts.join(', ');
   }
-  if (dict['en'] && dict['en'][key] !== undefined) {
-    return dict['en'][key];
-  }
-  return fallbackText !== undefined ? fallbackText : key;
+
+  // 5. English fallback match
+  if (enDict[key] !== undefined) return enDict[key];
+  if (enDict[trimmed] !== undefined) return enDict[trimmed];
+  if (enDict[lower] !== undefined) return enDict[lower];
+
+  // 6. Explicit fallback or original key
+  return (fallbackText !== undefined && fallbackText !== null) ? fallbackText : key;
 }
 
 function speakText(text) {
@@ -901,13 +927,17 @@ const App = window.App = {
 
   simulateScanAadhaar() {
     const overlay = document.getElementById('scan-overlay');
-    if (overlay) overlay.style.display = 'flex';
+    if (overlay) {
+      const h3 = overlay.querySelector('h3');
+      if (h3) h3.textContent = getLocalizedText('scanning_aadhaar', 'Scanning Aadhaar QR Code...');
+      overlay.style.display = 'flex';
+    }
     setTimeout(() => {
       if (overlay) overlay.style.display = 'none';
       const input = document.getElementById('aadhaar-input');
       if (input) input.value = "1234 5678 9101";
       this.state.aadhaar = "123456789101";
-      this.showNotification("✅ Aadhaar QR scanned successfully!");
+      this.showNotification("✅ " + getLocalizedText('aadhaar_scanned_success', 'Aadhaar QR scanned successfully!'));
       setTimeout(() => this.validateAadhaarAndContinue(), 700);
     }, 2500);
   },
@@ -1642,7 +1672,7 @@ if (entities.location) {
       { id: 'Abdomen', labelKey: 'abdomen', fallback: 'Abdomen', icon: 'fa-lungs' },
       { id: 'Arms', labelKey: 'arms', fallback: 'Arms', icon: 'fa-hand' },
       { id: 'Legs', labelKey: 'legs', fallback: 'Legs', icon: 'fa-person-walking' },
-      { id: 'Back', labelKey: 'back', fallback: 'Back', icon: 'fa-child-reaching' }
+      { id: 'Back', labelKey: 'body_back', fallback: 'Back', icon: 'fa-child-reaching' }
     ];
 
     const abdomenSubzones = [
@@ -2307,10 +2337,15 @@ if (entities.location) {
   // ── REPORTS MODULE ────────────────────────────────────────────────────────
   simulateCameraScan() {
     const overlay = document.getElementById('scan-overlay');
-    overlay.style.display = 'flex';
+    if (overlay) {
+      const h3 = overlay.querySelector('h3');
+      if (h3) h3.textContent = getLocalizedText('scanning_document', 'Scanning Document...');
+      overlay.style.display = 'flex';
+    }
     setTimeout(() => {
-      overlay.style.display = 'none';
-      this.addUploadedReportItem("Photo Scan — Blood Test CBC", new Date().toLocaleDateString('en-IN'));
+      if (overlay) overlay.style.display = 'none';
+      const docTitle = getLocalizedText('Photo Scan — Blood Test CBC', 'Photo Scan — Blood Test CBC');
+      this.addUploadedReportItem(docTitle, new Date().toLocaleDateString('en-IN'));
     }, 2500);
   },
 
@@ -3246,29 +3281,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// --- ROBUST TRANSLATION & SPEECH HELPER ---
-function getActiveLanguage() {
-  return localStorage.getItem('medisarthi_lang') || 'en';
-}
 
-function getLocalizedText(key, fallback = '') {
-  const lang = getActiveLanguage();
-  if (
-      typeof TRANSLATIONS !== 'undefined' &&
-      TRANSLATIONS[lang] &&
-      TRANSLATIONS[lang][key]
-  ) {
-      return TRANSLATIONS[lang][key];
-  }
-  if (
-      typeof TRANSLATIONS !== 'undefined' &&
-      TRANSLATIONS.en &&
-      TRANSLATIONS.en[key]
-  ) {
-      return TRANSLATIONS.en[key];
-  }
-  return fallback;
-}
 
 function speakText(text) {
   if (!text || !window.speechSynthesis) return;
