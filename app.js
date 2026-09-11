@@ -48,6 +48,60 @@ function getLocalizedText(key, fallbackText) {
   return (fallbackText !== undefined && fallbackText !== null) ? fallbackText : key;
 }
 
+function getEnglishOnlyText(val) {
+  if (val === undefined || val === null || val === '') return 'Not provided';
+  const str = String(val).trim();
+  if (!str || str === 'Not provided' || str === 'Not specified' || str === 'Not answered' || str === 'None') {
+    return 'Not provided';
+  }
+
+  const lowerStr = str.toLowerCase();
+  if (
+    lowerStr === 'माहिती उपलब्ध नाही' ||
+    lowerStr === 'जानकारी उपलब्ध नहीं' ||
+    lowerStr === 'তথ্য পাওয়া যায়নি' ||
+    lowerStr === 'సమాచారం లేదు' ||
+    lowerStr === 'no information available'
+  ) {
+    return 'Not provided';
+  }
+
+  const dict = (typeof TRANSLATIONS !== 'undefined' ? TRANSLATIONS : (window.TRANSLATIONS || {}));
+  const enDict = dict.en || {};
+
+  const reverseTranslateWord = (term) => {
+    const t = term.trim();
+    if (!t) return '';
+    const tLower = t.toLowerCase();
+    if (tLower === 'माहिती उपलब्ध नाही' || tLower === 'जानकारी उपलब्ध नहीं' || tLower === 'তথ্য পাওয়া যায়নি' || tLower === 'సమాచారం లేదు') {
+      return 'Not provided';
+    }
+    if (tLower === 'कोई ज्ञात एलर्जी नहीं' || tLower === 'कोणतीही ज्ञात ॲलर्जी नाही' || tLower === 'পরিচিত অ্যালার্জি নেই' || tLower === 'తెలిసిన అలెర్జీలు లేవు') {
+      return 'No Known Allergies';
+    }
+    if (enDict[t] !== undefined) return enDict[t];
+    if (enDict[tLower] !== undefined) return enDict[tLower];
+
+    for (const lang of ['hi', 'mr', 'bn', 'te']) {
+      const langDict = dict[lang];
+      if (!langDict) continue;
+      for (const [enKey, langVal] of Object.entries(langDict)) {
+        if (typeof langVal === 'string' && (langVal.trim() === t || langVal.trim().toLowerCase() === tLower)) {
+          return enDict[enKey] || enKey;
+        }
+      }
+    }
+    return t;
+  };
+
+  if (str.includes(',')) {
+    const parts = str.split(',').map(p => p.trim());
+    return parts.map(p => reverseTranslateWord(p)).join(', ');
+  }
+
+  return reverseTranslateWord(str);
+}
+
 function speakText(text) {
   if (!text || !('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel(); 
@@ -2692,7 +2746,7 @@ if (entities.location) {
           <span style="font-size:0.75rem;background:${statusColor[p.status]||'#94a3b8'};color:white;padding:2px 8px;border-radius:99px;">${p.status}</span>
         </div>
         <div style="font-size:0.83rem;color:var(--text-muted);margin-top:4px;">
-          ${p.age}y ${(p.gender || 'M')[0]} · ${p.chiefComplaint || 'Consultation'} · ${p.time || ''}
+          ${p.age}y ${(p.gender || 'M')[0]} · ${getEnglishOnlyText(p.chiefComplaint || 'Consultation')} · ${p.time || ''}
         </div>
       </div>
     `).join('');
@@ -2773,7 +2827,7 @@ if (entities.location) {
     }
 
     const s = p.summary || {};
-    const setV = (id, val) => { const e = document.getElementById(id); if(e) e.innerText = val || getLocalizedText('Not provided', 'Not provided'); };
+    const setV = (id, val) => { const e = document.getElementById(id); if(e) e.innerText = getEnglishOnlyText(val); };
     setV('doc-sum-complaint', s.problem || p.chiefComplaint);
     setV('doc-sum-duration', s.duration);
     setV('doc-sum-location', s.location);
@@ -2783,26 +2837,26 @@ if (entities.location) {
     setV('doc-sum-nausea', s.nauseaVomiting);
     setV('doc-sum-bowel', s.bowel || s.chills || null);  // Show chills if fever pathway
     setV('doc-sum-past', s.pastHistory);
-    setV('doc-sum-meds', s.medications || getLocalizedText('Not provided', 'Not provided'));
-    setV('doc-sum-allergies', s.allergies || getLocalizedText('Not provided', 'Not provided'));
+    setV('doc-sum-meds', s.medications);
+    setV('doc-sum-allergies', s.allergies);
     // Change 16: Documents reflect actual uploaded reports
     const docsDisplay = (p.reports && p.reports.length > 0)
-      ? `${p.reports.length} report(s): ` + p.reports.map(r => r.title).join(', ')
+      ? `${p.reports.length} report(s): ` + p.reports.map(r => getEnglishOnlyText(r.title)).join(', ')
       : 'No medical reports uploaded.';
     setV('doc-sum-documents', docsDisplay);
     if (p.ayush && (p.ayush.completed || Object.keys(p.ayush.answers || {}).length > 0)) {
       const ansObj = p.ayush.answers || p.ayushAnswers || {};
       const parts = [];
-      if (ansObj.ay_sleep) parts.push(`Sleep: ${ansObj.ay_sleep}`);
-      if (ansObj.ay_routine) parts.push(`Routine: ${ansObj.ay_routine}`);
-      if (ansObj.ay_food) parts.push(`Food: ${ansObj.ay_food}`);
-      if (ansObj.ay_digestion) parts.push(`Digestion: ${ansObj.ay_digestion}`);
-      if (ansObj.ay_activity) parts.push(`Activity: ${ansObj.ay_activity}`);
-      if (ansObj.ay_stress) parts.push(`Stress: ${ansObj.ay_stress}`);
-      if (ansObj.ay_wellness) parts.push(`Wellness: ${ansObj.ay_wellness}`);
-      if (ansObj.ay_lifestyle_concern) parts.push(`Concern: ${ansObj.ay_lifestyle_concern}`);
+      if (ansObj.ay_sleep) parts.push(`Sleep: ${getEnglishOnlyText(ansObj.ay_sleep)}`);
+      if (ansObj.ay_routine) parts.push(`Routine: ${getEnglishOnlyText(ansObj.ay_routine)}`);
+      if (ansObj.ay_food) parts.push(`Food: ${getEnglishOnlyText(ansObj.ay_food)}`);
+      if (ansObj.ay_digestion) parts.push(`Digestion: ${getEnglishOnlyText(ansObj.ay_digestion)}`);
+      if (ansObj.ay_activity) parts.push(`Activity: ${getEnglishOnlyText(ansObj.ay_activity)}`);
+      if (ansObj.ay_stress) parts.push(`Stress: ${getEnglishOnlyText(ansObj.ay_stress)}`);
+      if (ansObj.ay_wellness) parts.push(`Wellness: ${getEnglishOnlyText(ansObj.ay_wellness)}`);
+      if (ansObj.ay_lifestyle_concern) parts.push(`Concern: ${getEnglishOnlyText(ansObj.ay_lifestyle_concern)}`);
       
-      if (parts.length === 0 && p.ayush.sleep) parts.push(`Sleep: ${p.ayush.sleep}`);
+      if (parts.length === 0 && p.ayush.sleep) parts.push(`Sleep: ${getEnglishOnlyText(p.ayush.sleep)}`);
 
       setV('doc-sum-ayush', parts.length > 0 ? parts.join(' · ') : 'Not answered');
     } else {
@@ -2966,7 +3020,7 @@ if (entities.location) {
         answeredRows.map(([label, val]) => `
           <div class="summary-row">
             <div class="summary-label">${label}</div>
-            <div class="summary-val">${val}</div>
+            <div class="summary-val">${getEnglishOnlyText(val)}</div>
           </div>`).join('') +
         `</div>`;
     } else {
