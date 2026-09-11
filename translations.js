@@ -5,6 +5,8 @@
 
 const TRANSLATIONS = {
   en: {
+    "no_previous_visits": "No previous hospital visits recorded.",
+    "Stomach Pain": "Stomach Pain",
     "cancel": "Cancel",
     "scan_document": "Scan Document",
     "scanning_document": "Scanning Document...",
@@ -975,6 +977,8 @@ const TRANSLATIONS = {
   },
 
   hi: {
+    "no_previous_visits": "कोई पिछला अस्पताल दौरा दर्ज नहीं है।",
+    "Stomach Pain": "पेट दर्द",
     "cancel": "रद्द करें",
     "scan_document": "\u0926\u0938\u094d\u0924\u093e\u0935\u0947\u091c\u093c \u0938\u094d\u0915\u0948\u0928 \u0915\u0930\u0947\u0902",
     "scanning_document": "\u0926\u0938\u094d\u0924\u093e\u0935\u0947\u091c\u093c \u0938\u094d\u0915\u0948\u0928 \u0939\u094b \u0930\u0939\u093e \u0939\u0948...",
@@ -1929,6 +1933,8 @@ const TRANSLATIONS = {
   },
 
   mr: {
+    "no_previous_visits": "कोणत्याही पूर्वीच्या रुग्णालय भेटीची नोंद नाही.",
+    "Stomach Pain": "पोटदुखी",
     "cancel": "रद्द करा",
     "scan_document": "\u0915\u093e\u0917\u0926\u092a\u0924\u094d\u0930 \u0938\u094d\u0915\u0945\u0928 \u0915\u0930\u093e",
     "scanning_document": "\u0915\u093e\u0917\u0926\u092a\u0924\u094d\u0930 \u0938\u094d\u0915\u0945\u0928 \u0939\u094b\u0924 \u0906\u0939\u0947...",
@@ -2884,6 +2890,8 @@ const TRANSLATIONS = {
 
 
   bn: {
+    "no_previous_visits": "কোন পূর্ববর্তী হাসপাতাল পরিদর্শনের রেকর্ড নেই।",
+    "Stomach Pain": "পেটে ব্যথা",
     "cancel": "বাতিল করুন",
     "scan_document": "\u09a8\u09a5\u09bf \u09b8\u09cd\u0995\u09cd\u09af\u09be\u09a8 \u0995\u09b0\u09c1\u09a8",
     "scanning_document": "\u09a8\u09a5\u09bf \u09b8\u09cd\u0995\u09cd\u09af\u09be\u09a8 \u09b9\u099a\u09cd\u099b\u09c7...",
@@ -3826,6 +3834,8 @@ const TRANSLATIONS = {
   },
 
   te: {
+    "no_previous_visits": "గత ఆసుపత్రి సందర్శనల రికార్డు లేదు.",
+    "Stomach Pain": "కడుపు నొప్పి",
     "cancel": "రద్దు చేయండి",
     "scan_document": "\u0c2a\u0c24\u0c4d\u0c30\u0c3e\u0c28\u0c4d\u0c28\u0c3f \u0c38\u0c4d\u0c15\u0c3e\u0c28\u0c4d \u0c1a\u0c47\u0c2f\u0c02\u0c21\u0c3f",
     "scanning_document": "\u0c2a\u0c24\u0c4d\u0c30\u0c02 \u0c38\u0c4d\u0c15\u0c3e\u0c28\u0c4d \u0c05\u0c35\u0c41\u0c24\u0c4b\u0c02\u0c26\u0c3f...",

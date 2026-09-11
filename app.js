@@ -9,18 +9,30 @@ function getActiveLanguage() {
   return localStorage.getItem('medisarthi_lang') || 'en';
 }
 
-function getLocalizedText(key, fallbackText) {
+function getLocalizedText(key, fallbackText, langOverride) {
   if (key === undefined || key === null || key === '') return '';
-  const lang = getActiveLanguage();
+  const lang = langOverride || getActiveLanguage();
   const dict = (typeof TRANSLATIONS !== 'undefined' ? TRANSLATIONS : (window.TRANSLATIONS || {}));
   const langDict = dict[lang] || {};
   const enDict = dict['en'] || {};
 
+  // Alias mapping for normalized symptom keys and labels
+  const aliasMap = {
+    'Stomach Pain': 'stomach_pain',
+    'Cough / Cold': 'cough_cold',
+    'Fever': 'fever',
+    'Headache': 'headache',
+    'Body Pain': 'body_pain',
+    'Something Else': 'something_else'
+  };
+  const normalizedKey = aliasMap[key] || key;
+
   // 1. Direct match
+  if (langDict[normalizedKey] !== undefined) return langDict[normalizedKey];
   if (langDict[key] !== undefined) return langDict[key];
 
   // 2. Trimmed match
-  const trimmed = String(key).trim();
+  const trimmed = String(normalizedKey).trim();
   if (langDict[trimmed] !== undefined) return langDict[trimmed];
 
   // 3. Lowercase match
@@ -32,7 +44,7 @@ function getLocalizedText(key, fallbackText) {
     const parts = key.split(',').map(p => p.trim());
     let translatedAny = false;
     const translatedParts = parts.map(p => {
-      const res = getLocalizedText(p, p);
+      const res = getLocalizedText(p, p, lang);
       if (res !== p) translatedAny = true;
       return res;
     });
@@ -40,6 +52,7 @@ function getLocalizedText(key, fallbackText) {
   }
 
   // 5. English fallback match
+  if (enDict[normalizedKey] !== undefined) return enDict[normalizedKey];
   if (enDict[key] !== undefined) return enDict[key];
   if (enDict[trimmed] !== undefined) return enDict[trimmed];
   if (enDict[lower] !== undefined) return enDict[lower];
@@ -549,37 +562,45 @@ const App = window.App = {
       let parsed = stored ? JSON.parse(stored) : null;
 
       if (Array.isArray(parsed)) {
-        // Filter out legacy demo records strictly by ID and legacy Aadhaars
-        parsed = parsed.filter(p => {
-          if (!p) return false;
+        const seenIds = new Set();
+        const cleanQueue = [];
+
+        for (const p of parsed) {
+          if (!p || !p.id) continue;
           const cleanAadhaar = (p.aadhaar || '').replace(/\D/g, '');
-          if (LEGACY_IDS.includes(p.id)) return false;
-          if (cleanAadhaar && LEGACY_AADHAARS.includes(cleanAadhaar)) return false;
-          return true;
-        });
+          if (LEGACY_IDS.includes(p.id)) continue;
+          if (cleanAadhaar && LEGACY_AADHAARS.includes(cleanAadhaar)) continue;
 
-        // Ensure Ramesh Patel is present & intact without altering his existing consultation status
-        let ramesh = parsed.find(p => p.id === 'MS1001' || (p.aadhaar && p.aadhaar.replace(/\D/g, '') === '123456789101'));
-        if (!ramesh) {
-          if (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.patientQueue && DEMO_DATA.patientQueue[0]) {
-            ramesh = JSON.parse(JSON.stringify(DEMO_DATA.patientQueue[0]));
-            parsed.unshift(ramesh);
-          }
-        } else {
-          ramesh.id = 'MS1001';
-          ramesh.aadhaar = '123456789101';
-          ramesh.name = 'Ramesh Patel';
-        }
+          // Deduplicate by ID
+          if (seenIds.has(p.id)) continue;
+          // Deduplicate Ramesh by Aadhaar if ID differs
+          if (cleanAadhaar === '123456789101' && seenIds.has('MS1001')) continue;
 
-        // Migrate any non-Ramesh legacy 'Pending' status to 'Waiting'
-        parsed.forEach(p => {
-          if (p.id !== 'MS1001' && p.status === 'Pending') {
+          seenIds.add(p.id);
+          if (cleanAadhaar === '123456789101') seenIds.add('MS1001');
+
+          // Migrate any non-Ramesh legacy 'Pending' status to 'Waiting'
+          if (p.id !== 'MS1001' && cleanAadhaar !== '123456789101' && p.status === 'Pending') {
             p.status = 'Waiting';
           }
-        });
 
-        this.saveStoredQueue(parsed);
-        return parsed;
+          cleanQueue.push(p);
+        }
+
+        // Ensure Ramesh Patel is present & intact without altering his existing consultation status
+        let rameshIdx = cleanQueue.findIndex(p => p.id === 'MS1001' || (p.aadhaar && p.aadhaar.replace(/\D/g, '') === '123456789101'));
+        if (rameshIdx < 0) {
+          if (typeof DEMO_DATA !== 'undefined' && DEMO_DATA.patientQueue && DEMO_DATA.patientQueue[0]) {
+            cleanQueue.unshift(JSON.parse(JSON.stringify(DEMO_DATA.patientQueue[0])));
+          }
+        } else {
+          cleanQueue[rameshIdx].id = 'MS1001';
+          cleanQueue[rameshIdx].aadhaar = '123456789101';
+          cleanQueue[rameshIdx].name = 'Ramesh Patel';
+        }
+
+        this.saveStoredQueue(cleanQueue);
+        return cleanQueue;
       }
     } catch (e) {
       console.error("Error reading stored patient queue:", e);
@@ -802,7 +823,7 @@ const App = window.App = {
       docDashboard.style.display = 'block';
       this.renderDoctorQueue();
       if (storedQueue.length > 0) {
-        this.selectDoctorPatient(storedQueue[0].id);
+        this.selectDoctorPatient(storedQueue[0].id, false);
       }
       return;
     }
@@ -2477,77 +2498,44 @@ if (entities.location) {
         // 3. Create the patient record
         // -------------------------------------------------
 
-        const generatedId = (this.state.patientId && this.state.patientId !== 'MS1001')
+        const queue = this.getStoredQueue();
+        let generatedId = (this.state.patientId && this.state.patientId !== 'MS1001')
           ? this.state.patientId
           : ('MS' + Math.floor(1002 + Math.random() * 8998));
+        while (queue.some(p => p.id === generatedId)) {
+          generatedId = 'MS' + Math.floor(1002 + Math.random() * 8998);
+        }
 
         const newQueuePatient = {
-
             id: generatedId,
-
             aadhaar: this.state.aadhaar || '',
-
             name: this.state.fullName || 'Anonymous Patient',
-
             age: parseInt(this.state.age) || 0,
-
             gender: this.state.gender || 'Not specified',
-
             mobile: this.state.mobile || '',
-
             time: this.nowTime(),
-
             status: 'Waiting',
-
             token: tokenNumber,
-
-            chiefComplaint:
-                this.state.chiefComplaint ||
-                'General Consultation',
-
+            chiefComplaint: this.state.chiefComplaint || 'General Consultation',
             summary: summaryObj,
-
             dynamicRows: dynamicRows,
-
-            aqAnswers: {
-                ...this.aqAnswers
-            },
-
-            symptomIntent:
-                this.state.symptomIntent || '',
-
+            aqAnswers: { ...this.aqAnswers },
+            symptomIntent: this.state.symptomIntent || '',
             ayush: {
-
-                completed:
-                    this.state.ayushRequested || false,
-
-                answers: {
-                    ...(this.state.ayushAnswers || {})
-                }
-
+                completed: this.state.ayushRequested || false,
+                answers: { ...(this.state.ayushAnswers || {}) }
             },
-
-            reports: [
-                ...(this.state.reportsUploaded || [])
-            ],
-
-            conversationLog: [
-                ...(this.state.conversationLog || [])
-            ],
-
+            reports: [ ...(this.state.reportsUploaded || []) ],
+            conversationLog: [ ...(this.state.conversationLog || []) ],
             prescriptions: [],
-
             doctorNotes: '',
-
-            previousVisits: []
+            previousVisits: [],
+            lang: this.currentLang || getActiveLanguage()
         };
-
 
         // -------------------------------------------------
         // 4. Add patient to doctor queue & update existing patients list
         // -------------------------------------------------
-
-        const queue = this.getStoredQueue();
 
         queue.unshift(newQueuePatient);
 
@@ -2740,13 +2728,13 @@ if (entities.location) {
     }
     const statusColor = { 'Completed':'#10b981','In Consultation':'#0284c7','Waiting':'#f59e0b','Pending':'#f59e0b' };
     queueList.innerHTML = queue.map(p => `
-      <div class="queue-patient-card ${this.activeDoctorPatient?.id === p.id ? 'active' : ''}" onclick="App.selectDoctorPatient('${p.id}')">
+      <div class="queue-patient-card ${this.activeDoctorPatient?.id === p.id ? 'active' : ''}" onclick="App.selectDoctorPatient('${p.id}', true)">
         <div style="display:flex;justify-content:space-between;font-weight:700;">
           <span>${p.name}</span>
           <span style="font-size:0.75rem;background:${statusColor[p.status]||'#94a3b8'};color:white;padding:2px 8px;border-radius:99px;">${p.status}</span>
         </div>
         <div style="font-size:0.83rem;color:var(--text-muted);margin-top:4px;">
-          ${p.age}y ${(p.gender || 'M')[0]} · ${getEnglishOnlyText(p.chiefComplaint || 'Consultation')} · ${p.time || ''}
+          ${p.age}y ${(p.gender || 'M')[0]} · ${getLocalizedText(p.chiefComplaint || 'Consultation', p.chiefComplaint || 'Consultation', p.lang)} · ${p.time || ''}
         </div>
       </div>
     `).join('');
@@ -2765,12 +2753,12 @@ if (entities.location) {
     });
   },
 
-  selectDoctorPatient(patientId) {
+  selectDoctorPatient(patientId, isUserClick = false) {
     const queue = this.getStoredQueue();
     const p = queue.find(item => item.id === patientId) || queue[0];
     if (!p) return;
 
-    if (p.status === 'Waiting') {
+    if (isUserClick && p.status === 'Waiting') {
       p.status = 'In Consultation';
       this.saveStoredQueue(queue);
       if (typeof DEMO_DATA !== 'undefined') {
@@ -2795,14 +2783,9 @@ if (entities.location) {
     const prevVisitsBox = document.getElementById('doc-previous-visits-list');
     if (prevVisitsBox) {
       let visits = p.previousVisits;
-      if (!visits) {
-        // Look up only if this patient matches an existing record in stored patients
+      if (!visits && p.id === 'MS1001') {
         const storedPatients = this.getStoredExistingPatients();
-        const cleanAadhaar = (p.aadhaar || '').replace(/\D/g, '');
-        const existingRecord = storedPatients.find(item =>
-          (item.id && item.id === p.id) ||
-          (item.aadhaar && cleanAadhaar && item.aadhaar.replace(/\D/g, '') === cleanAadhaar)
-        );
+        const existingRecord = storedPatients.find(item => item.id === 'MS1001');
         visits = existingRecord?.previousVisits || [];
       }
 
@@ -2815,7 +2798,7 @@ if (entities.location) {
       } else {
         prevVisitsBox.innerHTML = `
           <p style="color:var(--text-muted);font-size:0.85rem;margin:0;">
-            <i class="fa-solid fa-folder-open" style="margin-right:6px;"></i> No previous hospital visits recorded.
+            <i class="fa-solid fa-folder-open" style="margin-right:6px;"></i> ${getLocalizedText('no_previous_visits', 'No previous hospital visits recorded.', p.lang)}
           </p>
         `;
       }
@@ -2827,7 +2810,17 @@ if (entities.location) {
     }
 
     const s = p.summary || {};
-    const setV = (id, val) => { const e = document.getElementById(id); if(e) e.innerText = getEnglishOnlyText(val); };
+    const patientLang = p.lang || getActiveLanguage();
+    const setV = (id, val) => {
+      const e = document.getElementById(id);
+      if (e) {
+        if (!val || val === 'Not provided' || val === 'Not specified' || val === 'Not answered') {
+          e.innerText = 'Not provided';
+          return;
+        }
+        e.innerText = getLocalizedText(val, val, patientLang);
+      }
+    };
     setV('doc-sum-complaint', s.problem || p.chiefComplaint);
     setV('doc-sum-duration', s.duration);
     setV('doc-sum-location', s.location);
@@ -2839,24 +2832,23 @@ if (entities.location) {
     setV('doc-sum-past', s.pastHistory);
     setV('doc-sum-meds', s.medications);
     setV('doc-sum-allergies', s.allergies);
-    // Change 16: Documents reflect actual uploaded reports
     const docsDisplay = (p.reports && p.reports.length > 0)
-      ? `${p.reports.length} report(s): ` + p.reports.map(r => getEnglishOnlyText(r.title)).join(', ')
+      ? `${p.reports.length} report(s): ` + p.reports.map(r => getLocalizedText(r.title, r.title, patientLang)).join(', ')
       : 'No medical reports uploaded.';
     setV('doc-sum-documents', docsDisplay);
     if (p.ayush && (p.ayush.completed || Object.keys(p.ayush.answers || {}).length > 0)) {
       const ansObj = p.ayush.answers || p.ayushAnswers || {};
       const parts = [];
-      if (ansObj.ay_sleep) parts.push(`Sleep: ${getEnglishOnlyText(ansObj.ay_sleep)}`);
-      if (ansObj.ay_routine) parts.push(`Routine: ${getEnglishOnlyText(ansObj.ay_routine)}`);
-      if (ansObj.ay_food) parts.push(`Food: ${getEnglishOnlyText(ansObj.ay_food)}`);
-      if (ansObj.ay_digestion) parts.push(`Digestion: ${getEnglishOnlyText(ansObj.ay_digestion)}`);
-      if (ansObj.ay_activity) parts.push(`Activity: ${getEnglishOnlyText(ansObj.ay_activity)}`);
-      if (ansObj.ay_stress) parts.push(`Stress: ${getEnglishOnlyText(ansObj.ay_stress)}`);
-      if (ansObj.ay_wellness) parts.push(`Wellness: ${getEnglishOnlyText(ansObj.ay_wellness)}`);
-      if (ansObj.ay_lifestyle_concern) parts.push(`Concern: ${getEnglishOnlyText(ansObj.ay_lifestyle_concern)}`);
-      
-      if (parts.length === 0 && p.ayush.sleep) parts.push(`Sleep: ${getEnglishOnlyText(p.ayush.sleep)}`);
+      if (ansObj.ay_sleep) parts.push(`Sleep: ${getLocalizedText(ansObj.ay_sleep, ansObj.ay_sleep, patientLang)}`);
+      if (ansObj.ay_routine) parts.push(`Routine: ${getLocalizedText(ansObj.ay_routine, ansObj.ay_routine, patientLang)}`);
+      if (ansObj.ay_food) parts.push(`Food: ${getLocalizedText(ansObj.ay_food, ansObj.ay_food, patientLang)}`);
+      if (ansObj.ay_digestion) parts.push(`Digestion: ${getLocalizedText(ansObj.ay_digestion, ansObj.ay_digestion, patientLang)}`);
+      if (ansObj.ay_activity) parts.push(`Activity: ${getLocalizedText(ansObj.ay_activity, ansObj.ay_activity, patientLang)}`);
+      if (ansObj.ay_stress) parts.push(`Stress: ${getLocalizedText(ansObj.ay_stress, ansObj.ay_stress, patientLang)}`);
+      if (ansObj.ay_wellness) parts.push(`Wellness: ${getLocalizedText(ansObj.ay_wellness, ansObj.ay_wellness, patientLang)}`);
+      if (ansObj.ay_lifestyle_concern) parts.push(`Concern: ${getLocalizedText(ansObj.ay_lifestyle_concern, ansObj.ay_lifestyle_concern, patientLang)}`);
+
+      if (parts.length === 0 && p.ayush.sleep) parts.push(`Sleep: ${getLocalizedText(p.ayush.sleep, p.ayush.sleep, patientLang)}`);
 
       setV('doc-sum-ayush', parts.length > 0 ? parts.join(' · ') : 'Not answered');
     } else {
@@ -2959,7 +2951,7 @@ if (entities.location) {
         DEMO_DATA.patientQueue = queue;
       }
       this.renderDoctorQueue();
-      this.selectDoctorPatient(this.activeDoctorPatient.id);
+      this.selectDoctorPatient(this.activeDoctorPatient.id, false);
       this.showNotification(`✅ Consultation for ${this.activeDoctorPatient.name} marked as Completed.`);
     }
   },
