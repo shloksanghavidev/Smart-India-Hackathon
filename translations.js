@@ -973,7 +973,17 @@ const TRANSLATIONS = {
         ayush_context_title: "AYUSH WELLNESS CONTEXT",
         clinical_info_title: "CLINICAL INFORMATION",
         documents_title: "MEDICAL DOCUMENTS",
-        kiosk_location_tag: "City General Hospital · Kiosk 04"
+        kiosk_location_tag: "City General Hospital · Kiosk 04",
+        aadhaar_otp_eyebrow: "Identity Verification",
+        verify_aadhaar_otp_title: "Verify Aadhaar OTP",
+        otp_supporting_text: "For demonstration, enter the 6-digit OTP sent to your registered mobile number.",
+        otp_sent_to_mobile: "OTP sent to your registered mobile ending in",
+        enter_6_digit_otp: "Enter 6-digit OTP",
+        verify_otp: "Verify OTP",
+        resend_otp: "Resend OTP",
+        invalid_otp_error: "Invalid OTP. Please enter the correct 6-digit OTP.",
+        otp_verification_successful: "Aadhaar OTP verified successfully!",
+        otp_resent_success: "A new OTP has been sent to your mobile number."
   },
 
   hi: {
@@ -1929,7 +1939,17 @@ const TRANSLATIONS = {
         ayush_context_title: "आयुष स्वास्थ्य संदर्भ",
         clinical_info_title: "चिकित्सीय जानकारी",
         documents_title: "चिकित्सा रिपोर्ट व दस्तावेज",
-        kiosk_location_tag: "नगर सामान्य अस्पताल · टर्मिनल 04"
+        kiosk_location_tag: "नगर सामान्य अस्पताल · टर्मिनल 04",
+        aadhaar_otp_eyebrow: "पहचान सत्यापन",
+        verify_aadhaar_otp_title: "आधार ओटीपी सत्यापित करें",
+        otp_supporting_text: "प्रदर्शन के लिए, अपने पंजीकृत मोबाइल नंबर पर भेजा गया 6-अंकीय ओटीपी दर्ज करें।",
+        otp_sent_to_mobile: "पंजीकृत मोबाइल पर भेजा गया ओटीपी जिसके अंत में है",
+        enter_6_digit_otp: "6-अंकीय ओटीपी दर्ज करें",
+        verify_otp: "ओटीपी सत्यापित करें",
+        resend_otp: "ओटीपी पुनः भेजें",
+        invalid_otp_error: "अमान्य ओटीपी। कृपया सही 6-अंकीय ओटीपी दर्ज करें।",
+        otp_verification_successful: "आधार ओटीपी सफलतापूर्वक सत्यापित!",
+        otp_resent_success: "आपके मोबाइल नंबर पर एक नया ओटीपी भेजा गया है।"
   },
 
   mr: {
@@ -2885,7 +2905,17 @@ const TRANSLATIONS = {
         ayush_context_title: "आयुष आरोग्य संदर्भ",
         clinical_info_title: "वैद्यकीय माहिती",
         documents_title: "वैद्यकीय अहवाल",
-        kiosk_location_tag: "शहर सामान्य रुग्णालय · टर्मिनल ०४"
+        kiosk_location_tag: "शहर सामान्य रुग्णालय · टर्मिनल ०४",
+        aadhaar_otp_eyebrow: "ओळख पडताळणी",
+        verify_aadhaar_otp_title: "आधार ओटीपी पडताळणी करा",
+        otp_supporting_text: "प्रात्यक्षिकासाठी, तुमच्या नोंदणीकृत मोबाईल नंबरवर पाठवलेला ६-अंकी OTP प्रविष्ट करा.",
+        otp_sent_to_mobile: "नोंदणीकृत मोबाईलवर पाठवलेला ओटीपी ज्याच्या शेवटी आहे",
+        enter_6_digit_otp: "६-अंकी OTP प्रविष्ट करा",
+        verify_otp: "OTP पडताळा",
+        resend_otp: "OTP पुन्हा पाठवा",
+        invalid_otp_error: "अवैध OTP. कृपया योग्य ६-अंकी OTP प्रविष्ट करा.",
+        otp_verification_successful: "आधार OTP यशस्वीरित्या पडताळला गेला!",
+        otp_resent_success: "तुमच्या मोबाईल नंबरवर नवीन OTP पाठवला गेला आहे."
   },
 
 
@@ -3830,7 +3860,17 @@ const TRANSLATIONS = {
         ayush_context_title: "আয়ুষ স্বাস্থ্য প্রসঙ্গ",
         clinical_info_title: "চিকিৎসা তথ্য",
         documents_title: "চিকিৎসা রিপোর্ট ও নথি",
-        kiosk_location_tag: "নগর সাধারণ হাসপাতাল · টার্মিনাল ০৪"
+        kiosk_location_tag: "নগর সাধারণ হাসপাতাল · টার্মিনাল ০৪",
+        aadhaar_otp_eyebrow: "পরিচয় যাচাইকরণ",
+        verify_aadhaar_otp_title: "আধার ওটিপি যাচাই করুন",
+        otp_supporting_text: "প্রদর্শনের জন্য, আপনার নিবন্ধিত মোবাইল নম্বরে পাঠানো ৬-সংখ্যার ওটিপি লিখুন।",
+        otp_sent_to_mobile: "নিবন্ধিত মোবাইলে পাঠানো ওটিপি যার শেষে আছে",
+        enter_6_digit_otp: "৬-সংখ্যার ওটিপি লিখুন",
+        verify_otp: "ওটিপি যাচাই করুন",
+        resend_otp: "ওটিপি আবার পাঠান",
+        invalid_otp_error: "অকার্যকর ওটিপি। অনুগ্রহ করে সঠিক ৬-সংখ্যার ওটিপি লিখুন।",
+        otp_verification_successful: "আধার ওটিপি সফলভাবে যাচাই করা হয়েছে!",
+        otp_resent_success: "আপনার মোবাইল নম্বরে একটি নতুন ওটিপি পাঠানো হয়েছে।"
   },
 
   te: {
@@ -4801,7 +4841,17 @@ const TRANSLATIONS = {
     "Suspected acute gastritis. Prescribed Pantoprazole & Drotin.": "તીવ્ર ગેસ્ટ્રાઇટિસની શંકા. પેન્ટોપ્રાઝોલ અને ડ્રોટિન આપવામાં આવી.",
     "Around Navel": "દૂંટીની આસપાસ",
     "Not provided": "આપેલ નથી",
-    "Mild Hypertension (on Amlodipine 5mg)": "હળવું હાઇપરટેન્શન (એમલોડિપાઇન 5mg પર)"
+    "Mild Hypertension (on Amlodipine 5mg)": "હળવું હાઇપરટેન્શન (એમલોડિપાઇન 5mg પર)",
+    aadhaar_otp_eyebrow: "గుర్తింపు ధృవీకరణ",
+    verify_aadhaar_otp_title: "ఆధార్ OTP ని ధృవీకరించండి",
+    otp_supporting_text: "నిరూపణ కోసం, మీ రిజిస్టర్డ్ మొబైల్ నంబర్‌కు పంపిన 6-అంకెల OTPని నమోదు చేయండి.",
+    otp_sent_to_mobile: "రిజిస్టర్డ్ మొబైల్‌కు పంపిన OTP చివరి అంకెలు",
+    enter_6_digit_otp: "6-అంకెల OTP ని నమోదు చేయండి",
+    verify_otp: "OTP ధృవీకరించండి",
+    resend_otp: "OTP ని మళ్ళీ పంపండి",
+    invalid_otp_error: "చెల్లని OTP. దయచేసి సరైన 6-అంకెల OTP ని నమోదు చేయండి.",
+    otp_verification_successful: "ఆధార్ OTP విజయవంతంగా ధృవీకరించబడింది!",
+    otp_resent_success: "మీ మొబైల్ నంబర్‌కు కొత్త OTP పంపబడింది."
   }
 };
 

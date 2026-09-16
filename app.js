@@ -924,6 +924,21 @@ const App = window.App = {
       const key = elem.getAttribute('data-i18n-aria-label');
       if (dict[key] !== undefined) elem.setAttribute('aria-label', dict[key]);
     });
+
+    const mobileTextEl = document.getElementById('otp-mobile-text');
+    if (mobileTextEl) {
+      let maskedMobile = "****9293";
+      if (this.patientType === 'existing' && this.state.aadhaar) {
+        const patient = this.findExistingPatient(this.state.aadhaar);
+        if (patient && patient.mobile) {
+          const digits = patient.mobile.replace(/\D/g, '');
+          if (digits.length >= 4) {
+            maskedMobile = "****" + digits.substring(digits.length - 4);
+          }
+        }
+      }
+      mobileTextEl.innerText = getLocalizedText('otp_sent_to_mobile', 'OTP sent to your registered mobile ending in') + ' ' + maskedMobile;
+    }
   },
 
   openMoreLanguages() {
@@ -1137,8 +1152,91 @@ const App = window.App = {
       this.showNotification("⚠️ Please enter exactly 12 digits.");
       return;
     }
+
+    if (this.verifiedAadhaar !== raw) {
+      this.otpVerified = false;
+      this.verifiedAadhaar = null;
+    }
     this.state.aadhaar = raw;
 
+    const otpInput = document.getElementById('otp-input');
+    if (otpInput) otpInput.value = '';
+
+    const errEl = document.getElementById('otp-error-msg');
+    if (errEl) errEl.style.display = 'none';
+
+    const succEl = document.getElementById('otp-success-msg');
+    if (succEl) succEl.style.display = 'none';
+
+    const mobileTextEl = document.getElementById('otp-mobile-text');
+    if (mobileTextEl) {
+      let maskedMobile = "****9293";
+      if (this.patientType === 'existing') {
+        const patient = this.findExistingPatient(raw);
+        if (patient && patient.mobile) {
+          const digits = patient.mobile.replace(/\D/g, '');
+          if (digits.length >= 4) {
+            maskedMobile = "****" + digits.substring(digits.length - 4);
+          }
+        }
+      }
+      mobileTextEl.innerText = getLocalizedText('otp_sent_to_mobile', 'OTP sent to your registered mobile ending in') + ' ' + maskedMobile;
+    }
+
+    this.showScreen(23);
+  },
+
+  formatOtpInput(input) {
+    let raw = input.value.replace(/\D/g, '').substring(0, 6);
+    input.value = raw;
+    const errEl = document.getElementById('otp-error-msg');
+    if (errEl) errEl.style.display = 'none';
+  },
+
+  verifyOtp() {
+    const otpInput = document.getElementById('otp-input');
+    const val = otpInput ? otpInput.value.trim() : '';
+
+    if (val === '123456') {
+      this.otpVerified = true;
+      this.verifiedAadhaar = this.state.aadhaar;
+      const errEl = document.getElementById('otp-error-msg');
+      if (errEl) errEl.style.display = 'none';
+      this.showNotification("✅ " + getLocalizedText('otp_verification_successful', 'Aadhaar OTP verified successfully!'));
+      this.proceedAfterOtpSuccess();
+    } else {
+      this.otpVerified = false;
+      const errEl = document.getElementById('otp-error-msg');
+      if (errEl) errEl.style.display = 'block';
+      const succEl = document.getElementById('otp-success-msg');
+      if (succEl) succEl.style.display = 'none';
+      if (otpInput) otpInput.focus();
+    }
+  },
+
+  resendOtp() {
+    const otpInput = document.getElementById('otp-input');
+    if (otpInput) otpInput.value = '';
+
+    const errEl = document.getElementById('otp-error-msg');
+    if (errEl) errEl.style.display = 'none';
+
+    const succEl = document.getElementById('otp-success-msg');
+    if (succEl) {
+      const succText = document.getElementById('otp-success-text');
+      if (succText) succText.innerText = getLocalizedText('otp_resent_success', 'A new OTP has been sent to your mobile number.');
+      succEl.style.display = 'block';
+      setTimeout(() => { if (succEl) succEl.style.display = 'none'; }, 4000);
+    }
+    this.showNotification("📩 " + getLocalizedText('otp_resent_success', 'A new OTP has been sent to your mobile number.'));
+  },
+
+  goBackFromOtp() {
+    this.showScreen(3);
+  },
+
+  proceedAfterOtpSuccess() {
+    const raw = this.state.aadhaar;
     if (this.patientType === 'existing') {
       const patient = this.findExistingPatient(raw);
       if (patient) {
