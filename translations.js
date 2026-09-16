@@ -5,6 +5,14 @@
 
 const TRANSLATIONS = {
   en: {
+    "medical_document_scanner": "Medical Document Camera Scanner",
+    "camera_permission_denied": "Camera access unavailable or permission denied. Please allow camera access in your browser settings or upload a file instead.",
+    "camera_instructions": "Position prescription, lab report, or medical document within frame",
+    "document_preview": "Document Preview",
+    "capture_document": "Capture Document",
+    "retake": "Retake",
+    "use_document": "Use Document",
+    "upload_instead": "Upload Document Instead",
     "no_previous_visits": "No previous hospital visits recorded.",
     "Stomach Pain": "Stomach Pain",
     "cancel": "Cancel",
@@ -987,6 +995,14 @@ const TRANSLATIONS = {
   },
 
   hi: {
+    "medical_document_scanner": "चिकित्सा दस्तावेज़ कैमरा स्कैनर",
+    "camera_permission_denied": "कैमरा अनुमति नहीं दी गई या कैमरा उपलब्ध नहीं है। कृपया ब्राउज़र सेटिंग में अनुमति दें या फ़ाइल अपलोड करें।",
+    "camera_instructions": "प्रिस्क्रक्रिप्शन, लैब रिपोर्ट या चिकित्सा दस्तावेज़ को फ़्रेम में रखें",
+    "document_preview": "दस्तावेज़ पूर्वावलोकन",
+    "capture_document": "दस्तावेज़ कैप्चर करें",
+    "retake": "पुनः लें",
+    "use_document": "दस्तावेज़ का उपयोग करें",
+    "upload_instead": "इसके बजाय दस्तावेज़ अपलोड करें",
     "no_previous_visits": "कोई पिछला अस्पताल दौरा दर्ज नहीं है।",
     "Stomach Pain": "पेट दर्द",
     "cancel": "रद्द करें",
@@ -1611,6 +1627,15 @@ const TRANSLATIONS = {
     "Where is the headache located?": "सिरदर्द कहाँ पर है?",
     "Select the area that hurts most.": "वह स्थान चुनें जहाँ सबसे ज्यादा दर्द है।",
     "Forehead / Front": "माथा / सामने का हिस्सा",
+    "medical_document_scanner": "वैद्यकीय दस्तऐवज कॅमेरा स्कॅनर",
+    "camera_permission_denied": "कॅमेरा प्रवेश नाकारला किंवा कॅमेरा उपलब्ध नाही. कृपया ब्राउझर सेटिंग्जमध्ये अनुमती द्या किंवा फाईल अपलोड करा.",
+    "camera_instructions": "प्रिस्क्रिप्शन, लॅब रिपोर्ट किंवा वैद्यकीय दस्तऐवज फ्रेममध्ये ठेवा",
+    "document_preview": "दस्तऐवज पूर्वदृश्य",
+    "capture_document": "दस्तऐवज कॅप्चर करा",
+    "retake": "पुन्हा घ्या",
+    "use_document": "दस्तऐवज वापरा",
+    "upload_instead": "त्याऐवजी दस्तऐवज अपलोड करा",
+    "no_previous_visits": "कोणत्याही पूर्वीच्या हॉस्पिटल भेटींची नोंद नाही.",
     "Temples (sides of head)": "कनपटी (सिर के किनारे)",
     "Back of head": "सिर के पीछे का हिस्सा",
     "Top of head": "सिर के ऊपर (तलवे में)",
@@ -2920,6 +2945,14 @@ const TRANSLATIONS = {
 
 
   bn: {
+    "medical_document_scanner": "মেডিকেল ডকুমেন্ট ক্যামেরা স্ক্যানার",
+    "camera_permission_denied": "ক্যামেরা অ্যাক্সেস মেলেনি বা ক্যামেরা উপলব্ধ নেই। অনুগ্রহ করে ব্রাউজার সেটিংসে অনুমতি দিন অথবা ফাইল আপলোড করুন।",
+    "camera_instructions": "প্রেসক্রিপশন, ল্যাব রিপোর্ট বা মেডিকেল ডকুমেন্ট ফ্রেমের মধ্যে রাখুন",
+    "document_preview": "ডকুমেন্ট প্রাকদর্শন",
+    "capture_document": "ডকুমেন্ট ক্যাপচার করুন",
+    "retake": "আবার নিন",
+    "use_document": "ডকুমেন্ট ব্যবহার করুন",
+    "upload_instead": "পরিবর্তে ফাইল আপলোড করুন",
     "no_previous_visits": "কোন পূর্ববর্তী হাসপাতাল পরিদর্শনের রেকর্ড নেই।",
     "Stomach Pain": "পেটে ব্যথা",
     "cancel": "বাতিল করুন",
@@ -3874,6 +3907,14 @@ const TRANSLATIONS = {
   },
 
   te: {
+    "medical_document_scanner": "మెడికల్ డాక్యుమెంట్ కెమెరా స్కాన్",
+    "camera_permission_denied": "కెమెరా యాక్సెస్ నిరాకరించబడింది లేదా కెమెరా అందుబాటులో లేదు. దయచేసి బ్రౌజర్ సెట్టింగ్‌లలో అనుమతించండి లేదా ఫైల్ అప్‌లోడ్ చేయండి.",
+    "camera_instructions": "ప్రిస్క్రిప్షన్, ల్యాబ్ రిపోర్ట్ లేదా వైద్య పత్రాన్ని ఫ్రేమ్‌లో ఉంచండి",
+    "document_preview": "డాక్యుమెంట్ ప్రివ్యూ",
+    "capture_document": "డాక్యుమెంట్ క్యాప్చర్ చేయండి",
+    "retake": "మళ్ళీ తీసుకోండి",
+    "use_document": "డాక్యుమెంట్ ఉపయోగించండి",
+    "upload_instead": "బదులుగా డాక్యుమెంట్ అప్‌లోడ్ చేయండి",
     "no_previous_visits": "గత ఆసుపత్రి సందర్శనల రికార్డు లేదు.",
     "Stomach Pain": "కడుపు నొప్పి",
     "cancel": "రద్దు చేయండి",

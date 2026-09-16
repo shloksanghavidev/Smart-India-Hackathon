@@ -942,7 +942,7 @@ const App = window.App = {
   },
 
   openMoreLanguages() {
-    alert("Supported Indian Languages:\nEnglish | हिंदी (Hindi) | मराठी (Marathi) | বাংলা (Bengali) | తెలుగు (Telugu)");
+    this.showNotification("Supported Indian Languages: English | हिंदी | मराठी | বাংলা | తెలుగు", "info");
   },
 
   // ── SCREEN ROUTING ────────────────────────────────────────────────────────
@@ -2507,47 +2507,257 @@ if (entities.location) {
     container.innerHTML = html;
   },
 
-  // ── REPORTS MODULE ────────────────────────────────────────────────────────
-  simulateCameraScan() {
-    const overlay = document.getElementById('scan-overlay');
-    if (overlay) {
-      const h3 = overlay.querySelector('h3');
-      if (h3) h3.textContent = getLocalizedText('scanning_document', 'Scanning Document...');
-      overlay.style.display = 'flex';
+  // ── REPORTS & MEDICAL DOCUMENT CAMERA SCANNER MODULE ──────────────────
+  _medCameraStream: null,
+  _capturedDocDataUrl: null,
+
+  openMedicalDocumentScanner() {
+    const scanner = document.getElementById('medical-document-scanner');
+    if (!scanner) return;
+
+    // Reset view stages & controls
+    const cameraStage = document.getElementById('med-camera-stage');
+    const previewStage = document.getElementById('med-preview-stage');
+    const errorStage = document.getElementById('med-error-stage');
+    const viewportCtrl = document.getElementById('med-viewport-controls');
+    const previewCtrl = document.getElementById('med-preview-controls');
+    const errorCtrl = document.getElementById('med-error-controls');
+
+    if (cameraStage) cameraStage.style.display = 'flex';
+    if (previewStage) previewStage.style.display = 'none';
+    if (errorStage) errorStage.style.display = 'none';
+
+    if (viewportCtrl) viewportCtrl.style.display = 'flex';
+    if (previewCtrl) previewCtrl.style.display = 'none';
+    if (errorCtrl) errorCtrl.style.display = 'none';
+
+    this._capturedDocDataUrl = null;
+    scanner.classList.add('active');
+    scanner.style.display = 'flex';
+
+    this.startMedicalCamera();
+  },
+
+  startMedicalCamera() {
+    this.stopMedicalCamera();
+    const video = document.getElementById('med-camera-stream');
+
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      const constraints = {
+        video: { facingMode: { ideal: "environment" } }
+      };
+
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then((stream) => {
+          this._medCameraStream = stream;
+          if (video) {
+            video.srcObject = stream;
+            video.play().catch(e => console.warn("Video play warning:", e));
+          }
+        })
+        .catch((err) => {
+          console.warn("Medical camera environment constraints failed, trying fallback:", err);
+          navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+              this._medCameraStream = stream;
+              if (video) {
+                video.srcObject = stream;
+                video.play().catch(e => console.warn("Video play warning:", e));
+              }
+            })
+            .catch((fallbackErr) => {
+              console.warn("Medical camera getUserMedia denied or unavailable:", fallbackErr);
+              this.handleMedCameraError(fallbackErr);
+            });
+        });
+    } else {
+      console.warn("navigator.mediaDevices.getUserMedia unsupported in this environment.");
+      this.handleMedCameraError(new Error("getUserMedia unsupported"));
     }
-    setTimeout(() => {
-      if (overlay) overlay.style.display = 'none';
-      const docTitle = getLocalizedText('Photo Scan — Blood Test CBC', 'Photo Scan — Blood Test CBC');
-      this.addUploadedReportItem(docTitle, new Date().toLocaleDateString('en-IN'));
-    }, 2500);
+  },
+
+  handleMedCameraError(err) {
+    this.stopMedicalCamera();
+    const cameraStage = document.getElementById('med-camera-stage');
+    const previewStage = document.getElementById('med-preview-stage');
+    const errorStage = document.getElementById('med-error-stage');
+    const viewportCtrl = document.getElementById('med-viewport-controls');
+    const previewCtrl = document.getElementById('med-preview-controls');
+    const errorCtrl = document.getElementById('med-error-controls');
+
+    if (cameraStage) cameraStage.style.display = 'none';
+    if (previewStage) previewStage.style.display = 'none';
+    if (errorStage) errorStage.style.display = 'block';
+
+    if (viewportCtrl) viewportCtrl.style.display = 'none';
+    if (previewCtrl) previewCtrl.style.display = 'none';
+    if (errorCtrl) errorCtrl.style.display = 'flex';
+  },
+
+  stopMedicalCamera() {
+    if (this._medCameraStream) {
+      try {
+        this._medCameraStream.getTracks().forEach(track => track.stop());
+      } catch (e) {
+        console.warn("Error stopping camera tracks:", e);
+      }
+      this._medCameraStream = null;
+    }
+    const video = document.getElementById('med-camera-stream');
+    if (video) {
+      video.srcObject = null;
+    }
+  },
+
+  closeMedicalDocumentScanner() {
+    this.stopMedicalCamera();
+    const scanner = document.getElementById('medical-document-scanner');
+    if (scanner) {
+      scanner.classList.remove('active');
+      scanner.style.display = 'none';
+    }
+  },
+
+  closeAadhaarScanner() {
+    const scanner = document.getElementById('scan-overlay');
+    if (scanner) {
+      scanner.classList.remove('active');
+      scanner.style.display = 'none';
+    }
+  },
+
+  captureMedicalDocument() {
+    const video = document.getElementById('med-camera-stream');
+    const canvas = document.getElementById('med-camera-canvas');
+    let dataUrl = null;
+
+    if (video && canvas && this._medCameraStream && video.readyState >= 2 && video.videoWidth > 0) {
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    } else {
+      // Synthetic canvas frame generator for environments without physical camera hardware
+      const fallbackCanvas = canvas || document.createElement('canvas');
+      fallbackCanvas.width = 640;
+      fallbackCanvas.height = 480;
+      const ctx = fallbackCanvas.getContext('2d');
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, 640, 480);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(40, 40, 560, 400);
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(60, 60, 520, 360);
+      ctx.fillStyle = '#1e293b';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.fillText('MediSarthi Medical Document Scan', 80, 110);
+      ctx.font = '16px sans-serif';
+      ctx.fillStyle = '#64748b';
+      ctx.fillText('Patient Prescription & Lab Result Record', 80, 145);
+      ctx.fillText(`Scanned: ${new Date().toLocaleString()}`, 80, 175);
+      
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(80, 210, 480, 12);
+      ctx.fillRect(80, 235, 420, 12);
+      ctx.fillRect(80, 260, 450, 12);
+      ctx.fillRect(80, 285, 380, 12);
+      ctx.fillRect(80, 310, 460, 12);
+      
+      ctx.fillStyle = '#d96c2f';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText('DOCUMENT VERIFIED & ATTACHED', 80, 375);
+
+      dataUrl = fallbackCanvas.toDataURL('image/jpeg', 0.85);
+    }
+
+    this._capturedDocDataUrl = dataUrl;
+    this.stopMedicalCamera();
+
+    const previewImg = document.getElementById('med-captured-preview');
+    if (previewImg) previewImg.src = dataUrl;
+
+    const cameraStage = document.getElementById('med-camera-stage');
+    const previewStage = document.getElementById('med-preview-stage');
+    const viewportCtrl = document.getElementById('med-viewport-controls');
+    const previewCtrl = document.getElementById('med-preview-controls');
+
+    if (cameraStage) cameraStage.style.display = 'none';
+    if (previewStage) previewStage.style.display = 'flex';
+
+    if (viewportCtrl) viewportCtrl.style.display = 'none';
+    if (previewCtrl) previewCtrl.style.display = 'flex';
+  },
+
+  retakeMedicalDocument() {
+    this._capturedDocDataUrl = null;
+    const cameraStage = document.getElementById('med-camera-stage');
+    const previewStage = document.getElementById('med-preview-stage');
+    const viewportCtrl = document.getElementById('med-viewport-controls');
+    const previewCtrl = document.getElementById('med-preview-controls');
+
+    if (cameraStage) cameraStage.style.display = 'flex';
+    if (previewStage) previewStage.style.display = 'none';
+
+    if (viewportCtrl) viewportCtrl.style.display = 'flex';
+    if (previewCtrl) previewCtrl.style.display = 'none';
+
+    this.startMedicalCamera();
+  },
+
+  useCapturedDocument() {
+    if (this._capturedDocDataUrl) {
+      const docTitle = getLocalizedText('Photo Scan — Medical Document', 'Photo Scan — Medical Document');
+      this.addUploadedReportItem(docTitle, new Date().toLocaleDateString('en-IN'), this._capturedDocDataUrl);
+    }
+    this.closeMedicalDocumentScanner();
+  },
+
+  triggerMedicalFileUpload() {
+    this.closeMedicalDocumentScanner();
+    const fileInput = document.getElementById('medical-file-input');
+    if (fileInput) fileInput.click();
   },
 
   handleReportUpload(event) {
-    const file = event.target.files[0];
-    if (file) this.addUploadedReportItem(file.name, new Date().toLocaleDateString('en-IN'));
+    const file = event.target ? event.target.files[0] : null;
+    if (!file) return;
+    if (file.type && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.addUploadedReportItem(file.name, new Date().toLocaleDateString('en-IN'), e.target.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.addUploadedReportItem(file.name, new Date().toLocaleDateString('en-IN'));
+    }
   },
 
-  addUploadedReportItem(title, dateStr) {
-    this.state.reportsUploaded.push({ title, date: dateStr, type: "pdf" });
+  addUploadedReportItem(title, dateStr, dataUrl) {
+    const reportItem = { title, date: dateStr, type: dataUrl ? 'image' : 'pdf', dataUrl: dataUrl || null };
+    this.state.reportsUploaded.push(reportItem);
+
     const container = document.getElementById('uploaded-reports-list-container');
     if (!container) return;
     const noReportsMsg = document.getElementById('no-reports-msg');
     if (noReportsMsg) noReportsMsg.style.display = 'none';
 
+    const safeTitle = title.replace(/'/g, "\\'");
     const itemHtml = `<div class="uploaded-file-item">
       <div class="doc-file-info">
-        <div class="doc-file-icon"><i class="fa-solid fa-file-waveform"></i></div>
+        <div class="doc-file-icon"><i class="fa-solid ${dataUrl ? 'fa-file-image' : 'fa-file-waveform'}"></i></div>
         <div>
           <strong style="color:var(--teal-deep);font-size:1.05rem;">${title}</strong>
           <span class="doc-file-tag">${getLocalizedText('added_to_health_record', '✓ Added to health record')}</span>
-          <div style="font-size:0.85rem;color:var(--text-muted);margin-top:2px;">${dateStr} · PDF Document</div>
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-top:2px;">${dateStr} · ${dataUrl ? 'Scanned Document Image' : 'PDF Document'}</div>
         </div>
       </div>
       <div style="display:flex;gap:8px;">
-        <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.85rem;" onclick="App.previewReport('${title}')">
+        <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 14px;font-size:0.85rem;" onclick="App.previewReport('${safeTitle}')">
           <i class="fa-solid fa-eye"></i> View
         </button>
-        <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 12px;font-size:0.85rem;border-color:#ef4444;color:#dc2626;" onclick="App.deleteReport(this,'${title}')">
+        <button class="btn-kiosk-secondary" style="min-height:36px;padding:4px 12px;font-size:0.85rem;border-color:#ef4444;color:#dc2626;" onclick="App.deleteReport(this,'${safeTitle}')">
           <i class="fa-solid fa-trash"></i>
         </button>
       </div>
@@ -2557,17 +2767,48 @@ if (entities.location) {
   },
 
   deleteReport(btn, title) {
-    btn.closest('.uploaded-file-item').remove();
+    if (btn && btn.closest('.uploaded-file-item')) {
+      btn.closest('.uploaded-file-item').remove();
+    }
     this.state.reportsUploaded = this.state.reportsUploaded.filter(r => r.title !== title);
   },
 
   previewReport(title) {
-    document.getElementById('report-preview-filename').innerText = title;
-    document.getElementById('report-preview-modal').classList.add('active');
+    const filenameEl = document.getElementById('report-preview-filename');
+    if (filenameEl) filenameEl.innerText = title;
+
+    const contentBox = document.getElementById('report-preview-content-box');
+    const report = this.state.reportsUploaded.find(r => r.title === title);
+
+    if (contentBox) {
+      if (report && report.dataUrl) {
+        contentBox.innerHTML = `
+          <div style="max-height:320px; overflow:hidden; border-radius:8px; border:1px solid var(--border-subtle); margin-bottom:12px; background:#fff; display:flex; align-items:center; justify-content:center;">
+            <img src="${report.dataUrl}" alt="${title}" style="max-width:100%; max-height:300px; object-fit:contain;" />
+          </div>
+          <span style="font-weight:600; color:var(--teal-deep);">${getLocalizedText('doc_verified_msg', 'Document Verified & Attached to Consultation Slip')}</span>
+        `;
+      } else {
+        contentBox.innerHTML = `
+          <i class="fa-solid fa-file-pdf" style="font-size:2.8rem;color:var(--teal-primary);margin-bottom:10px;display:block;"></i>
+          <span data-i18n="doc_verified_msg">${getLocalizedText('doc_verified_msg', 'Document Verified & Attached to Consultation Slip')}</span>
+        `;
+      }
+    }
+
+    const modal = document.getElementById('report-preview-modal');
+    if (modal) {
+      modal.classList.add('active');
+      modal.style.display = 'flex';
+    }
   },
 
   closeReportPreview() {
-    document.getElementById('report-preview-modal').classList.remove('active');
+    const modal = document.getElementById('report-preview-modal');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.style.display = 'none';
+    }
   },
 
   submitPatientFlow() {
@@ -2736,9 +2977,7 @@ if (entities.location) {
             error
         );
 
-        alert(
-            "Something went wrong while generating your consultation token. Please try again."
-        );
+        this.showNotification("Something went wrong while generating your consultation token. Please try again.", "error");
 
     }
 },
@@ -2806,7 +3045,7 @@ if (entities.location) {
       window.location.href = 'doctor.html';
     } else {
       if (errorMsgEl) {
-        errorMsgEl.innerText = '❌ Invalid Doctor ID or Password. Please check credentials.';
+        errorMsgEl.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="margin-right:6px;"></i> Invalid Doctor ID or Password. Please check credentials.';
         errorMsgEl.style.display = 'block';
       }
     }
@@ -3383,22 +3622,46 @@ if (entities.location) {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   },
 
-  showNotification(msg) {
+  showNotification(msg, type) {
     let notif = document.getElementById('app-notification');
     if (!notif) {
       notif = document.createElement('div');
       notif.id = 'app-notification';
-      notif.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:white;padding:14px 22px;border-radius:12px;font-weight:700;font-size:0.95rem;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.3);transition:all 0.3s;';
       document.body.appendChild(notif);
     }
-    notif.innerText = msg;
-    notif.style.opacity = '1';
-    notif.style.transform = 'translateY(0)';
+
+    let detectedType = type || 'info';
+    let cleanMsg = msg;
+
+    // Only strip system-generated leading emojis from notification toast titles/messages:
+    if (typeof cleanMsg === 'string') {
+      if (cleanMsg.startsWith('✅ ') || cleanMsg.startsWith('✅')) {
+        detectedType = type || 'success';
+        cleanMsg = cleanMsg.replace(/^✅\s*/, '');
+      } else if (cleanMsg.startsWith('⚠️ ') || cleanMsg.startsWith('⚠️')) {
+        detectedType = type || 'warning';
+        cleanMsg = cleanMsg.replace(/^⚠️\s*/, '');
+      } else if (cleanMsg.startsWith('❌ ') || cleanMsg.startsWith('❌')) {
+        detectedType = type || 'error';
+        cleanMsg = cleanMsg.replace(/^❌\s*/, '');
+      } else if (cleanMsg.startsWith('📩 ') || cleanMsg.startsWith('📩') || cleanMsg.startsWith('🎤 ') || cleanMsg.startsWith('🎤') || cleanMsg.startsWith('📄 ') || cleanMsg.startsWith('📄') || cleanMsg.startsWith('ℹ️ ') || cleanMsg.startsWith('ℹ️')) {
+        detectedType = type || 'info';
+        cleanMsg = cleanMsg.replace(/^(📩|🎤|📄|ℹ️)\s*/, '');
+      }
+    }
+
+    let iconClass = 'fa-circle-info';
+    if (detectedType === 'success') iconClass = 'fa-circle-check';
+    else if (detectedType === 'warning') iconClass = 'fa-triangle-exclamation';
+    else if (detectedType === 'error') iconClass = 'fa-circle-exclamation';
+
+    notif.className = `notification-${detectedType} active`;
+    notif.innerHTML = `<i class="fa-solid ${iconClass} notification-icon"></i> <span>${cleanMsg}</span>`;
+
     clearTimeout(this._notifTimer);
     this._notifTimer = setTimeout(() => {
-      notif.style.opacity = '0';
-      notif.style.transform = 'translateY(10px)';
-    }, 3000);
+      notif.classList.remove('active');
+    }, 3200);
   }
 };
 

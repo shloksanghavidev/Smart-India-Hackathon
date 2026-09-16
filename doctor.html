@@ -217,10 +217,10 @@
   <div id="conversation-modal" class="modal-overlay">
     <div class="modal-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <h3 style="font-size:1.2rem;font-weight:800;color:var(--teal-deep);"><i class="fa-solid fa-comments"></i> Full AI Conversation Transcript</h3>
-        <button onclick="App.closeConversationModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="font-size:1.2rem;font-weight:800;color:var(--teal-deep);display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-comments" style="color:var(--teal-primary);"></i> Full AI Conversation Transcript</h3>
+        <button onclick="App.closeConversationModal()" style="background:none;border:none;font-size:1.3rem;color:var(--teal-deep);cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div id="transcript-dialog-body" style="max-height:420px;overflow-y:auto;padding:14px;background:var(--bg-kiosk);border-radius:var(--radius-xs);"></div>
+      <div id="transcript-dialog-body" style="max-height:420px;overflow-y:auto;padding:14px;background:var(--bg-kiosk);border-radius:var(--radius-xs);border:1px solid var(--border-subtle);"></div>
       <button class="btn-kiosk-secondary" style="margin-top:14px;width:100%;" onclick="App.closeConversationModal()">Close</button>
     </div>
   </div>
@@ -229,10 +229,10 @@
   <div id="ayush-modal" class="modal-overlay">
     <div class="modal-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <h3 style="font-size:1.2rem;font-weight:800;color:var(--teal-deep);"><i class="fa-solid fa-leaf" style="color:var(--teal-primary);"></i> AYUSH Wellness Context</h3>
-        <button onclick="App.closeAyushModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="font-size:1.2rem;font-weight:800;color:var(--teal-deep);display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-leaf" style="color:var(--teal-primary);"></i> AYUSH Wellness Context</h3>
+        <button onclick="App.closeAyushModal()" style="background:none;border:none;font-size:1.3rem;color:var(--teal-deep);cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div id="ayush-modal-body" style="max-height:400px;overflow-y:auto;"></div>
+      <div id="ayush-modal-body" style="max-height:400px;overflow-y:auto;padding:12px;background:var(--bg-kiosk);border-radius:var(--radius-xs);border:1px solid var(--border-subtle);"></div>
       <p style="font-size:0.78rem;color:var(--text-muted);margin-top:10px;font-style:italic;">AYUSH wellness context is provided for holistic care reference only — not a clinical diagnosis.</p>
       <button class="btn-kiosk-secondary" style="margin-top:12px;width:100%;" onclick="App.closeAyushModal()">Close</button>
     </div>
@@ -242,10 +242,10 @@
   <div id="report-preview-modal" class="modal-overlay">
     <div class="modal-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <h3 style="font-size:1.2rem;font-weight:800;color:var(--teal-deep);"><i class="fa-solid fa-file-medical"></i> Medical Report</h3>
-        <button onclick="App.closeReportPreview()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="font-size:1.2rem;font-weight:800;color:var(--teal-deep);display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-file-medical" style="color:var(--teal-primary);"></i> Medical Report</h3>
+        <button onclick="App.closeReportPreview()" style="background:none;border:none;font-size:1.3rem;color:var(--teal-deep);cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div style="background:var(--bg-kiosk);border:1px solid var(--border-subtle);padding:30px;border-radius:var(--radius-xs);text-align:center;">
+      <div id="report-preview-content-box" style="background:var(--bg-kiosk);border:1px solid var(--border-subtle);padding:24px;border-radius:var(--radius-xs);text-align:center;">
         <i class="fa-solid fa-file-waveform" style="font-size:3.5rem;color:var(--teal-primary);margin-bottom:16px;"></i>
         <h4 id="report-preview-filename" style="font-size:1.2rem;margin-bottom:8px;color:var(--teal-deep);">Blood Test Report</h4>
         <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:18px;">Source document stored securely. No automated clinical analysis performed.</p>
